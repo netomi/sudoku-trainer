@@ -44,7 +44,7 @@ public class HiddenSingleFinder extends AbstractHintFinder {
         grid.acceptHouses(new HouseVisitor() {
             @Override
             public void visitAnyHouse(House house) {
-                for (int value = 1; value <= grid.getGridSize(); value++) {
+                for (int value : house.unassignedValues()) {
                     BitSet possiblePositions = house.getPotentialPositions(value);
                     if (possiblePositions.cardinality() == 1) {
                         int cellIndex = possiblePositions.nextSetBit(0);

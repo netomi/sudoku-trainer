@@ -37,6 +37,7 @@ public class HintSolver {
         finderList.add(new LockedCandidatesType1Finder());
         finderList.add(new LockedCandidatesType2Finder());
         finderList.add(new HiddenPairFinder());
+        finderList.add(new NakedPairFinder());
     }
 
     public HintSolver(HintFinder finder) {

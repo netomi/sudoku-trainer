@@ -67,18 +67,28 @@ public abstract class AbstractHintFinder implements HintFinder {
         }
     }
 
-    protected static int[] toCellIndexArray(List<Cell> cells) {
+    protected static int[] toCellIndexArray(Collection<Cell> cells) {
         int[] result = new int[cells.size()];
 
-        for (int i = 0; i < cells.size(); i++) {
-            result[i] = cells.get(i).getCellIndex();
+        int index = 0;
+        for (Cell cell : cells) {
+            result[index++] = cell.getCellIndex();
         }
 
         return result;
     }
 
-    protected static int[] toIntArray(BitSet values, int[] excludedValues) {
-        Set<Integer> allValues = new HashSet<>();
+    protected static int[] toIntArray(BitSet values) {
+        List<Integer> allValues = new ArrayList<>();
+        for (int i = values.nextSetBit(1); i >= 0; i = values.nextSetBit(i + 1)) {
+            allValues.add(i);
+        }
+
+        return toIntArray(allValues);
+    }
+
+    protected static int[] toIntArrayExcluding(BitSet values, int[] excludedValues) {
+        Set<Integer> allValues = new TreeSet<>();
         for (int i = values.nextSetBit(1); i >= 0; i = values.nextSetBit(i + 1)) {
             allValues.add(i);
         }
@@ -90,7 +100,23 @@ public abstract class AbstractHintFinder implements HintFinder {
         return toIntArray(allValues);
     }
 
-    private static int[] toIntArray(Set<Integer> values) {
+    protected static int[] toIntArrayIncluding(BitSet values, int[] includedValues) {
+        Set<Integer> valuesToInclude = new HashSet<>();
+        for (int value : includedValues) {
+            valuesToInclude.add(value);
+        }
+
+        List<Integer> allValues = new ArrayList<>();
+        for (int i = values.nextSetBit(1); i >= 0; i = values.nextSetBit(i + 1)) {
+            if (valuesToInclude.contains(i)) {
+                allValues.add(i);
+            }
+        }
+
+        return toIntArray(allValues);
+    }
+
+    private static int[] toIntArray(Collection<Integer> values) {
         int[] result = new int[values.size()];
 
         int i = 0;

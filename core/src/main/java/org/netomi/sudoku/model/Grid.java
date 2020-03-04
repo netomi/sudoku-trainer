@@ -168,15 +168,26 @@ public class Grid {
         return () -> new CellIterator(cells);
     }
 
+    Iterable<Cell> getCells(BitSet cells, int startIndex) {
+        return () -> new CellIterator(cells, startIndex);
+    }
+
+    /**
+     * Returns whether the sudoku grid is fully solved with a valid solution.
+     */
     public boolean isSolved() {
-        for (Cell cell : cells) {
-            if (cell.getValue() == 0) {
+        for (House house : houses()) {
+            if (!house.isSolved()) {
                 return false;
             }
         }
         return true;
     }
 
+    /**
+     * Returns whether the current state of the sudoku grid is valid wrt the
+     * normal sudoku constraints. The grid might not be fully solved yet.
+     */
     public boolean isValid() {
         for (House house : houses()) {
             if (!house.isValid()) {
@@ -411,8 +422,12 @@ public class Grid {
         private       int    nextOffset;
 
         CellIterator(BitSet cells) {
+            this(cells, 0);
+        }
+
+        CellIterator(BitSet cells, int startIndex) {
             this.cells      = cells;
-            this.nextOffset = cells.nextSetBit(0);
+            this.nextOffset = cells.nextSetBit(startIndex);
         }
 
         @Override

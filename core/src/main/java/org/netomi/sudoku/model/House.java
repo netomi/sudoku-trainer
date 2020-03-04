@@ -119,6 +119,14 @@ public abstract class House {
     }
 
     /**
+     * Returns an {@code #Iterable} containing all cells of this {@code #House},
+     * whose cell index is >= startIndex.
+     */
+    public Iterable<Cell> cells(int startIndex) {
+        return owner.getCells(cells, startIndex);
+    }
+
+    /**
      * Returns an {@code #Iterable} containing all cells of this {@code #House}
      * excluding all cells contained in the provided houses.
      */
@@ -134,6 +142,23 @@ public abstract class House {
      * Checks whether all cells in this {@code #House} have assigned unique values.
      */
     public boolean isValid() {
+        BitSet assignedValues = new BitSet();
+        for (Cell cell : cells()) {
+            if (cell.isAssigned()) {
+                if (!assignedValues.get(cell.getValue())) {
+                    assignedValues.set(cell.getValue());
+                } else {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Checks whether all cells in this {@code #House} have unique values assigned.
+     */
+    public boolean isSolved() {
         return getAssignedValues().cardinality() == owner.getGridSize();
     }
 

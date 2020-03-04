@@ -124,7 +124,11 @@ public abstract class AbstractHintFinderTest {
                 if (foundExpectedResult) {
                     count++;
                 } else {
-                    Assert.fail("Failed to find expected result '" + testCase.getPlacement() + "' in " + hints);
+                    if (testCase.expectsDirectHint()) {
+                        Assert.fail("Failed to find expected result '" + testCase.getPlacement() + "' in " + hints);
+                    } else {
+                        Assert.fail("Failed to find expected result '" + testCase.getEliminations() + "' in " + hints);
+                    }
                 }
             }
         }

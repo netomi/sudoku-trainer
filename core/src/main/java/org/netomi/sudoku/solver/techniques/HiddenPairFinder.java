@@ -62,8 +62,8 @@ public class HiddenPairFinder extends AbstractHintFinder {
                             continue;
                         }
 
-                        // If they two bitsets have the same
-                        // bits set, we have found a hidden pair.
+                        // If they two bitsets, containing the possible positions for some values,
+                        // share the exact same positions, we have found a hidden pair.
                         BitSet matching = new BitSet();
                         matching.or(potentialPositions);
                         matching.xor(otherPotentialPositions);
@@ -88,7 +88,7 @@ public class HiddenPairFinder extends AbstractHintFinder {
         for (int i = affectedCellsIndices.nextSetBit(0); i >= 0; i = affectedCellsIndices.nextSetBit(i + 1)) {
             Cell cell = grid.getCell(i);
 
-            int[] valuesToExclude = toIntArray(cell.getPossibleValues(), affectedValues);
+            int[] valuesToExclude = toIntArrayExcluding(cell.getPossibleValues(), affectedValues);
 
             if (valuesToExclude.length > 0) {
                 affectedCells.add(cell);
