@@ -20,6 +20,7 @@
 package org.netomi.sudoku.model;
 
 import java.util.BitSet;
+import java.util.Iterator;
 
 /**
  * A class representing a certain region within a sudoku grid.
@@ -118,6 +119,18 @@ public abstract class House {
     }
 
     /**
+     * Returns an {@code #Iterable} containing all cells of this {@code #House}
+     * excluding all cells contained in the provided houses.
+     */
+    public Iterable<Cell> cellsExcluding(House... excludedHouses) {
+        BitSet ownCells = (BitSet) cells.clone();
+        for (House house : excludedHouses) {
+            ownCells.andNot(house.cells);
+        }
+        return owner.getCells(ownCells);
+    }
+
+    /**
      * Checks whether all cells in this {@code #House} have assigned unique values.
      */
     public boolean isValid() {
@@ -131,6 +144,21 @@ public abstract class House {
     public BitSet getAssignedValues() {
         owner.throwIfStateIsInvalid();
         return assignedValues;
+    }
+
+    public Iterable<Integer> assignedValues() {
+        owner.throwIfStateIsInvalid();
+        return () -> new Grid.ValueIterator(assignedValues, 1, owner.getGridSize(), false);
+    }
+
+    public Iterable<Integer> unassignedValues() {
+        owner.throwIfStateIsInvalid();
+        return () -> new Grid.ValueIterator(assignedValues, 1, owner.getGridSize(), true);
+    }
+
+    public Iterable<Integer> unassignedValues(int startValue) {
+        owner.throwIfStateIsInvalid();
+        return () -> new Grid.ValueIterator(assignedValues, startValue, owner.getGridSize(), true);
     }
 
     /**

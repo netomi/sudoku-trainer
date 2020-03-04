@@ -22,14 +22,17 @@ package org.netomi.sudoku.solver.techniques;
 import org.netomi.sudoku.model.Grid;
 import org.netomi.sudoku.model.House;
 import org.netomi.sudoku.model.HouseVisitor;
-import org.netomi.sudoku.solver.DirectHint;
 import org.netomi.sudoku.solver.HintAggregator;
-import org.netomi.sudoku.solver.HintFinder;
 import org.netomi.sudoku.solver.SolvingTechnique;
 
 import java.util.BitSet;
 
-public class HiddenSingleFinder implements HintFinder {
+/**
+ * A {@code HintFinder} implementation that looks for houses
+ * where a certain digit can only be placed in a single cell
+ * anymore.
+ */
+public class HiddenSingleFinder extends AbstractHintFinder {
 
     @Override
     public SolvingTechnique getSolvingTechnique() {
@@ -38,7 +41,6 @@ public class HiddenSingleFinder implements HintFinder {
 
     @Override
     public void findHints(Grid grid, HintAggregator hintAggregator) {
-
         grid.acceptHouses(new HouseVisitor() {
             @Override
             public void visitAnyHouse(House house) {
@@ -46,11 +48,13 @@ public class HiddenSingleFinder implements HintFinder {
                     BitSet possiblePositions = house.getPotentialPositions(value);
                     if (possiblePositions.cardinality() == 1) {
                         int cellIndex = possiblePositions.nextSetBit(0);
-                        hintAggregator.addHint(new DirectHint(grid.getType(), getSolvingTechnique(), cellIndex, value));
+                        addDirectHint(grid,
+                                      hintAggregator,
+                                      cellIndex,
+                                      value);
                     }
                 }
             }
         });
-
     }
 }

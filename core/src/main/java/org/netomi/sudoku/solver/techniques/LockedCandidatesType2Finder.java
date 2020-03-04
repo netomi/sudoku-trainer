@@ -27,7 +27,7 @@ import org.netomi.sudoku.solver.SolvingTechnique;
 
 import java.util.BitSet;
 
-public class LockedCandidatesType2Finder extends AbstractLockedCandidatesFinder {
+public class LockedCandidatesType2Finder extends AbstractHintFinder {
 
     @Override
     public SolvingTechnique getSolvingTechnique() {
@@ -36,12 +36,11 @@ public class LockedCandidatesType2Finder extends AbstractLockedCandidatesFinder 
 
     @Override
     public void findHints(Grid grid, HintAggregator hintAggregator) {
-
         HouseVisitor visitor = new HouseVisitor() {
             @Override
             public void visitAnyHouse(House house) {
 
-                for (int value = 1; value <= grid.getGridSize(); value++) {
+                for (int value : house.unassignedValues()) {
                     BitSet possiblePositions = house.getPotentialPositions(value);
 
                     if (possiblePositions.cardinality() == 0) {
@@ -51,7 +50,7 @@ public class LockedCandidatesType2Finder extends AbstractLockedCandidatesFinder 
                     // Check if all possible cells are in the same block.
                     for (House block : grid.blocks()) {
                         if (block.containsAllCells(possiblePositions)) {
-                            addHint(grid, hintAggregator, house, block, value);
+                            addIndirectHint(grid, hintAggregator, house, value, block);
                         }
                     }
                 }
@@ -62,4 +61,5 @@ public class LockedCandidatesType2Finder extends AbstractLockedCandidatesFinder 
         grid.acceptRows(visitor);
         grid.acceptColumns(visitor);
     }
+
 }

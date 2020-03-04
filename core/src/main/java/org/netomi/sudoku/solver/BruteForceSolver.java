@@ -37,7 +37,7 @@ public class BruteForceSolver {
         hintSolver = new HintSolver(new NakedSingleFinder(), new HiddenSingleFinder());
     }
 
-    public Grid solve(Grid grid) {
+    public Grid solve(Grid grid, boolean forward) {
         backtracks = 0;
         guesses = 0;
         direct_propagation = 0;
@@ -52,12 +52,12 @@ public class BruteForceSolver {
             }
         }
 
-        boolean success = solveRecursive(searchGrid, cellSet);
+        boolean success = solveRecursive(searchGrid, cellSet, forward);
 
         return searchGrid;
     }
 
-    private boolean solveRecursive(Grid grid, Set<Cell> unassignedCells) {
+    private boolean solveRecursive(Grid grid, Set<Cell> unassignedCells, boolean forward) {
         if (unassignedCells.isEmpty()) {
             return true;
         }
@@ -75,7 +75,7 @@ public class BruteForceSolver {
             Cell cell = grid.getCell(cellIndex);
             unassignedCells.remove(cell);
 
-            if (solveRecursive(grid, unassignedCells)) {
+            if (solveRecursive(grid, unassignedCells, forward)) {
                 return true;
             }
 
@@ -95,12 +95,19 @@ public class BruteForceSolver {
                 guesses++;
             }
 
-            int value = possibleValues.nextSetBit(1);
+            int value;
+
+            if (forward) {
+                value = possibleValues.nextSetBit(1);
+            } else {
+                value = possibleValues.previousSetBit(grid.getGridSize() + 1);
+            }
+
             possibleValues.clear(value);
 
             nextCell.setValue(value);
 
-            if (solveRecursive(grid, unassignedCells)) {
+            if (solveRecursive(grid, unassignedCells, forward)) {
                 return true;
             }
         }

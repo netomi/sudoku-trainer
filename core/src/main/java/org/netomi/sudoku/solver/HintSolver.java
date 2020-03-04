@@ -36,14 +36,30 @@ public class HintSolver {
         finderList.add(new HiddenSingleFinder());
         finderList.add(new LockedCandidatesType1Finder());
         finderList.add(new LockedCandidatesType2Finder());
+        finderList.add(new HiddenPairFinder());
+    }
+
+    public HintSolver(HintFinder finder) {
+        finderList.add(finder);
     }
 
     public HintSolver(HintFinder... finder) {
         finderList.addAll(Arrays.asList(finder));
     }
 
-    public HintSolver(HintFinder finder) {
-        finderList.add(finder);
+    public HintAggregator findAllHintsSingleStep(Grid grid) {
+        Grid searchGrid = grid.copy();
+        searchGrid.updateState();
+
+        HintAggregator hintAggregator = new HintAggregator();
+
+        try {
+            for (HintFinder hintFinder : finderList) {
+                hintFinder.findHints(searchGrid, hintAggregator);
+            }
+        } catch (RuntimeException ex) {}
+
+        return hintAggregator;
     }
 
     public HintAggregator findHint(Grid grid) {
@@ -79,7 +95,7 @@ public class HintSolver {
         HintAggregator allHints = new HintAggregator();
 
         while (!searchGrid.isSolved()) {
-            searchGrid.updateState();
+            //searchGrid.updateState();
 
             HintAggregator hintAggregator = new SingleHintAggregator();
 

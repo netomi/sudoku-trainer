@@ -19,13 +19,15 @@
  */
 package org.netomi.sudoku.solver.techniques;
 
-import org.netomi.sudoku.model.*;
+import org.netomi.sudoku.model.Grid;
+import org.netomi.sudoku.model.House;
+import org.netomi.sudoku.model.HouseVisitor;
 import org.netomi.sudoku.solver.HintAggregator;
 import org.netomi.sudoku.solver.SolvingTechnique;
 
 import java.util.BitSet;
 
-public class LockedCandidatesType1Finder extends AbstractLockedCandidatesFinder {
+public class LockedCandidatesType1Finder extends AbstractHintFinder {
 
     @Override
     public SolvingTechnique getSolvingTechnique() {
@@ -34,12 +36,11 @@ public class LockedCandidatesType1Finder extends AbstractLockedCandidatesFinder 
 
     @Override
     public void findHints(Grid grid, HintAggregator hintAggregator) {
-
         grid.acceptBlocks(new HouseVisitor() {
             @Override
             public void visitAnyHouse(House house) {
 
-                for (int value = 1; value <= grid.getGridSize(); value++) {
+                for (int value : house.unassignedValues()) {
                     BitSet possiblePositions = house.getPotentialPositions(value);
 
                     if (possiblePositions.cardinality() == 0) {
@@ -49,14 +50,14 @@ public class LockedCandidatesType1Finder extends AbstractLockedCandidatesFinder 
                     // Check if all possible cells are in the same row.
                     for (House row : grid.rows()) {
                         if (row.containsAllCells(possiblePositions)) {
-                            addHint(grid, hintAggregator, house, row, value);
+                            addIndirectHint(grid, hintAggregator, house, value, row);
                         }
                     }
 
                     // Check if all possible cells are in the same column.
                     for (House column : grid.columns()) {
                         if (column.containsAllCells(possiblePositions)) {
-                            addHint(grid, hintAggregator, house, column, value);
+                            addIndirectHint(grid, hintAggregator, house, value, column);
                         }
                     }
                 }

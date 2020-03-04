@@ -23,14 +23,16 @@ import org.netomi.sudoku.model.Cell;
 import org.netomi.sudoku.model.Grid;
 import org.netomi.sudoku.model.House;
 import org.netomi.sudoku.model.HouseVisitor;
-import org.netomi.sudoku.solver.DirectHint;
 import org.netomi.sudoku.solver.HintAggregator;
-import org.netomi.sudoku.solver.HintFinder;
 import org.netomi.sudoku.solver.SolvingTechnique;
 
 import java.util.BitSet;
 
-public class FullHouseFinder implements HintFinder {
+/**
+ * A {@code HintFinder} implementation to look for houses which have a
+ * single missing digit to place.
+ */
+public class FullHouseFinder extends AbstractHintFinder {
 
     @Override
     public SolvingTechnique getSolvingTechnique() {
@@ -39,7 +41,6 @@ public class FullHouseFinder implements HintFinder {
 
     @Override
     public void findHints(Grid grid, HintAggregator hintAggregator) {
-
         final int expectedCardinality = grid.getGridSize() - 1;
 
         grid.acceptHouses(new HouseVisitor() {
@@ -52,12 +53,14 @@ public class FullHouseFinder implements HintFinder {
                     // Find the cell that is not assigned, and create a hint for it.
                     for (Cell cell : house.cells()) {
                         if (!cell.isAssigned()) {
-                            hintAggregator.addHint(new DirectHint(grid.getType(), getSolvingTechnique(), cell.getCellIndex(), value));
+                            addDirectHint(grid,
+                                          hintAggregator,
+                                          cell.getCellIndex(),
+                                          value);
                         }
                     }
                 }
             }
         });
-
     }
 }

@@ -45,8 +45,12 @@ public class DirectHint extends Hint {
         targetGrid.getCell(cellIndex).setValue(value, updateGrid);
     }
 
+    public String asString() {
+        return String.format("%s<>%d", getGridType().getCellName(cellIndex), value);
+    }
+
     @Override
     public String toString() {
-        return String.format("%s: %s = %d", getSolvingTechnique().getName(), getGridType().getCellName(cellIndex), value);
+        return String.format("%s: %s <> %d", getSolvingTechnique().getName(), getGridType().getCellName(cellIndex), value);
     }
 }

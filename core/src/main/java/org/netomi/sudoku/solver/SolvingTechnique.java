@@ -24,7 +24,8 @@ public enum SolvingTechnique {
     HIDDEN_SINGLE("Hidden Single"),
     NAKED_SINGLE("Naked Single"),
     LOCKED_CANDIDATES_TYPE_1("Locked Candidates Type 1 (Pointing)"),
-    LOCKED_CANDIDATES_TYPE_2("Locked Candidates Type 2 (Claiming)");
+    LOCKED_CANDIDATES_TYPE_2("Locked Candidates Type 2 (Claiming)"),
+    HIDDEN_PAIR("Hidden Pair");
 
     private final String name;
 

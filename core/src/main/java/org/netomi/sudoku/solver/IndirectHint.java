@@ -25,40 +25,58 @@ import java.util.Arrays;
 
 public class IndirectHint extends Hint {
 
-    private final int[] cellIndices;
-    private final int[] excludedValues;
+    private final int[]   cellIndices;
+    private final int[][] excludedValues;
 
     public IndirectHint(Grid.Type type, SolvingTechnique solvingTechnique, int[] cellIndices, int[] excludedValues) {
+        this(type, solvingTechnique, cellIndices, expandArray(excludedValues, cellIndices.length));
+    }
+
+    public IndirectHint(Grid.Type type, SolvingTechnique solvingTechnique, int[] cellIndices, int[][] excludedValues) {
         super(type, solvingTechnique);
         this.cellIndices    = cellIndices;
         this.excludedValues = excludedValues;
+    }
+
+    private static int[][] expandArray(int[] array, int copies) {
+        int[][] result = new int[copies][];
+
+        for (int i = 0; i < copies; i++) {
+            result[i] = array;
+        }
+
+        return result;
     }
 
     public int[] getCellIndices() {
         return cellIndices;
     }
 
-    public int[] getExcludedValues() {
+    public int[][] getExcludedValues() {
         return excludedValues;
     }
 
     @Override
     public void apply(Grid targetGrid, boolean updateGrid) {
+        int index = 0;
         for (int cellIndex : cellIndices) {
-            targetGrid.getCell(cellIndex).excludePossibleValues(excludedValues);
+            targetGrid.getCell(cellIndex).excludePossibleValues(excludedValues[index++]);
         }
     }
 
     @Override
     public String toString() {
-        StringBuilder cellNames = new StringBuilder();
+        StringBuilder eliminations = new StringBuilder();
 
+        int index = 0;
         for (int cellIndex : cellIndices) {
-            cellNames.append(getGridType().getCellName(cellIndex));
-            cellNames.append("/");
+            eliminations.append(getGridType().getCellName(cellIndex));
+            eliminations.append(" <> ");
+            eliminations.append(Arrays.toString(excludedValues[index++]));
+            eliminations.append(", ");
         }
-        cellNames.deleteCharAt(cellNames.length() - 1);
+        eliminations.deleteCharAt(eliminations.length() - 2);
 
-        return String.format("%s: %s <> %s", getSolvingTechnique().getName(), cellNames.toString(), Arrays.toString(excludedValues));
+        return String.format("%s: %s", getSolvingTechnique().getName(), eliminations.toString());
     }
 }

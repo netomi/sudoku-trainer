@@ -17,13 +17,19 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-package org.netomi.sudoku.solver;
+package org.netomi.sudoku.solver.techniques;
 
-import org.netomi.sudoku.model.Grid;
+import org.netomi.sudoku.solver.HintFinder;
 
-public interface HintFinder {
+public class LockedCandidatesType2FinderTest extends AbstractHintFinderTest {
 
-    SolvingTechnique getSolvingTechnique();
+    @Override
+    protected HintFinder createHintFinder() {
+        return new LockedCandidatesType2Finder();
+    }
 
-    void findHints(Grid grid, HintAggregator hintAggregator);
+    @Override
+    protected boolean matches(TechniqueTestCase testCase) {
+        return testCase.getTechnique().startsWith("0101");
+    }
 }

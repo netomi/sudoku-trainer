@@ -148,6 +148,10 @@ public class Grid {
         return cells.get(cellIndex);
     }
 
+    public Cell getCell(int row, int column) {
+        return cells.get(type.getCellIndex(row, column));
+    }
+
     public House.Row getRow(int rowIndex) {
         return rows.get(rowIndex);
     }
@@ -213,9 +217,9 @@ public class Grid {
     }
 
     public void acceptHouses(HouseVisitor visitor) {
-        acceptBlocks(visitor);
         acceptRows(visitor);
         acceptColumns(visitor);
+        acceptBlocks(visitor);
     }
 
     // Internal state related methods.
@@ -387,8 +391,17 @@ public class Grid {
             return blockFunction.getBlockIndex(cellIndex);
         }
 
+        public int getCellIndex(int row, int column) {
+            return (row - 1) * gridSize + (column - 1);
+        }
+
         public String getCellName(int cellIndex) {
             return String.format("r%dc%d", getRowIndex(cellIndex) + 1, getColumnIndex(cellIndex) + 1);
+        }
+
+        @Override
+        public String toString() {
+            return String.format("%dx%d", gridSize, gridSize);
         }
     }
 
@@ -415,6 +428,41 @@ public class Grid {
             Cell cell  = getCell(nextOffset);
             nextOffset = cells.nextSetBit(nextOffset + 1);
             return cell;
+        }
+    }
+
+    protected static class ValueIterator implements Iterator<Integer> {
+
+        private final BitSet  bitSet;
+        private final int     toIndex;
+        private final boolean inverse;
+        private       int     nextOffset;
+
+        ValueIterator(BitSet bitSet, int fromIndex, int toIndex, boolean inverse) {
+            this.bitSet     = bitSet;
+            this.toIndex    = toIndex;
+            this.inverse    = inverse;
+            this.nextOffset = nextBit(fromIndex);
+        }
+
+        private int nextBit(int offset) {
+            return inverse ? bitSet.nextClearBit(offset) :
+                             bitSet.nextSetBit(offset);
+        }
+
+        @Override
+        public boolean hasNext() {
+            return nextOffset >= 0 && nextOffset <= toIndex;
+        }
+
+        @Override
+        public Integer next() {
+            if (!hasNext()) {
+                throw new NoSuchElementException();
+            }
+            Integer value = nextOffset;
+            nextOffset = nextBit(nextOffset + 1);
+            return value;
         }
     }
 
