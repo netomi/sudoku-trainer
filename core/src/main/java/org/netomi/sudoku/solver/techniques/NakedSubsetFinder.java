@@ -19,10 +19,7 @@
  */
 package org.netomi.sudoku.solver.techniques;
 
-import org.netomi.sudoku.model.Cell;
-import org.netomi.sudoku.model.Grid;
-import org.netomi.sudoku.model.House;
-import org.netomi.sudoku.model.HouseVisitor;
+import org.netomi.sudoku.model.*;
 import org.netomi.sudoku.solver.HintAggregator;
 
 import java.util.BitSet;
@@ -53,26 +50,26 @@ public abstract class NakedSubsetFinder extends AbstractHintFinder {
 
                 for (Cell cell : house.cells()) {
                     if (!cell.isAssigned()) {
-                        visitSubset(grid,
-                                    hintAggregator,
-                                    house,
-                                    new BitSet(grid.getCellCount()),
-                                    cell,
-                                    new BitSet(grid.getGridSize() + 1),
-                                    1);
+                        findSubset(grid,
+                                   hintAggregator,
+                                   house,
+                                   new BitSet(grid.getCellCount()),
+                                   cell,
+                                   new BitSet(grid.getGridSize() + 1),
+                                   1);
                     }
                 }
             }
         });
     }
 
-    private boolean visitSubset(Grid           grid,
-                                HintAggregator hintAggregator,
-                                House          house,
-                                BitSet         visitedCells,
-                                Cell           currentCell,
-                                BitSet         visitedValues,
-                                int            level) {
+    private boolean findSubset(Grid           grid,
+                               HintAggregator hintAggregator,
+                               House          house,
+                               BitSet         visitedCells,
+                               Cell           currentCell,
+                               BitSet         visitedValues,
+                               int            level) {
 
         if (level > subSetSize) {
             return false;
@@ -91,7 +88,10 @@ public abstract class NakedSubsetFinder extends AbstractHintFinder {
             boolean foundHint = false;
 
             if (allVisitedValues.cardinality() == subSetSize) {
-                eliminateValuesFromCells(grid, hintAggregator, house, visitedCells, allVisitedValues);
+                BitSet affectedCells = GridUtil.getCells(house);
+                affectedCells.andNot(visitedCells);
+
+                eliminateValuesFromCells(grid, hintAggregator, affectedCells, allVisitedValues);
                 foundHint = true;
             }
 
@@ -102,7 +102,7 @@ public abstract class NakedSubsetFinder extends AbstractHintFinder {
         boolean foundHint = false;
         for (Cell nextCell : house.cells(currentCell.getCellIndex() + 1)) {
             if (!nextCell.isAssigned()) {
-                foundHint |= visitSubset(grid, hintAggregator, house, visitedCells, nextCell, allVisitedValues, level + 1);
+                foundHint |= findSubset(grid, hintAggregator, house, visitedCells, nextCell, allVisitedValues, level + 1);
             }
         }
 

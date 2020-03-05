@@ -51,25 +51,25 @@ public abstract class HiddenSubsetFinder extends AbstractHintFinder {
                 }
 
                 for (int value : house.unassignedValues()) {
-                    visitSubset(grid,
-                                hintAggregator,
-                                house,
-                                new BitSet(grid.getGridSize() + 1),
-                                value,
-                                new BitSet(grid.getCellCount()),
-                                1);
+                    findSubset(grid,
+                               hintAggregator,
+                               house,
+                               new BitSet(grid.getGridSize() + 1),
+                               value,
+                               new BitSet(grid.getCellCount()),
+                               1);
                 }
             }
         });
     }
 
-    private boolean visitSubset(Grid           grid,
-                                HintAggregator hintAggregator,
-                                House          house,
-                                BitSet         visitedValues,
-                                int            currentValue,
-                                BitSet         visitedPositions,
-                                int            level) {
+    private boolean findSubset(Grid           grid,
+                               HintAggregator hintAggregator,
+                               House          house,
+                               BitSet         visitedValues,
+                               int            currentValue,
+                               BitSet         visitedPositions,
+                               int            level) {
 
         if (level > subSetSize) {
             return false;
@@ -100,7 +100,7 @@ public abstract class HiddenSubsetFinder extends AbstractHintFinder {
 
         boolean foundHint = false;
         for (int nextValue : house.unassignedValues(currentValue + 1)) {
-            foundHint |= visitSubset(grid, hintAggregator, house, visitedValues, nextValue, allPotentialPositions, level + 1);
+            foundHint |= findSubset(grid, hintAggregator, house, visitedValues, nextValue, allPotentialPositions, level + 1);
         }
 
         visitedValues.clear(currentValue);

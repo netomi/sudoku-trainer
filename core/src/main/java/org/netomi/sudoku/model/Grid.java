@@ -144,6 +144,22 @@ public class Grid {
         return concat(rows, columns, blocks);
     }
 
+    public Iterable<? extends House> regionsAfter(House house) {
+        switch (house.getType()) {
+            case ROW:
+                return rows.subList(house.getRegionIndex() + 1, rows.size());
+
+            case COLUMN:
+                return columns.subList(house.getRegionIndex() + 1, columns.size());
+
+            case BLOCK:
+                return blocks.subList(house.getRegionIndex() + 1, blocks.size());
+
+            default:
+                throw new IllegalArgumentException("unexpected region type " + house.getType());
+        }
+    }
+
     public Cell getCell(int cellIndex) {
         return cells.get(cellIndex);
     }

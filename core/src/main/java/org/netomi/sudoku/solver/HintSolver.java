@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class HintSolver {
+public class HintSolver implements GridSolver {
 
     private final List<HintFinder> finderList = new ArrayList<>();
 
@@ -42,6 +42,9 @@ public class HintSolver {
         finderList.add(new NakedPairFinder());
         finderList.add(new NakedTripleFinder());
         finderList.add(new NakedQuadrupleFinder());
+        finderList.add(new XWingHintFinder());
+        finderList.add(new SwordFishFinder());
+        finderList.add(new JellyFishFinder());
     }
 
     public HintSolver(HintFinder finder) {
@@ -50,6 +53,28 @@ public class HintSolver {
 
     public HintSolver(HintFinder... finder) {
         finderList.addAll(Arrays.asList(finder));
+    }
+
+    public Grid solve(Grid grid) {
+        Grid searchGrid = grid.copy();
+
+        while (!searchGrid.isSolved()) {
+            HintAggregator hintAggregator = new SingleHintAggregator();
+
+            try {
+                for (HintFinder hintFinder : finderList) {
+                    hintFinder.findHints(searchGrid, hintAggregator);
+                }
+            } catch (RuntimeException ex) {}
+
+            if (hintAggregator.size() == 0) {
+                break;
+            }
+
+            hintAggregator.applyHints(searchGrid);
+        }
+
+        return searchGrid;
     }
 
     public HintAggregator findAllHintsSingleStep(Grid grid) {

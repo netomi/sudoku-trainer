@@ -19,10 +19,7 @@
  */
 package org.netomi.sudoku.solver.techniques;
 
-import org.netomi.sudoku.model.Cell;
-import org.netomi.sudoku.model.Grid;
-import org.netomi.sudoku.model.House;
-import org.netomi.sudoku.model.HouseVisitor;
+import org.netomi.sudoku.model.*;
 import org.netomi.sudoku.solver.HintAggregator;
 import org.netomi.sudoku.solver.SolvingTechnique;
 
@@ -67,11 +64,12 @@ public class NakedPairFinder extends AbstractHintFinder {
                         matching.xor(otherPossibleValues);
 
                         if (matching.cardinality() == 0) {
-                            BitSet affectedCells = new BitSet(grid.getCellCount());
-                            affectedCells.set(cell.getCellIndex());
-                            affectedCells.set(otherCell.getCellIndex());
+                            BitSet affectedCells = GridUtil.getCells(house);
 
-                            eliminateValuesFromCells(grid, hintAggregator, house, affectedCells, possibleValues);
+                            affectedCells.clear(cell.getCellIndex());
+                            affectedCells.clear(otherCell.getCellIndex());
+
+                            eliminateValuesFromCells(grid, hintAggregator, affectedCells, possibleValues);
                         }
                     }
                 }

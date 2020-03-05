@@ -26,7 +26,7 @@ import org.netomi.sudoku.solver.techniques.NakedSingleFinder;
 
 import java.util.*;
 
-public class BruteForceSolver {
+public class BruteForceSolver implements GridSolver {
 
     private final HintSolver hintSolver;
     private int guesses;
@@ -35,6 +35,10 @@ public class BruteForceSolver {
 
     public BruteForceSolver() {
         hintSolver = new HintSolver(new NakedSingleFinder(), new HiddenSingleFinder());
+    }
+
+    public Grid solve(Grid grid) {
+        return solve(grid, true);
     }
 
     public Grid solve(Grid grid, boolean forward) {

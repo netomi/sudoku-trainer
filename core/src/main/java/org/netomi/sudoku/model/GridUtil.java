@@ -122,4 +122,14 @@ public class GridUtil {
         }
         return result;
     }
+
+    public static BitSet getCells(House... houses) {
+        BitSet result = new BitSet();
+
+        for (House house : houses) {
+            result.or(house.getCells());
+        }
+
+        return result;
+    }
 }

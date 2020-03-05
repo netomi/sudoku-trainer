@@ -19,38 +19,9 @@
  */
 package org.netomi.sudoku.solver;
 
-public enum SolvingTechnique {
-    // Singles.
-    FULL_HOUSE("Full House"),
-    HIDDEN_SINGLE("Hidden Single"),
-    NAKED_SINGLE("Naked Single"),
+import org.netomi.sudoku.model.Grid;
 
-    // Intersections.
-    LOCKED_CANDIDATES_TYPE_1("Locked Candidates Type 1 (Pointing)"),
-    LOCKED_CANDIDATES_TYPE_2("Locked Candidates Type 2 (Claiming)"),
+public interface GridSolver {
 
-    // Hidden subsets.
-    HIDDEN_PAIR("Hidden Pair"),
-    HIDDEN_TRIPLE("Hidden Triple"),
-    HIDDEN_QUADRUPLE("Hidden Quadruple"),
-
-    // Naked subsets.
-    NAKED_PAIR("Naked Pair"),
-    NAKED_TRIPLE("Naked Triple"),
-    NAKED_QUADRUPLE("Naked Quadruple"),
-
-    // Basic fish.
-    X_WING("X-Wing"),
-    SWORDFISH("Swordfish"),
-    JELLYFISH("Jellyfish");
-
-    private final String name;
-
-    SolvingTechnique(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
+    Grid solve(Grid grid);
 }
