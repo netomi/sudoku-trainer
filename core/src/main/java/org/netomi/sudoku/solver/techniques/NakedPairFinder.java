@@ -71,7 +71,7 @@ public class NakedPairFinder extends AbstractHintFinder {
                             affectedCells.set(cell.getCellIndex());
                             affectedCells.set(otherCell.getCellIndex());
 
-                            addEliminationHint(grid, hintAggregator, house, affectedCells, possibleValues);
+                            eliminateValuesFromCells(grid, hintAggregator, house, affectedCells, possibleValues);
                         }
                     }
                 }

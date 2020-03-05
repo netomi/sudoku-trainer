@@ -17,28 +17,25 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-package org.netomi.sudoku.solver;
+package org.netomi.sudoku.solver.techniques;
 
-public enum SolvingTechnique {
-    FULL_HOUSE("Full House"),
-    HIDDEN_SINGLE("Hidden Single"),
-    NAKED_SINGLE("Naked Single"),
-    LOCKED_CANDIDATES_TYPE_1("Locked Candidates Type 1 (Pointing)"),
-    LOCKED_CANDIDATES_TYPE_2("Locked Candidates Type 2 (Claiming)"),
-    HIDDEN_PAIR("Hidden Pair"),
-    HIDDEN_TRIPLE("Hidden Triple"),
-    HIDDEN_QUADRUPLE("Hidden Quadruple"),
-    NAKED_PAIR("Naked Pair"),
-    NAKED_TRIPLE("Naked Triple"),
-    NAKED_QUADRUPLE("Naked Quadruple");
+import org.netomi.sudoku.solver.SolvingTechnique;
 
-    private final String name;
+/**
+ * A {@code HintFinder} implementation that looks for houses
+ * where a subset of 4 candidates is constrained to four cells,
+ * forming a hidden quadruple. All other candidates in these cells
+ * can be removed.
+ */
+public class HiddenQuadrupleFinder extends HiddenSubsetFinder {
 
-    SolvingTechnique(String name) {
-        this.name = name;
+    public HiddenQuadrupleFinder() {
+        super(4);
     }
 
-    public String getName() {
-        return name;
+    @Override
+    public SolvingTechnique getSolvingTechnique() {
+        return SolvingTechnique.HIDDEN_QUADRUPLE;
     }
+
 }

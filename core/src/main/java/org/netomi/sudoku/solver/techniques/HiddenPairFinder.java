@@ -61,14 +61,17 @@ public class HiddenPairFinder extends AbstractHintFinder {
                             continue;
                         }
 
-                        // If they two bitsets, containing the possible positions for some values,
+                        // If the two bitsets, containing the possible positions for some values,
                         // share the exact same positions, we have found a hidden pair.
-                        BitSet matching = new BitSet();
-                        matching.or(potentialPositions);
+                        BitSet matching = (BitSet) potentialPositions.clone();
                         matching.xor(otherPotentialPositions);
 
+                        BitSet allowedValues = new BitSet();
+                        allowedValues.set(value);
+                        allowedValues.set(otherValue);
+
                         if (matching.cardinality() == 0) {
-                            addEliminationHint(grid, hintAggregator, potentialPositions, new int[] { value, otherValue });
+                            eliminateNotAllowedValuesFromCells(grid, hintAggregator, potentialPositions, allowedValues);
                         }
                     }
                 }

@@ -53,7 +53,7 @@ public class FullHouseFinder extends AbstractHintFinder {
                     // Find the cell that is not assigned, and create a hint for it.
                     for (Cell cell : house.cells()) {
                         if (!cell.isAssigned()) {
-                            addPlacementHint(grid, hintAggregator, cell.getCellIndex(), value);
+                            placeValueInCell(grid, hintAggregator, cell.getCellIndex(), value);
                         }
                     }
                 }

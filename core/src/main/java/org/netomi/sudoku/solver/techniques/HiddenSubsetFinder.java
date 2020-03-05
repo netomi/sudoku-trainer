@@ -19,7 +19,6 @@
  */
 package org.netomi.sudoku.solver.techniques;
 
-import org.netomi.sudoku.model.Cell;
 import org.netomi.sudoku.model.Grid;
 import org.netomi.sudoku.model.House;
 import org.netomi.sudoku.model.HouseVisitor;
@@ -28,16 +27,16 @@ import org.netomi.sudoku.solver.HintAggregator;
 import java.util.BitSet;
 
 /**
- * A {@code HintFinder} implementation that looks for houses
- * where a subset of cells has the same candidates left,
- * forming a naked subset. All matching candidates in other cells
- * of the same house can be removed.
+ *  A {@code HintFinder} implementation that looks for houses
+ *  where a subset of candidates is constrained to some cells,
+ *  forming a hidden subset. All other candidates in these cells
+ *  can be removed.
  */
-public abstract class NakedSubsetFinder extends AbstractHintFinder {
+public abstract class HiddenSubsetFinder extends AbstractHintFinder {
 
     private final int subSetSize;
 
-    protected NakedSubsetFinder(int subSetSize) {
+    protected HiddenSubsetFinder(int subSetSize) {
         this.subSetSize = subSetSize;
     }
 
@@ -51,16 +50,14 @@ public abstract class NakedSubsetFinder extends AbstractHintFinder {
                     return;
                 }
 
-                for (Cell cell : house.cells()) {
-                    if (!cell.isAssigned()) {
-                        visitSubset(grid,
-                                    hintAggregator,
-                                    house,
-                                    new BitSet(grid.getCellCount()),
-                                    cell,
-                                    new BitSet(grid.getGridSize() + 1),
-                                    1);
-                    }
+                for (int value : house.unassignedValues()) {
+                    visitSubset(grid,
+                                hintAggregator,
+                                house,
+                                new BitSet(grid.getGridSize() + 1),
+                                value,
+                                new BitSet(grid.getCellCount()),
+                                1);
                 }
             }
         });
@@ -69,44 +66,44 @@ public abstract class NakedSubsetFinder extends AbstractHintFinder {
     private boolean visitSubset(Grid           grid,
                                 HintAggregator hintAggregator,
                                 House          house,
-                                BitSet         visitedCells,
-                                Cell           currentCell,
                                 BitSet         visitedValues,
+                                int            currentValue,
+                                BitSet         visitedPositions,
                                 int            level) {
 
         if (level > subSetSize) {
             return false;
         }
 
-        BitSet allVisitedValues = (BitSet) visitedValues.clone();
-        allVisitedValues.or(currentCell.getPossibleValues());
+        BitSet potentialPositions = house.getPotentialPositions(currentValue);
 
-        if (allVisitedValues.cardinality() > subSetSize) {
+        BitSet allPotentialPositions = (BitSet) visitedPositions.clone();
+        allPotentialPositions.or(potentialPositions);
+
+        if (allPotentialPositions.cardinality() > subSetSize) {
             return false;
         }
 
-        visitedCells.set(currentCell.getCellIndex());
+        visitedValues.set(currentValue);
 
         if (level == subSetSize) {
             boolean foundHint = false;
 
-            if (allVisitedValues.cardinality() == subSetSize) {
-                eliminateValuesFromCells(grid, hintAggregator, house, visitedCells, allVisitedValues);
+            if (allPotentialPositions.cardinality() == subSetSize) {
+                eliminateNotAllowedValuesFromCells(grid, hintAggregator, allPotentialPositions, visitedValues);
                 foundHint = true;
             }
 
-            visitedCells.clear(currentCell.getCellIndex());
+            visitedValues.clear(currentValue);
             return foundHint;
         }
 
         boolean foundHint = false;
-        for (Cell nextCell : house.cells(currentCell.getCellIndex() + 1)) {
-            if (!nextCell.isAssigned()) {
-                foundHint |= visitSubset(grid, hintAggregator, house, visitedCells, nextCell, allVisitedValues, level + 1);
-            }
+        for (int nextValue : house.unassignedValues(currentValue + 1)) {
+            foundHint |= visitSubset(grid, hintAggregator, house, visitedValues, nextValue, allPotentialPositions, level + 1);
         }
 
-        visitedCells.clear(currentCell.getCellIndex());
+        visitedValues.clear(currentValue);
         return foundHint;
     }
 }

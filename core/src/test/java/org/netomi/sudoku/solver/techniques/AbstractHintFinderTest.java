@@ -84,6 +84,9 @@ public abstract class AbstractHintFinderTest {
 
                 boolean foundExpectedResult = false;
                 if (testCase.expectsDirectHint()) {
+                    // Some heuristic to detect if a HintFinder would suddenly find too many hints.
+                    Assert.assertTrue("found " + hints.size() + " hints", hints.size() <= 10);
+
                     for (Hint hint : hints) {
                         String result = ((DirectHint) hint).asString();
                         if (result.equals(testCase.getPlacement().toString())) {
@@ -92,10 +95,13 @@ public abstract class AbstractHintFinderTest {
                         }
                     }
                 } else {
-                    Set<Candidate> candidateSet = new HashSet<>();
-                    candidateSet.addAll(testCase.getEliminations());
+                    // Some heuristic to detect if a HintFinder would suddenly find too many hints.
+                    Assert.assertTrue("found " + hints.size() + " hints", hints.size() <= 10);
 
                     for (Hint hint : hints) {
+                        Set<Candidate> candidateSet = new HashSet<>();
+                        candidateSet.addAll(testCase.getEliminations());
+
                         IndirectHint indirectHint = (IndirectHint) hint;
 
                         int index = 0;

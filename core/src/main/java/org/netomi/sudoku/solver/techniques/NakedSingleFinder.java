@@ -43,7 +43,7 @@ public class NakedSingleFinder extends AbstractHintFinder {
                 BitSet possibleValues = cell.getPossibleValues();
                 if (possibleValues.cardinality() == 1) {
                     int value = possibleValues.nextSetBit(1);
-                    addPlacementHint(grid, hintAggregator, cell.getCellIndex(), value);
+                    placeValueInCell(grid, hintAggregator, cell.getCellIndex(), value);
                 }
             }
         });

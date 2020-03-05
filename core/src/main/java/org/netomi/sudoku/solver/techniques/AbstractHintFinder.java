@@ -21,6 +21,7 @@ package org.netomi.sudoku.solver.techniques;
 
 import org.netomi.sudoku.model.Cell;
 import org.netomi.sudoku.model.Grid;
+import org.netomi.sudoku.model.GridUtil;
 import org.netomi.sudoku.model.House;
 import org.netomi.sudoku.solver.*;
 
@@ -31,7 +32,7 @@ public abstract class AbstractHintFinder implements HintFinder {
     /**
      * Adds a direct placement hint to the {@code HintAggregator}.
      */
-    protected void addPlacementHint(Grid           grid,
+    protected void placeValueInCell(Grid           grid,
                                     HintAggregator hintAggregator,
                                     int            cellIndex,
                                     int            value) {
@@ -50,11 +51,11 @@ public abstract class AbstractHintFinder implements HintFinder {
      * @param excludedHouse the cells to be excluded from the affected house
      * @param excludedValue the candidate value to remove
      */
-    protected void addEliminationHint(Grid           grid,
-                                      HintAggregator hintAggregator,
-                                      House          affectedHouse,
-                                      House          excludedHouse,
-                                      int            excludedValue) {
+    protected void eliminateValueFromCells(Grid           grid,
+                                           HintAggregator hintAggregator,
+                                           House          affectedHouse,
+                                           House          excludedHouse,
+                                           int            excludedValue) {
 
         BitSet affectedCells = new BitSet(grid.getCellCount());
         for (Cell cell : affectedHouse.cellsExcluding(excludedHouse)) {
@@ -82,17 +83,15 @@ public abstract class AbstractHintFinder implements HintFinder {
      * @param affectedCellIndices the set of affected cell indices
      * @param allowedValues       the allowed set of candidates in the affected cells
      */
-    protected void addEliminationHint(Grid           grid,
-                                      HintAggregator hintAggregator,
-                                      BitSet         affectedCellIndices,
-                                      int[]          allowedValues) {
+    protected void eliminateNotAllowedValuesFromCells(Grid           grid,
+                                                      HintAggregator hintAggregator,
+                                                      BitSet         affectedCellIndices,
+                                                      BitSet         allowedValues) {
 
         BitSet       affectedCells  = new BitSet(grid.getCellCount());
         List<BitSet> excludedValues = new ArrayList<>();
 
-        for (int i = affectedCellIndices.nextSetBit(0); i >= 0; i = affectedCellIndices.nextSetBit(i + 1)) {
-            Cell cell = grid.getCell(i);
-
+        for (Cell cell : GridUtil.getCells(grid, affectedCellIndices)) {
             BitSet valuesToExclude = valuesExcluding(cell.getPossibleValues(), allowedValues);
 
             if (valuesToExclude.cardinality() > 0) {
@@ -111,17 +110,17 @@ public abstract class AbstractHintFinder implements HintFinder {
 
     /**
      * Adds an elimination hint to remove all candidate values from the affected
-     * cells that are not contained in the allowedValues array.
+     * cells (except the excluded ones) that are contained in the excludedValues bitset.
      *
      * @param affectedHouse  the affected house for this elimination hint
      * @param excludedCells  the cells to be excluded from the affected house
      * @param excludedValues the candidate value to remove
      */
-    protected void addEliminationHint(Grid           grid,
-                                      HintAggregator hintAggregator,
-                                      House          affectedHouse,
-                                      BitSet         excludedCells,
-                                      BitSet         excludedValues) {
+    protected void eliminateValuesFromCells(Grid           grid,
+                                            HintAggregator hintAggregator,
+                                            House          affectedHouse,
+                                            BitSet         excludedCells,
+                                            BitSet         excludedValues) {
 
         BitSet       affectedCells       = new BitSet(grid.getCellCount());
         List<BitSet> valuesToExcludeList = new ArrayList<>();
@@ -149,13 +148,9 @@ public abstract class AbstractHintFinder implements HintFinder {
      * Returns a BitSet containing all values that have been set in the given bitset
      * excluding the values contained in the excludedValues array.
      */
-    private static BitSet valuesExcluding(BitSet values, int[] excludedValues) {
+    private static BitSet valuesExcluding(BitSet values, BitSet excludedValues) {
         BitSet result = (BitSet) values.clone();
-
-        for (int excludedValue : excludedValues) {
-            result.clear(excludedValue);
-        }
-
+        result.andNot(excludedValues);
         return result;
     }
 

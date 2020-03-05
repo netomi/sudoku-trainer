@@ -51,7 +51,7 @@ public class LockedCandidatesType2Finder extends AbstractHintFinder {
                     // Check if all possible cells are in the same block.
                     House.Block block = GridUtil.getSingleBlock(grid, possiblePositions);
                     if (block != null) {
-                        addEliminationHint(grid, hintAggregator, block, house, value);
+                        eliminateValueFromCells(grid, hintAggregator, block, house, value);
                     }
                 }
             }

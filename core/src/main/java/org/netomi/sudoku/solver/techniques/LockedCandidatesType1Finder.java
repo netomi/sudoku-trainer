@@ -51,13 +51,13 @@ public class LockedCandidatesType1Finder extends AbstractHintFinder {
                     // Check if all possible cells are in the same row.
                     House.Row row = GridUtil.getSingleRow(grid, possiblePositions);
                     if (row != null) {
-                        addEliminationHint(grid, hintAggregator, row, house, value);
+                        eliminateValueFromCells(grid, hintAggregator, row, house, value);
                     }
 
                     // Check if all possible cells are in the same column.
                     House.Column column = GridUtil.getSingleColumn(grid, possiblePositions);
                     if (column != null) {
-                        addEliminationHint(grid, hintAggregator, column, house, value);
+                        eliminateValueFromCells(grid, hintAggregator, column, house, value);
                     }
                 }
             }

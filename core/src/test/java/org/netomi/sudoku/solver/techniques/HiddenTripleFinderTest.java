@@ -17,46 +17,19 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-package org.netomi.sudoku.solver;
+package org.netomi.sudoku.solver.techniques;
 
-import org.netomi.sudoku.model.Grid;
+import org.netomi.sudoku.solver.HintFinder;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
+public class HiddenTripleFinderTest extends AbstractHintFinderTest {
 
-public class HintAggregator implements Iterable<Hint> {
-
-    protected final Collection<Hint> hints;
-
-    public HintAggregator() {
-        hints = new LinkedHashSet<>();
-    }
-
-    public void addHint(Hint hint) {
-        if (!hints.contains(hint)) {
-            hints.add(hint);
-        }
-    }
-
-    public void applyHints(Grid targetGrid) {
-        for (Hint hint : hints) {
-            hint.apply(targetGrid, false);
-        }
-        targetGrid.updateState();
+    @Override
+    protected HintFinder createHintFinder() {
+        return new HiddenTripleFinder();
     }
 
     @Override
-    public Iterator<Hint> iterator() {
-        return hints.iterator();
-    }
-
-    public int size() {
-        return hints.size();
-    }
-
-    @Override
-    public String toString() {
-        return hints.toString();
+    protected boolean matches(TechniqueTestCase testCase) {
+        return testCase.getTechnique().startsWith("0211");
     }
 }
