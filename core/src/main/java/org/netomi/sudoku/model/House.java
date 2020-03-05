@@ -139,6 +139,16 @@ public abstract class House {
     }
 
     /**
+     * Returns an {@code #Iterable} containing all cells of this {@code #House}
+     * excluding all cells contained in the provided bitset.
+     */
+    public Iterable<Cell> cellsExcluding(BitSet excludedCells) {
+        BitSet ownCells = (BitSet) cells.clone();
+        ownCells.andNot(excludedCells);
+        return owner.getCells(ownCells);
+    }
+
+    /**
      * Checks whether all cells in this {@code #House} have assigned unique values.
      */
     public boolean isValid() {

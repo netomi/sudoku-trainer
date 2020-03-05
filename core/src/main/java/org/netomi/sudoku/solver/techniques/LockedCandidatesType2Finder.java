@@ -20,6 +20,7 @@
 package org.netomi.sudoku.solver.techniques;
 
 import org.netomi.sudoku.model.Grid;
+import org.netomi.sudoku.model.GridUtil;
 import org.netomi.sudoku.model.House;
 import org.netomi.sudoku.model.HouseVisitor;
 import org.netomi.sudoku.solver.HintAggregator;
@@ -48,10 +49,9 @@ public class LockedCandidatesType2Finder extends AbstractHintFinder {
                     }
 
                     // Check if all possible cells are in the same block.
-                    for (House block : grid.blocks()) {
-                        if (block.containsAllCells(possiblePositions)) {
-                            addIndirectHint(grid, hintAggregator, house, value, block);
-                        }
+                    House.Block block = GridUtil.getSingleBlock(grid, possiblePositions);
+                    if (block != null) {
+                        addEliminationHint(grid, hintAggregator, block, house, value);
                     }
                 }
             }

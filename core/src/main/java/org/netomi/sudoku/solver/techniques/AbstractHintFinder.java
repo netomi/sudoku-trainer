@@ -28,103 +28,144 @@ import java.util.*;
 
 public abstract class AbstractHintFinder implements HintFinder {
 
-    protected void addDirectHint(Grid grid,
-                                 HintAggregator hintAggregator,
-                                 int            cellIndex,
-                                 int            value) {
-        hintAggregator.addHint(new DirectHint(grid.getType(), getSolvingTechnique(), cellIndex, value));
+    /**
+     * Adds a direct placement hint to the {@code HintAggregator}.
+     */
+    protected void addPlacementHint(Grid           grid,
+                                    HintAggregator hintAggregator,
+                                    int            cellIndex,
+                                    int            value) {
+        hintAggregator.addHint(new DirectHint(grid.getType(),
+                                              getSolvingTechnique(),
+                                              cellIndex,
+                                              value));
     }
 
-    protected void addIndirectHint(Grid           grid,
-                                   HintAggregator hintAggregator,
-                                   int[]          cellIndices,
-                                   int[]          excludedValues) {
-        hintAggregator.addHint(new IndirectHint(grid.getType(), getSolvingTechnique(), cellIndices, excludedValues));
+    /**
+     * Adds an elimination hint to remove the given candidate value
+     * from all cells in the affected house excluding cell in the excluded
+     * house.
+     *
+     * @param affectedHouse the affected house for this elimination hint
+     * @param excludedHouse the cells to be excluded from the affected house
+     * @param excludedValue the candidate value to remove
+     */
+    protected void addEliminationHint(Grid           grid,
+                                      HintAggregator hintAggregator,
+                                      House          affectedHouse,
+                                      House          excludedHouse,
+                                      int            excludedValue) {
+
+        BitSet affectedCells = new BitSet(grid.getCellCount());
+        for (Cell cell : affectedHouse.cellsExcluding(excludedHouse)) {
+            // only consider cells which have the excluded value as candidate.
+            if (cell.getPossibleValues().get(excludedValue)) {
+                affectedCells.set(cell.getCellIndex());
+            }
+        }
+
+        BitSet eliminations = new BitSet(grid.getGridSize() + 1);
+        eliminations.set(excludedValue);
+
+        if (!affectedCells.isEmpty()) {
+            hintAggregator.addHint(new IndirectHint(grid.getType(),
+                                                    getSolvingTechnique(),
+                                                    affectedCells,
+                                                    eliminations));
+        }
     }
 
-    protected void addIndirectHint(Grid           grid,
-                                   HintAggregator hintAggregator,
-                                   int[]          cellIndices,
-                                   int[][]        excludedValues) {
-        hintAggregator.addHint(new IndirectHint(grid.getType(), getSolvingTechnique(), cellIndices, excludedValues));
-    }
+    /**
+     * Adds an elimination hint to remove all candidate values from the affected
+     * cells that are not contained in the allowedValues array.
+     *
+     * @param affectedCellIndices the set of affected cell indices
+     * @param allowedValues       the allowed set of candidates in the affected cells
+     */
+    protected void addEliminationHint(Grid           grid,
+                                      HintAggregator hintAggregator,
+                                      BitSet         affectedCellIndices,
+                                      int[]          allowedValues) {
 
-    protected void addIndirectHint(Grid           grid,
-                                   HintAggregator hintAggregator,
-                                   House          constrainedHouse,
-                                   int            constrainedValue,
-                                   House          affectedHouse) {
+        BitSet       affectedCells  = new BitSet(grid.getCellCount());
+        List<BitSet> excludedValues = new ArrayList<>();
 
-        List<Cell> affectedCells = new ArrayList<>();
-        for (Cell cell : affectedHouse.cellsExcluding(constrainedHouse)) {
-            if (cell.getPossibleValues().get(constrainedValue)) {
-                affectedCells.add(cell);
+        for (int i = affectedCellIndices.nextSetBit(0); i >= 0; i = affectedCellIndices.nextSetBit(i + 1)) {
+            Cell cell = grid.getCell(i);
+
+            BitSet valuesToExclude = valuesExcluding(cell.getPossibleValues(), allowedValues);
+
+            if (valuesToExclude.cardinality() > 0) {
+                affectedCells.set(cell.getCellIndex());
+                excludedValues.add(valuesToExclude);
             }
         }
 
         if (!affectedCells.isEmpty()) {
-            addIndirectHint(grid, hintAggregator, toCellIndexArray(affectedCells), new int[] { constrainedValue });
+            hintAggregator.addHint(new IndirectHint(grid.getType(),
+                                                    getSolvingTechnique(),
+                                                    affectedCells,
+                                                    excludedValues.toArray(new BitSet[0])));
         }
     }
 
-    protected static int[] toCellIndexArray(Collection<Cell> cells) {
-        int[] result = new int[cells.size()];
+    /**
+     * Adds an elimination hint to remove all candidate values from the affected
+     * cells that are not contained in the allowedValues array.
+     *
+     * @param affectedHouse  the affected house for this elimination hint
+     * @param excludedCells  the cells to be excluded from the affected house
+     * @param excludedValues the candidate value to remove
+     */
+    protected void addEliminationHint(Grid           grid,
+                                      HintAggregator hintAggregator,
+                                      House          affectedHouse,
+                                      BitSet         excludedCells,
+                                      BitSet         excludedValues) {
 
-        int index = 0;
-        for (Cell cell : cells) {
-            result[index++] = cell.getCellIndex();
-        }
+        BitSet       affectedCells       = new BitSet(grid.getCellCount());
+        List<BitSet> valuesToExcludeList = new ArrayList<>();
 
-        return result;
-    }
+        // All other cells in the same house shall have the given values
+        // removed from their set of candidates.
+        for (Cell cell : affectedHouse.cellsExcluding(excludedCells)) {
+            BitSet valuesToExclude = valuesIncluding(cell.getPossibleValues(), excludedValues);
 
-    protected static int[] toIntArray(BitSet values) {
-        List<Integer> allValues = new ArrayList<>();
-        for (int i = values.nextSetBit(1); i >= 0; i = values.nextSetBit(i + 1)) {
-            allValues.add(i);
-        }
-
-        return toIntArray(allValues);
-    }
-
-    protected static int[] toIntArrayExcluding(BitSet values, int[] excludedValues) {
-        Set<Integer> allValues = new TreeSet<>();
-        for (int i = values.nextSetBit(1); i >= 0; i = values.nextSetBit(i + 1)) {
-            allValues.add(i);
-        }
-
-        for (int excludedValue : excludedValues) {
-            allValues.remove(excludedValue);
-        }
-
-        return toIntArray(allValues);
-    }
-
-    protected static int[] toIntArrayIncluding(BitSet values, int[] includedValues) {
-        Set<Integer> valuesToInclude = new HashSet<>();
-        for (int value : includedValues) {
-            valuesToInclude.add(value);
-        }
-
-        List<Integer> allValues = new ArrayList<>();
-        for (int i = values.nextSetBit(1); i >= 0; i = values.nextSetBit(i + 1)) {
-            if (valuesToInclude.contains(i)) {
-                allValues.add(i);
+            if (valuesToExclude.cardinality() > 0) {
+                affectedCells.set(cell.getCellIndex());
+                valuesToExcludeList.add(valuesToExclude);
             }
         }
 
-        return toIntArray(allValues);
+        if (!affectedCells.isEmpty()) {
+            hintAggregator.addHint(new IndirectHint(grid.getType(),
+                                                    getSolvingTechnique(),
+                                                    affectedCells,
+                                                    valuesToExcludeList.toArray(new BitSet[0])));
+        }
     }
 
-    private static int[] toIntArray(Collection<Integer> values) {
-        int[] result = new int[values.size()];
+    /**
+     * Returns a BitSet containing all values that have been set in the given bitset
+     * excluding the values contained in the excludedValues array.
+     */
+    private static BitSet valuesExcluding(BitSet values, int[] excludedValues) {
+        BitSet result = (BitSet) values.clone();
 
-        int i = 0;
-        for (Integer v : values) {
-            result[i++] = v;
+        for (int excludedValue : excludedValues) {
+            result.clear(excludedValue);
         }
 
         return result;
     }
 
+    /**
+     * Returns an array containing all values that have been set in the given bitset
+     * only including the values contained in the includedValues bitset.
+     */
+    private static BitSet valuesIncluding(BitSet values, BitSet includedValues) {
+        BitSet result = (BitSet) includedValues.clone();
+        result.and(values);
+        return result;
+    }
 }

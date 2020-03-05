@@ -21,6 +21,8 @@ package org.netomi.sudoku.solver;
 
 import org.netomi.sudoku.model.Grid;
 
+import java.util.Objects;
+
 public class DirectHint extends Hint {
 
     private final int cellIndex;
@@ -43,6 +45,24 @@ public class DirectHint extends Hint {
     @Override
     public void apply(Grid targetGrid, boolean updateGrid) {
         targetGrid.getCell(cellIndex).setValue(value, updateGrid);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + Objects.hash(cellIndex, value);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        DirectHint that = (DirectHint) o;
+        return super.equals(o)             &&
+               cellIndex == that.cellIndex &&
+               value     == that.value;
     }
 
     public String asString() {

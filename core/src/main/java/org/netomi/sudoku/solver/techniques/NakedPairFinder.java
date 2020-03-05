@@ -26,10 +26,7 @@ import org.netomi.sudoku.model.HouseVisitor;
 import org.netomi.sudoku.solver.HintAggregator;
 import org.netomi.sudoku.solver.SolvingTechnique;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.BitSet;
-import java.util.List;
 
 /**
  * A {@code HintFinder} implementation that looks for houses
@@ -64,45 +61,21 @@ public class NakedPairFinder extends AbstractHintFinder {
                             continue;
                         }
 
-                        // If they two bitsets containing the possible candidate values
+                        // If the two bitsets containing the possible candidate values
                         // have the same candidates, we have found a naked pair.
-                        BitSet matching = new BitSet();
-                        matching.or(possibleValues);
+                        BitSet matching = (BitSet) possibleValues.clone();
                         matching.xor(otherPossibleValues);
 
                         if (matching.cardinality() == 0) {
-                            addIndirectHint(grid, hintAggregator, house, Arrays.asList(cell, otherCell), toIntArray(possibleValues));
+                            BitSet affectedCells = new BitSet(grid.getCellCount());
+                            affectedCells.set(cell.getCellIndex());
+                            affectedCells.set(otherCell.getCellIndex());
+
+                            addEliminationHint(grid, hintAggregator, house, affectedCells, possibleValues);
                         }
                     }
                 }
             }
         });
-    }
-
-    private void addIndirectHint(Grid           grid,
-                                 HintAggregator hintAggregator,
-                                 House          affectedHouse,
-                                 List<Cell>     affectedCells,
-                                 int[]          affectedValues) {
-
-        List<Cell>  cellsToModify       = new ArrayList<>();
-        List<int[]> valuesToExcludeList = new ArrayList<>();
-
-        // All other cells in the same house shall have the given values
-        // removed from their set of candidates.
-        for (Cell cell : affectedHouse.cells()) {
-            if (!affectedCells.contains(cell)) {
-                int[] valuesToExclude = toIntArrayIncluding(cell.getPossibleValues(), affectedValues);
-
-                if (valuesToExclude.length > 0) {
-                    cellsToModify.add(cell);
-                    valuesToExcludeList.add(valuesToExclude);
-                }
-            }
-        }
-
-        if (!cellsToModify.isEmpty()) {
-            addIndirectHint(grid, hintAggregator, toCellIndexArray(cellsToModify), valuesToExcludeList.toArray(new int[0][]));
-        }
     }
 }

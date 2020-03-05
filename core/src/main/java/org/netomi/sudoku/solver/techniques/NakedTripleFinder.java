@@ -19,33 +19,23 @@
  */
 package org.netomi.sudoku.solver.techniques;
 
-import org.netomi.sudoku.model.Grid;
-import org.netomi.sudoku.solver.HintAggregator;
 import org.netomi.sudoku.solver.SolvingTechnique;
 
-import java.util.BitSet;
-
 /**
- * A {@code HintFinder} implementation that checks if digit can only
- * be placed in a single cell within a specific house.
+ * A {@code HintFinder} implementation that looks for houses
+ * where a subset of 3 cells has the same three candidates left,
+ * forming a naked triple. The candidates in other cells
+ * of the same house can be removed.
  */
-public class NakedSingleFinder extends AbstractHintFinder {
+public class NakedTripleFinder extends NakedSubsetFinder {
+
+    public NakedTripleFinder() {
+        super(3);
+    }
 
     @Override
     public SolvingTechnique getSolvingTechnique() {
-        return SolvingTechnique.NAKED_SINGLE;
+        return SolvingTechnique.NAKED_TRIPLE;
     }
 
-    @Override
-    public void findHints(Grid grid, HintAggregator hintAggregator) {
-        grid.acceptCells((cell) -> {
-            if (!cell.isAssigned()) {
-                BitSet possibleValues = cell.getPossibleValues();
-                if (possibleValues.cardinality() == 1) {
-                    int value = possibleValues.nextSetBit(1);
-                    addPlacementHint(grid, hintAggregator, cell.getCellIndex(), value);
-                }
-            }
-        });
-    }
 }

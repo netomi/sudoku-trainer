@@ -17,26 +17,19 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
-package org.netomi.sudoku.solver;
+package org.netomi.sudoku.solver.techniques;
 
-public enum SolvingTechnique {
-    FULL_HOUSE("Full House"),
-    HIDDEN_SINGLE("Hidden Single"),
-    NAKED_SINGLE("Naked Single"),
-    LOCKED_CANDIDATES_TYPE_1("Locked Candidates Type 1 (Pointing)"),
-    LOCKED_CANDIDATES_TYPE_2("Locked Candidates Type 2 (Claiming)"),
-    HIDDEN_PAIR("Hidden Pair"),
-    NAKED_PAIR("Naked Pair"),
-    NAKED_TRIPLE("Naked Triple"),
-    NAKED_QUADRUPLE("Naked Quadruple");
+import org.netomi.sudoku.solver.HintFinder;
 
-    private final String name;
+public class NakedQuadrupleFinderTest extends AbstractHintFinderTest {
 
-    SolvingTechnique(String name) {
-        this.name = name;
+    @Override
+    protected HintFinder createHintFinder() {
+        return new NakedQuadrupleFinder();
     }
 
-    public String getName() {
-        return name;
+    @Override
+    protected boolean matches(TechniqueTestCase testCase) {
+        return testCase.getTechnique().startsWith("0202");
     }
 }

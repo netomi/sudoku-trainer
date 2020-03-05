@@ -48,10 +48,7 @@ public class HiddenSingleFinder extends AbstractHintFinder {
                     BitSet possiblePositions = house.getPotentialPositions(value);
                     if (possiblePositions.cardinality() == 1) {
                         int cellIndex = possiblePositions.nextSetBit(0);
-                        addDirectHint(grid,
-                                      hintAggregator,
-                                      cellIndex,
-                                      value);
+                        addPlacementHint(grid, hintAggregator, cellIndex, value);
                     }
                 }
             }

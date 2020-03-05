@@ -21,6 +21,8 @@ package org.netomi.sudoku.solver;
 
 import org.netomi.sudoku.model.Grid;
 
+import java.util.Objects;
+
 public abstract class Hint {
 
     private final Grid.Type        type;
@@ -40,4 +42,19 @@ public abstract class Hint {
     }
 
     public abstract void apply(Grid targetGrid, boolean updateGrid);
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(type, solvingTechnique);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Hint hint = (Hint) o;
+        return Objects.equals(type, hint.type) &&
+               solvingTechnique == hint.solvingTechnique;
+    }
 }

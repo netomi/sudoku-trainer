@@ -229,6 +229,16 @@ public class Cell {
         owner.notifyPossibleValuesChanged(this);
     }
 
+    /**
+     * Excludes the given values from the set of possible values.
+     * @param values the values to exclude
+     */
+    public void excludePossibleValues(BitSet values) {
+        owner.invalidateState();
+        excludedValues.or(values);
+        owner.notifyPossibleValuesChanged(this);
+    }
+
     BitSet getExcludedValues() {
         return excludedValues;
     }

@@ -21,20 +21,22 @@ package org.netomi.sudoku.solver;
 
 import org.netomi.sudoku.model.Grid;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 
 public class HintAggregator implements Iterable<Hint> {
 
     protected final Collection<Hint> hints;
 
     public HintAggregator() {
-        hints = new ArrayList<>();
+        hints = new LinkedHashSet<>();
     }
 
     public void addHint(Hint hint) {
-        hints.add(hint);
+        if (!hints.contains(hint)) {
+            hints.add(hint);
+        }
     }
 
     public void applyHints(Grid targetGrid) {

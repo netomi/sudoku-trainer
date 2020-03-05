@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.netomi.sudoku.io.GridValueLoader;
 import org.netomi.sudoku.model.Cell;
 import org.netomi.sudoku.model.Grid;
+import org.netomi.sudoku.model.GridUtil;
 import org.netomi.sudoku.model.PredefinedType;
 import org.netomi.sudoku.solver.*;
 
@@ -98,10 +99,9 @@ public abstract class AbstractHintFinderTest {
                         IndirectHint indirectHint = (IndirectHint) hint;
 
                         int index = 0;
-                        for (int cellIndex : indirectHint.getCellIndices()) {
-                            Cell cell = grid.getCell(cellIndex);
+                        for (Cell cell : GridUtil.getCells(grid, indirectHint.getCellIndices())) {
 
-                            for (int excludedValue : indirectHint.getExcludedValues()[index]) {
+                            for (int excludedValue : GridUtil.getValues(grid, indirectHint.getExcludedValues()[index])) {
 
                                 Candidate candidate =
                                         new Candidate(cell.getRow().getRowNumber(),

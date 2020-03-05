@@ -19,49 +19,72 @@
  */
 package org.netomi.sudoku.solver;
 
+import org.netomi.sudoku.model.Cell;
 import org.netomi.sudoku.model.Grid;
+import org.netomi.sudoku.model.GridUtil;
 
 import java.util.Arrays;
+import java.util.BitSet;
+import java.util.Objects;
 
 public class IndirectHint extends Hint {
 
-    private final int[]   cellIndices;
-    private final int[][] excludedValues;
+    private final BitSet   cellIndices;
+    private final BitSet[] excludedValues;
 
-    public IndirectHint(Grid.Type type, SolvingTechnique solvingTechnique, int[] cellIndices, int[] excludedValues) {
-        this(type, solvingTechnique, cellIndices, expandArray(excludedValues, cellIndices.length));
+    public IndirectHint(Grid.Type type, SolvingTechnique solvingTechnique, BitSet cellIndices, BitSet excludedValues) {
+        this(type, solvingTechnique, cellIndices, expand(excludedValues, cellIndices.cardinality()));
     }
 
-    public IndirectHint(Grid.Type type, SolvingTechnique solvingTechnique, int[] cellIndices, int[][] excludedValues) {
+    public IndirectHint(Grid.Type type, SolvingTechnique solvingTechnique, BitSet cellIndices, BitSet[] excludedValues) {
         super(type, solvingTechnique);
         this.cellIndices    = cellIndices;
         this.excludedValues = excludedValues;
     }
 
-    private static int[][] expandArray(int[] array, int copies) {
-        int[][] result = new int[copies][];
+    private static BitSet[] expand(BitSet values, int copies) {
+        BitSet[] result = new BitSet[copies];
 
         for (int i = 0; i < copies; i++) {
-            result[i] = array;
+            result[i] = values;
         }
 
         return result;
     }
 
-    public int[] getCellIndices() {
+    public BitSet getCellIndices() {
         return cellIndices;
     }
 
-    public int[][] getExcludedValues() {
+    public BitSet[] getExcludedValues() {
         return excludedValues;
     }
 
     @Override
     public void apply(Grid targetGrid, boolean updateGrid) {
         int index = 0;
-        for (int cellIndex : cellIndices) {
-            targetGrid.getCell(cellIndex).excludePossibleValues(excludedValues[index++]);
+        for (Cell cell : GridUtil.getCells(targetGrid, cellIndices)) {
+            cell.excludePossibleValues(excludedValues[index++]);
         }
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + Objects.hash(cellIndices);
+        result = 31 * result + Arrays.hashCode(excludedValues);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        IndirectHint that = (IndirectHint) o;
+        return super.equals(o)                               &&
+               Objects.equals(cellIndices, that.cellIndices) &&
+               Arrays.equals(excludedValues, that.excludedValues);
     }
 
     @Override
@@ -69,13 +92,14 @@ public class IndirectHint extends Hint {
         StringBuilder eliminations = new StringBuilder();
 
         int index = 0;
-        for (int cellIndex : cellIndices) {
+        for (int cellIndex = cellIndices.nextSetBit(0); cellIndex >= 0; cellIndex = cellIndices.nextSetBit(cellIndex + 1)) {
             eliminations.append(getGridType().getCellName(cellIndex));
-            eliminations.append(" <> ");
-            eliminations.append(Arrays.toString(excludedValues[index++]));
+            eliminations.append("<>");
+            eliminations.append(GridUtil.toIntCollection(excludedValues[index++]));
             eliminations.append(", ");
         }
-        eliminations.deleteCharAt(eliminations.length() - 2);
+
+        eliminations.delete(eliminations.length() - 2, eliminations.length());
 
         return String.format("%s: %s", getSolvingTechnique().getName(), eliminations.toString());
     }

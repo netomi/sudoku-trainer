@@ -19,7 +19,6 @@
  */
 package org.netomi.sudoku.solver.techniques;
 
-import org.netomi.sudoku.model.Cell;
 import org.netomi.sudoku.model.Grid;
 import org.netomi.sudoku.model.House;
 import org.netomi.sudoku.model.HouseVisitor;
@@ -69,36 +68,11 @@ public class HiddenPairFinder extends AbstractHintFinder {
                         matching.xor(otherPotentialPositions);
 
                         if (matching.cardinality() == 0) {
-                            addIndirectHint(grid, hintAggregator, house, potentialPositions, new int[] { value, otherValue });
+                            addEliminationHint(grid, hintAggregator, potentialPositions, new int[] { value, otherValue });
                         }
                     }
                 }
             }
         });
     }
-
-    protected void addIndirectHint(Grid           grid,
-                                   HintAggregator hintAggregator,
-                                   House          affectedHouse,
-                                   BitSet         affectedCellsIndices,
-                                   int[]          affectedValues) {
-
-        List<Cell>  affectedCells  = new ArrayList<>();
-        List<int[]> excludedValues = new ArrayList<>();
-        for (int i = affectedCellsIndices.nextSetBit(0); i >= 0; i = affectedCellsIndices.nextSetBit(i + 1)) {
-            Cell cell = grid.getCell(i);
-
-            int[] valuesToExclude = toIntArrayExcluding(cell.getPossibleValues(), affectedValues);
-
-            if (valuesToExclude.length > 0) {
-                affectedCells.add(cell);
-                excludedValues.add(valuesToExclude);
-            }
-        }
-
-        if (!affectedCells.isEmpty()) {
-            addIndirectHint(grid, hintAggregator, toCellIndexArray(affectedCells), excludedValues.toArray(new int[0][]));
-        }
-    }
-
 }
