@@ -21,6 +21,7 @@ package org.netomi.sudoku.model;
 
 import java.util.BitSet;
 import java.util.Iterator;
+import java.util.function.Predicate;
 
 /**
  * A class representing a certain region within a sudoku grid.
@@ -124,6 +125,21 @@ public abstract class House {
      */
     public Iterable<Cell> cells(int startIndex) {
         return owner.getCells(cells, startIndex);
+    }
+
+    /**
+     * Returns an {@code #Iterable} containing all unassigned cells of this {@code #House}.
+     */
+    public Iterable<Cell> unassignedCells() {
+        return unassignedCells(0);
+    }
+
+    /**
+     * Returns an {@code #Iterable} containing all unassigned cells of this {@code #House},
+     * whose cell index is >= startIndex.
+     */
+    public Iterable<Cell> unassignedCells(int startIndex) {
+        return owner.getCells(cells, (cell) -> !cell.isAssigned(), startIndex);
     }
 
     /**

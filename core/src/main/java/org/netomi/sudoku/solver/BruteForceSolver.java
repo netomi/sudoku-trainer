@@ -49,11 +49,8 @@ public class BruteForceSolver implements GridSolver {
         Grid searchGrid = grid.copy();
 
         Set<Cell> cellSet = new LinkedHashSet<>();
-
-        for (Cell cell : searchGrid.cells()) {
-            if (!cell.isAssigned()) {
-                cellSet.add(cell);
-            }
+        for (Cell cell : searchGrid.unassignedCells()) {
+            cellSet.add(cell);
         }
 
         boolean success = solveRecursive(searchGrid, cellSet, forward);

@@ -20,6 +20,8 @@
 package org.netomi.sudoku.model;
 
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.StreamSupport;
 
 public class Grid {
     private final Type       type;
@@ -128,6 +130,12 @@ public class Grid {
         return cells;
     }
 
+    public Iterable<Cell> unassignedCells() {
+        return () -> cells.stream()
+                          .filter(cell -> !cell.isAssigned())
+                          .iterator();
+    }
+
     public Iterable<House.Row> rows() {
         return rows;
     }
@@ -182,6 +190,14 @@ public class Grid {
 
     Iterable<Cell> getCells(BitSet cells) {
         return () -> new CellIterator(cells);
+    }
+
+    Iterable<Cell> getCells(BitSet cells, Predicate<Cell> predicate) {
+        return () -> new CellIterator(cells, predicate);
+    }
+
+    Iterable<Cell> getCells(BitSet cells, Predicate<Cell> predicate, int startIndex) {
+        return () -> new CellIterator(cells, predicate, startIndex);
     }
 
     Iterable<Cell> getCells(BitSet cells, int startIndex) {
@@ -434,21 +450,53 @@ public class Grid {
 
     private class CellIterator implements Iterator<Cell> {
 
-        private final BitSet cells;
-        private       int    nextOffset;
+        private final BitSet          cells;
+        private final Predicate<Cell> predicate;
+        private       int             nextOffset;
+        private       Cell            nextCell;
+        private       boolean         nextCellSet;
 
         CellIterator(BitSet cells) {
-            this(cells, 0);
+            this(cells, (cell) -> true, 0);
         }
 
         CellIterator(BitSet cells, int startIndex) {
-            this.cells      = cells;
-            this.nextOffset = cells.nextSetBit(startIndex);
+            this(cells, (cell) -> true, startIndex);
+        }
+
+        CellIterator(BitSet cells, Predicate<Cell> predicate) {
+            this(cells, predicate, 0);
+        }
+
+        CellIterator(BitSet cells, Predicate<Cell> predicate, int startIndex) {
+            this.cells       = cells;
+            this.predicate   = predicate;
+            this.nextCell    = null;
+            this.nextCellSet = false;
+            advanceIterator(startIndex);
+        }
+
+        private boolean advanceIterator(int startIndex) {
+            if (nextOffset < 0) {
+                return false;
+            }
+
+            int startOffset = startIndex;
+            while ((nextOffset = cells.nextSetBit(startOffset)) >= 0) {
+                Cell cell = getCell(nextOffset);
+                if (predicate.test(cell)) {
+                    nextCell    = cell;
+                    nextCellSet = true;
+                    return true;
+                }
+                startOffset = nextOffset + 1;
+            }
+            return false;
         }
 
         @Override
         public boolean hasNext() {
-            return nextOffset >= 0;
+            return nextCellSet || advanceIterator(nextOffset + 1);
         }
 
         @Override
@@ -456,9 +504,8 @@ public class Grid {
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }
-            Cell cell  = getCell(nextOffset);
-            nextOffset = cells.nextSetBit(nextOffset + 1);
-            return cell;
+            nextCellSet = false;
+            return nextCell;
         }
     }
 

@@ -46,11 +46,9 @@ public class FullHouseFinder extends AbstractHintFinder {
             if (assignedValues.cardinality() == expectedCardinality) {
                 int value = assignedValues.nextClearBit(1);
 
-                // Find the cell that is not assigned, and create a hint for it.
-                for (Cell cell : house.cells()) {
-                    if (!cell.isAssigned()) {
-                        placeValueInCell(grid, hintAggregator, cell.getCellIndex(), value);
-                    }
+                // Create a hint for all unassigned cells.
+                for (Cell cell : house.unassignedCells()) {
+                    placeValueInCell(grid, hintAggregator, cell.getCellIndex(), value);
                 }
             }
         });

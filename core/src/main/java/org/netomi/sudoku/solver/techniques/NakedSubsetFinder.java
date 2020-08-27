@@ -50,16 +50,14 @@ public abstract class NakedSubsetFinder extends AbstractHintFinder {
                 return;
             }
 
-            for (Cell cell : house.cells()) {
-                if (!cell.isAssigned()) {
-                    findSubset(grid,
-                               hintAggregator,
-                               house,
-                               new BitSet(grid.getCellCount()),
-                               cell,
-                               new BitSet(grid.getGridSize() + 1),
-                               1);
-                }
+            for (Cell cell : house.unassignedCells()) {
+                findSubset(grid,
+                           hintAggregator,
+                           house,
+                           new BitSet(grid.getCellCount()),
+                           cell,
+                           new BitSet(grid.getGridSize() + 1),
+                           1);
             }
         });
     }
@@ -114,10 +112,8 @@ public abstract class NakedSubsetFinder extends AbstractHintFinder {
         }
 
         boolean foundHint = false;
-        for (Cell nextCell : house.cells(currentCell.getCellIndex() + 1)) {
-            if (!nextCell.isAssigned()) {
-                foundHint |= findSubset(grid, hintAggregator, house, visitedCells, nextCell, allVisitedValues, level + 1);
-            }
+        for (Cell nextCell : house.unassignedCells(currentCell.getCellIndex() + 1)) {
+            foundHint |= findSubset(grid, hintAggregator, house, visitedCells, nextCell, allVisitedValues, level + 1);
         }
 
         visitedCells.clear(currentCell.getCellIndex());
