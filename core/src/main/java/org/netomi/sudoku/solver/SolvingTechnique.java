@@ -46,7 +46,10 @@ public enum SolvingTechnique {
     // Basic fish.
     X_WING("X-Wing"),
     SWORDFISH("Swordfish"),
-    JELLYFISH("Jellyfish");
+    JELLYFISH("Jellyfish"),
+
+    // chains.
+    REMOTE_PAIR("Remote Pair");
 
     private final String name;
 

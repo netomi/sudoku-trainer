@@ -121,6 +121,16 @@ public class Grids {
         return bitSet;
     }
 
+    public static BitSet toBitSet(Iterable<Cell> cells) {
+        BitSet bitSet = new BitSet();
+
+        for (Cell cell : cells) {
+            bitSet.set(cell.getCellIndex());
+        }
+
+        return bitSet;
+    }
+
     public static Iterable<Integer> getValues(Grid grid, BitSet values) {
         return () -> new Grid.ValueIterator(values, 1, grid.getGridSize(), false);
     }

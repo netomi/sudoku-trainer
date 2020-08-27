@@ -118,10 +118,10 @@ public abstract class AbstractHintFinder implements HintFinder {
      * @param affectedCells  the affected cells for this elimination hint
      * @param excludedValues the candidate value to remove
      */
-    protected void eliminateValuesFromCells(Grid           grid,
-                                            HintAggregator hintAggregator,
-                                            BitSet         affectedCells,
-                                            BitSet         excludedValues) {
+    protected boolean eliminateValuesFromCells(Grid           grid,
+                                               HintAggregator hintAggregator,
+                                               BitSet         affectedCells,
+                                               BitSet         excludedValues) {
 
         BitSet       cellsToModify       = new BitSet(grid.getCellCount());
         List<BitSet> valuesToExcludeList = new ArrayList<>();
@@ -142,6 +142,9 @@ public abstract class AbstractHintFinder implements HintFinder {
                                                     getSolvingTechnique(),
                                                     cellsToModify,
                                                     valuesToExcludeList.toArray(new BitSet[0])));
+            return true;
+        } else {
+            return false;
         }
     }
 

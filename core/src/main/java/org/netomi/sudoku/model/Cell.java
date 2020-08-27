@@ -20,6 +20,7 @@
 package org.netomi.sudoku.model;
 
 import java.util.BitSet;
+import java.util.Objects;
 
 /**
  * Represents a cell in a sudoku grid.
@@ -325,6 +326,19 @@ public class Cell {
      */
     public void accept(CellVisitor visitor) {
         visitor.visitCell(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Cell cell = (Cell) o;
+        return cellIndex == cell.cellIndex;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(cellIndex);
     }
 
     @Override
