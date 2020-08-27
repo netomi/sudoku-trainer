@@ -19,13 +19,12 @@
  */
 package org.netomi.sudoku.solver.techniques;
 
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.netomi.sudoku.io.GridValueLoader;
 import org.netomi.sudoku.model.Cell;
 import org.netomi.sudoku.model.Grid;
-import org.netomi.sudoku.model.GridUtil;
+import org.netomi.sudoku.model.Grids;
 import org.netomi.sudoku.model.PredefinedType;
 import org.netomi.sudoku.solver.*;
 
@@ -35,11 +34,14 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 public abstract class AbstractHintFinderTest {
 
     private static final List<TechniqueTestCase> testCases = new ArrayList<>();
 
-    @BeforeClass
+    @BeforeAll
     public static void loadTestSuite() throws IOException  {
         // only load the test cases once.
         if (!testCases.isEmpty()) {
@@ -85,7 +87,7 @@ public abstract class AbstractHintFinderTest {
                 boolean foundExpectedResult = false;
                 if (testCase.expectsDirectHint()) {
                     // Some heuristic to detect if a HintFinder would suddenly find too many hints.
-                    Assert.assertTrue("found " + hints.size() + " hints", hints.size() <= 10);
+                    assertTrue(hints.size() <= 10, "found " + hints.size() + " hints");
 
                     for (Hint hint : hints) {
                         String result = ((DirectHint) hint).asString();
@@ -96,7 +98,7 @@ public abstract class AbstractHintFinderTest {
                     }
                 } else {
                     // Some heuristic to detect if a HintFinder would suddenly find too many hints.
-                    Assert.assertTrue("found " + hints.size() + " hints", hints.size() <= 10);
+                    assertTrue(hints.size() <= 10, "found " + hints.size() + " hints");
 
                     for (Hint hint : hints) {
                         Set<Candidate> candidateSet = new HashSet<>();
@@ -105,9 +107,9 @@ public abstract class AbstractHintFinderTest {
                         IndirectHint indirectHint = (IndirectHint) hint;
 
                         int index = 0;
-                        for (Cell cell : GridUtil.getCells(grid, indirectHint.getCellIndices())) {
+                        for (Cell cell : Grids.getCells(grid, indirectHint.getCellIndices())) {
 
-                            for (int excludedValue : GridUtil.getValues(grid, indirectHint.getExcludedValues()[index])) {
+                            for (int excludedValue : Grids.getValues(grid, indirectHint.getExcludedValues()[index])) {
 
                                 Candidate candidate =
                                         new Candidate(cell.getRow().getRowNumber(),
@@ -131,9 +133,9 @@ public abstract class AbstractHintFinderTest {
                     count++;
                 } else {
                     if (testCase.expectsDirectHint()) {
-                        Assert.fail("Failed to find expected result '" + testCase.getPlacement() + "' in " + hints);
+                        fail("Failed to find expected result '" + testCase.getPlacement() + "' in " + hints);
                     } else {
-                        Assert.fail("Failed to find expected result '" + testCase.getEliminations() + "' in " + hints);
+                        fail("Failed to find expected result '" + testCase.getEliminations() + "' in " + hints);
                     }
                 }
             }

@@ -20,7 +20,7 @@
 package org.netomi.sudoku.solver.techniques;
 
 import org.netomi.sudoku.model.Grid;
-import org.netomi.sudoku.model.GridUtil;
+import org.netomi.sudoku.model.Grids;
 import org.netomi.sudoku.model.House;
 import org.netomi.sudoku.model.HouseVisitor;
 import org.netomi.sudoku.solver.HintAggregator;
@@ -98,7 +98,7 @@ public abstract class BasicFishFinder extends AbstractHintFinder {
 
             // remove all cells from base sets.
             for (House row : visitedRegions) {
-                affectedCells.andNot(GridUtil.getCells(row));
+                affectedCells.andNot(Grids.getCells(row));
             }
 
             BitSet excludedValue = new BitSet();
@@ -127,10 +127,10 @@ public abstract class BasicFishFinder extends AbstractHintFinder {
     private BitSet getCoverSet(Grid grid, House house, BitSet potentialPositions) {
         switch (house.getType()) {
             case ROW:
-                return GridUtil.toColumnSet(grid, potentialPositions);
+                return Grids.toColumnSet(grid, potentialPositions);
 
             case COLUMN:
-                return GridUtil.toRowSet(grid, potentialPositions);
+                return Grids.toRowSet(grid, potentialPositions);
 
             default:
                 throw new IllegalArgumentException("unsupported region type " + house.getType());
@@ -146,7 +146,7 @@ public abstract class BasicFishFinder extends AbstractHintFinder {
                     grid.getColumn(i) :
                     grid.getRow(i);
 
-            affectedCells.or(GridUtil.getCells(house));
+            affectedCells.or(Grids.getCells(house));
         }
 
         return affectedCells;

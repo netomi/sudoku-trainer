@@ -24,10 +24,10 @@ import java.util.BitSet;
 import java.util.Collection;
 import java.util.List;
 
-public class GridUtil {
+public class Grids {
 
     // hide constructor of utility class.
-    private GridUtil() {}
+    private Grids() {}
 
     public static BitSet toRowSet(Grid grid, BitSet cells) {
         BitSet rows = new BitSet(grid.getGridSize());

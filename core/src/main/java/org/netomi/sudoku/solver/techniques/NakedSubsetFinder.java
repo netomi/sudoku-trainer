@@ -84,7 +84,7 @@ public abstract class NakedSubsetFinder extends AbstractHintFinder {
             boolean foundHint = false;
 
             if (allVisitedValues.cardinality() == subSetSize) {
-                BitSet affectedCells = GridUtil.getCells(house);
+                BitSet affectedCells = Grids.getCells(house);
                 affectedCells.andNot(visitedCells);
 
                 eliminateValuesFromCells(grid, hintAggregator, affectedCells, allVisitedValues);

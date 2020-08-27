@@ -21,7 +21,7 @@ package org.netomi.sudoku.solver.techniques;
 
 import org.netomi.sudoku.model.Cell;
 import org.netomi.sudoku.model.Grid;
-import org.netomi.sudoku.model.GridUtil;
+import org.netomi.sudoku.model.Grids;
 import org.netomi.sudoku.model.House;
 import org.netomi.sudoku.solver.*;
 
@@ -92,7 +92,7 @@ public abstract class AbstractHintFinder implements HintFinder {
         BitSet       cellsToModify = new BitSet(grid.getCellCount());
         List<BitSet> excludedValues = new ArrayList<>();
 
-        for (Cell cell : GridUtil.getCells(grid, affectedCells)) {
+        for (Cell cell : Grids.getCells(grid, affectedCells)) {
             if (!cell.isAssigned()) {
                 BitSet valuesToExclude = valuesExcluding(cell.getPossibleValues(), allowedValues);
 
@@ -126,7 +126,7 @@ public abstract class AbstractHintFinder implements HintFinder {
         BitSet       cellsToModify       = new BitSet(grid.getCellCount());
         List<BitSet> valuesToExcludeList = new ArrayList<>();
 
-        for (Cell cell : GridUtil.getCells(grid, affectedCells)) {
+        for (Cell cell : Grids.getCells(grid, affectedCells)) {
             if (!cell.isAssigned()) {
                 BitSet valuesToExclude = valuesIncluding(cell.getPossibleValues(), excludedValues);
 

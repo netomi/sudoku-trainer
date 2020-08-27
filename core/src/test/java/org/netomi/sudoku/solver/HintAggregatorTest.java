@@ -19,10 +19,11 @@
  */
 package org.netomi.sudoku.solver;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.netomi.sudoku.model.Grid;
 import org.netomi.sudoku.model.PredefinedType;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class HintAggregatorTest {
 
@@ -37,10 +38,10 @@ public class HintAggregatorTest {
         aggregator.addHint(hint);
         aggregator.addHint(hint);
 
-        Assert.assertEquals(1, aggregator.hints.size());
+        assertEquals(1, aggregator.hints.size());
     }
 
-    @Test
+    @org.junit.jupiter.api.Test
     public void differentHints() {
         HintAggregator aggregator = new HintAggregator();
 
@@ -52,6 +53,6 @@ public class HintAggregatorTest {
         aggregator.addHint(hint1);
         aggregator.addHint(hint2);
 
-        Assert.assertEquals(2, aggregator.hints.size());
+        assertEquals(2, aggregator.hints.size());
     }
 }

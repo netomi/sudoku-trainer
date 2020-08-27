@@ -30,7 +30,7 @@ import org.netomi.sudoku.solver.HintSolver;
 
 import java.util.Arrays;
 
-public class Test {
+public class MyTest {
 
     public static void main(String[] args) {
         String input = "000000010400000000020000000000050407008000300001090000300400200050100000000806000";

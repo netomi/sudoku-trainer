@@ -62,7 +62,7 @@ public class NakedPairFinder extends AbstractHintFinder {
                     matching.xor(otherPossibleValues);
 
                     if (matching.cardinality() == 0) {
-                        BitSet affectedCells = GridUtil.getCells(house);
+                        BitSet affectedCells = Grids.getCells(house);
 
                         affectedCells.clear(cell.getCellIndex());
                         affectedCells.clear(otherCell.getCellIndex());

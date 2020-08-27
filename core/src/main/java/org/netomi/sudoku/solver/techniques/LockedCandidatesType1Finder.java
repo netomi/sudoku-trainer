@@ -20,7 +20,7 @@
 package org.netomi.sudoku.solver.techniques;
 
 import org.netomi.sudoku.model.Grid;
-import org.netomi.sudoku.model.GridUtil;
+import org.netomi.sudoku.model.Grids;
 import org.netomi.sudoku.model.House;
 import org.netomi.sudoku.solver.HintAggregator;
 import org.netomi.sudoku.solver.SolvingTechnique;
@@ -45,13 +45,13 @@ public class LockedCandidatesType1Finder extends AbstractHintFinder {
                 }
 
                 // Check if all possible cells are in the same row.
-                House.Row row = GridUtil.getSingleRow(grid, possiblePositions);
+                House.Row row = Grids.getSingleRow(grid, possiblePositions);
                 if (row != null) {
                     eliminateValueFromCells(grid, hintAggregator, row, house, value);
                 }
 
                 // Check if all possible cells are in the same column.
-                House.Column column = GridUtil.getSingleColumn(grid, possiblePositions);
+                House.Column column = Grids.getSingleColumn(grid, possiblePositions);
                 if (column != null) {
                     eliminateValueFromCells(grid, hintAggregator, column, house, value);
                 }

@@ -1,6 +1,5 @@
 package org.netomi.sudoku.solver;
 
-import org.netomi.sudoku.io.GridPrinter;
 import org.netomi.sudoku.io.GridValueLoader;
 import org.netomi.sudoku.model.Grid;
 import org.netomi.sudoku.model.PredefinedType;

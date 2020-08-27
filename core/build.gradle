@@ -1,16 +1,13 @@
-plugins {
-    id 'java'
-}
-
-group 'org.netomi'
+group 'org.netomi.sudoku'
 version '1.0-SNAPSHOT'
 
-sourceCompatibility = 1.8
-
-repositories {
-    mavenCentral()
+test {
+    useJUnitPlatform()
 }
 
 dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.12'
+    // junit 5
+    testCompile     "org.junit.jupiter:junit-jupiter-api:$junitVersion"
+    testCompile     "org.junit.jupiter:junit-jupiter-params:$junitVersion"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 }

@@ -21,7 +21,7 @@ package org.netomi.sudoku.solver;
 
 import org.netomi.sudoku.model.Cell;
 import org.netomi.sudoku.model.Grid;
-import org.netomi.sudoku.model.GridUtil;
+import org.netomi.sudoku.model.Grids;
 
 import java.util.Arrays;
 import java.util.BitSet;
@@ -69,7 +69,7 @@ public class IndirectHint extends Hint {
     @Override
     public void apply(Grid targetGrid, boolean updateGrid) {
         int index = 0;
-        for (Cell cell : GridUtil.getCells(targetGrid, cellIndices)) {
+        for (Cell cell : Grids.getCells(targetGrid, cellIndices)) {
             cell.excludePossibleValues(excludedValues[index++]);
         }
     }
@@ -101,7 +101,7 @@ public class IndirectHint extends Hint {
         for (int cellIndex = cellIndices.nextSetBit(0); cellIndex >= 0; cellIndex = cellIndices.nextSetBit(cellIndex + 1)) {
             eliminations.append(getGridType().getCellName(cellIndex));
             eliminations.append("<>");
-            eliminations.append(GridUtil.toIntCollection(excludedValues[index++]));
+            eliminations.append(Grids.toIntCollection(excludedValues[index++]));
             eliminations.append(", ");
         }
 
