@@ -21,15 +21,15 @@ package org.netomi.sudoku.solver.techniques;
 
 import org.netomi.sudoku.solver.HintFinder;
 
-public class NakedTripleFinderTest extends AbstractHintFinderTest {
+public class LockedTripleFinderTest extends AbstractHintFinderTest {
 
     @Override
     protected HintFinder createHintFinder() {
-        return new NakedTripleFinder();
+        return new LockedTripleFinder();
     }
 
     @Override
     protected boolean matches(TechniqueTestCase testCase) {
-        return testCase.getTechnique().startsWith("0201");
+        return testCase.getTechnique().startsWith("0111");
     }
 }
