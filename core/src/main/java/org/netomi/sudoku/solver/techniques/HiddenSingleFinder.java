@@ -41,15 +41,12 @@ public class HiddenSingleFinder extends AbstractHintFinder {
 
     @Override
     public void findHints(Grid grid, HintAggregator hintAggregator) {
-        grid.acceptHouses(new HouseVisitor() {
-            @Override
-            public void visitAnyHouse(House house) {
-                for (int value : house.unassignedValues()) {
-                    BitSet possiblePositions = house.getPotentialPositions(value);
-                    if (possiblePositions.cardinality() == 1) {
-                        int cellIndex = possiblePositions.nextSetBit(0);
-                        placeValueInCell(grid, hintAggregator, cellIndex, value);
-                    }
+        grid.acceptHouses(house -> {
+            for (int value : house.unassignedValues()) {
+                BitSet possiblePositions = house.getPotentialPositions(value);
+                if (possiblePositions.cardinality() == 1) {
+                    int cellIndex = possiblePositions.nextSetBit(0);
+                    placeValueInCell(grid, hintAggregator, cellIndex, value);
                 }
             }
         });

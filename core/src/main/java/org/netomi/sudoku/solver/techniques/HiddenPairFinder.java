@@ -42,37 +42,33 @@ public class HiddenPairFinder extends AbstractHintFinder {
 
     @Override
     public void findHints(Grid grid, HintAggregator hintAggregator) {
-        grid.acceptHouses(new HouseVisitor() {
-            @Override
-            public void visitAnyHouse(House house) {
+        grid.acceptHouses(house -> {
+            for (int value : house.unassignedValues()) {
+                BitSet potentialPositions = house.getPotentialPositions(value);
 
-                for (int value : house.unassignedValues()) {
-                    BitSet potentialPositions = house.getPotentialPositions(value);
+                if (potentialPositions.cardinality() != 2) {
+                    continue;
+                }
 
-                    if (potentialPositions.cardinality() != 2) {
+                for (int otherValue : house.unassignedValues(value + 1)) {
+
+                    BitSet otherPotentialPositions = house.getPotentialPositions(otherValue);
+
+                    if (otherPotentialPositions.cardinality() != 2) {
                         continue;
                     }
 
-                    for (int otherValue : house.unassignedValues(value + 1)) {
+                    // If the two bitsets, containing the possible positions for some values,
+                    // share the exact same positions, we have found a hidden pair.
+                    BitSet matching = (BitSet) potentialPositions.clone();
+                    matching.xor(otherPotentialPositions);
 
-                        BitSet otherPotentialPositions = house.getPotentialPositions(otherValue);
+                    BitSet allowedValues = new BitSet();
+                    allowedValues.set(value);
+                    allowedValues.set(otherValue);
 
-                        if (otherPotentialPositions.cardinality() != 2) {
-                            continue;
-                        }
-
-                        // If the two bitsets, containing the possible positions for some values,
-                        // share the exact same positions, we have found a hidden pair.
-                        BitSet matching = (BitSet) potentialPositions.clone();
-                        matching.xor(otherPotentialPositions);
-
-                        BitSet allowedValues = new BitSet();
-                        allowedValues.set(value);
-                        allowedValues.set(otherValue);
-
-                        if (matching.cardinality() == 0) {
-                            eliminateNotAllowedValuesFromCells(grid, hintAggregator, potentialPositions, allowedValues);
-                        }
+                    if (matching.cardinality() == 0) {
+                        eliminateNotAllowedValuesFromCells(grid, hintAggregator, potentialPositions, allowedValues);
                     }
                 }
             }

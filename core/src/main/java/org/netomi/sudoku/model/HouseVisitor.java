@@ -29,7 +29,7 @@ public interface HouseVisitor {
     /**
      * By default, this method is called for any visited {@code #House}.
      */
-    default void visitAnyHouse(House house) {};
+    void visitAnyHouse(House house);
 
     /**
      * Called when visiting a row.

@@ -37,28 +37,24 @@ public class LockedCandidatesType1Finder extends AbstractHintFinder {
 
     @Override
     public void findHints(Grid grid, HintAggregator hintAggregator) {
-        grid.acceptBlocks(new HouseVisitor() {
-            @Override
-            public void visitAnyHouse(House house) {
+        grid.acceptBlocks(house -> {
+            for (int value : house.unassignedValues()) {
+                BitSet possiblePositions = house.getPotentialPositions(value);
 
-                for (int value : house.unassignedValues()) {
-                    BitSet possiblePositions = house.getPotentialPositions(value);
+                if (possiblePositions.cardinality() == 0) {
+                    continue;
+                }
 
-                    if (possiblePositions.cardinality() == 0) {
-                        continue;
-                    }
+                // Check if all possible cells are in the same row.
+                House.Row row = GridUtil.getSingleRow(grid, possiblePositions);
+                if (row != null) {
+                    eliminateValueFromCells(grid, hintAggregator, row, house, value);
+                }
 
-                    // Check if all possible cells are in the same row.
-                    House.Row row = GridUtil.getSingleRow(grid, possiblePositions);
-                    if (row != null) {
-                        eliminateValueFromCells(grid, hintAggregator, row, house, value);
-                    }
-
-                    // Check if all possible cells are in the same column.
-                    House.Column column = GridUtil.getSingleColumn(grid, possiblePositions);
-                    if (column != null) {
-                        eliminateValueFromCells(grid, hintAggregator, column, house, value);
-                    }
+                // Check if all possible cells are in the same column.
+                House.Column column = GridUtil.getSingleColumn(grid, possiblePositions);
+                if (column != null) {
+                    eliminateValueFromCells(grid, hintAggregator, column, house, value);
                 }
             }
         });

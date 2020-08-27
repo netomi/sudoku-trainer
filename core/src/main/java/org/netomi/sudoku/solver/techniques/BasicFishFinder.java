@@ -46,22 +46,19 @@ public abstract class BasicFishFinder extends AbstractHintFinder {
     @Override
     public void findHints(Grid grid, HintAggregator hintAggregator) {
 
-        HouseVisitor visitor = new HouseVisitor() {
-            @Override
-            public void visitAnyHouse(House house) {
-                if (house.isSolved()) {
-                    return;
-                }
+        HouseVisitor visitor = house -> {
+            if (house.isSolved()) {
+                return;
+            }
 
-                for (int value : house.unassignedValues()) {
-                    findBaseSet(grid,
-                                hintAggregator,
-                                new ArrayList<>(),
-                                house,
-                                value,
-                                new BitSet(grid.getGridSize()),
-                                1);
-                }
+            for (int value : house.unassignedValues()) {
+                findBaseSet(grid,
+                            hintAggregator,
+                            new ArrayList<>(),
+                            house,
+                            value,
+                            new BitSet(grid.getGridSize()),
+                            1);
             }
         };
 

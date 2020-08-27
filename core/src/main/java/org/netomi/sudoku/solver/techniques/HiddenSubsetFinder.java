@@ -42,23 +42,19 @@ public abstract class HiddenSubsetFinder extends AbstractHintFinder {
 
     @Override
     public void findHints(Grid grid, HintAggregator hintAggregator) {
-        grid.acceptHouses(new HouseVisitor() {
-            @Override
-            public void visitAnyHouse(House house) {
+        grid.acceptHouses(house -> {
+            if (house.isSolved()) {
+                return;
+            }
 
-                if (house.isSolved()) {
-                    return;
-                }
-
-                for (int value : house.unassignedValues()) {
-                    findSubset(grid,
-                               hintAggregator,
-                               house,
-                               new BitSet(grid.getGridSize() + 1),
-                               value,
-                               new BitSet(grid.getCellCount()),
-                               1);
-                }
+            for (int value : house.unassignedValues()) {
+                findSubset(grid,
+                           hintAggregator,
+                           house,
+                           new BitSet(grid.getGridSize() + 1),
+                           value,
+                           new BitSet(grid.getCellCount()),
+                           1);
             }
         });
     }

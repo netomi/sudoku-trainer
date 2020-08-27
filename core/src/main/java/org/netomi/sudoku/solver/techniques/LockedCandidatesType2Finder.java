@@ -37,22 +37,18 @@ public class LockedCandidatesType2Finder extends AbstractHintFinder {
 
     @Override
     public void findHints(Grid grid, HintAggregator hintAggregator) {
-        HouseVisitor visitor = new HouseVisitor() {
-            @Override
-            public void visitAnyHouse(House house) {
+        HouseVisitor visitor = house -> {
+            for (int value : house.unassignedValues()) {
+                BitSet possiblePositions = house.getPotentialPositions(value);
 
-                for (int value : house.unassignedValues()) {
-                    BitSet possiblePositions = house.getPotentialPositions(value);
+                if (possiblePositions.cardinality() == 0) {
+                    continue;
+                }
 
-                    if (possiblePositions.cardinality() == 0) {
-                        continue;
-                    }
-
-                    // Check if all possible cells are in the same block.
-                    House.Block block = GridUtil.getSingleBlock(grid, possiblePositions);
-                    if (block != null) {
-                        eliminateValueFromCells(grid, hintAggregator, block, house, value);
-                    }
+                // Check if all possible cells are in the same block.
+                House.Block block = GridUtil.getSingleBlock(grid, possiblePositions);
+                if (block != null) {
+                    eliminateValueFromCells(grid, hintAggregator, block, house, value);
                 }
             }
         };

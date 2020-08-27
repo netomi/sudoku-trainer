@@ -40,37 +40,34 @@ public class NakedPairFinder extends AbstractHintFinder {
 
     @Override
     public void findHints(Grid grid, HintAggregator hintAggregator) {
-        grid.acceptHouses(new HouseVisitor() {
-            @Override
-            public void visitAnyHouse(House house) {
-                for (Cell cell : house.cells()) {
-                    BitSet possibleValues = cell.getPossibleValues();
+        grid.acceptHouses(house -> {
+            for (Cell cell : house.cells()) {
+                BitSet possibleValues = cell.getPossibleValues();
 
-                    if (possibleValues.cardinality() != 2) {
+                if (possibleValues.cardinality() != 2) {
+                    continue;
+                }
+
+                for (Cell otherCell : house.cells(cell.getCellIndex() + 1)) {
+
+                    BitSet otherPossibleValues = otherCell.getPossibleValues();
+
+                    if (otherPossibleValues.cardinality() != 2) {
                         continue;
                     }
 
-                    for (Cell otherCell : house.cells(cell.getCellIndex() + 1)) {
+                    // If the two bitsets containing the possible candidate values
+                    // have the same candidates, we have found a naked pair.
+                    BitSet matching = (BitSet) possibleValues.clone();
+                    matching.xor(otherPossibleValues);
 
-                        BitSet otherPossibleValues = otherCell.getPossibleValues();
+                    if (matching.cardinality() == 0) {
+                        BitSet affectedCells = GridUtil.getCells(house);
 
-                        if (otherPossibleValues.cardinality() != 2) {
-                            continue;
-                        }
+                        affectedCells.clear(cell.getCellIndex());
+                        affectedCells.clear(otherCell.getCellIndex());
 
-                        // If the two bitsets containing the possible candidate values
-                        // have the same candidates, we have found a naked pair.
-                        BitSet matching = (BitSet) possibleValues.clone();
-                        matching.xor(otherPossibleValues);
-
-                        if (matching.cardinality() == 0) {
-                            BitSet affectedCells = GridUtil.getCells(house);
-
-                            affectedCells.clear(cell.getCellIndex());
-                            affectedCells.clear(otherCell.getCellIndex());
-
-                            eliminateValuesFromCells(grid, hintAggregator, affectedCells, possibleValues);
-                        }
+                        eliminateValuesFromCells(grid, hintAggregator, affectedCells, possibleValues);
                     }
                 }
             }

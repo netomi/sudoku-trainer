@@ -43,18 +43,15 @@ public class FullHouseFinder extends AbstractHintFinder {
     public void findHints(Grid grid, HintAggregator hintAggregator) {
         final int expectedCardinality = grid.getGridSize() - 1;
 
-        grid.acceptHouses(new HouseVisitor() {
-            @Override
-            public void visitAnyHouse(House house) {
-                BitSet assignedValues = house.getAssignedValues();
-                if (assignedValues.cardinality() == expectedCardinality) {
-                    int value = assignedValues.nextClearBit(1);
+        grid.acceptHouses(house -> {
+            BitSet assignedValues = house.getAssignedValues();
+            if (assignedValues.cardinality() == expectedCardinality) {
+                int value = assignedValues.nextClearBit(1);
 
-                    // Find the cell that is not assigned, and create a hint for it.
-                    for (Cell cell : house.cells()) {
-                        if (!cell.isAssigned()) {
-                            placeValueInCell(grid, hintAggregator, cell.getCellIndex(), value);
-                        }
+                // Find the cell that is not assigned, and create a hint for it.
+                for (Cell cell : house.cells()) {
+                    if (!cell.isAssigned()) {
+                        placeValueInCell(grid, hintAggregator, cell.getCellIndex(), value);
                     }
                 }
             }

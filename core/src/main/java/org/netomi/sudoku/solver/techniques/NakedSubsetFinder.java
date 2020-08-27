@@ -40,24 +40,20 @@ public abstract class NakedSubsetFinder extends AbstractHintFinder {
 
     @Override
     public void findHints(Grid grid, HintAggregator hintAggregator) {
-        grid.acceptHouses(new HouseVisitor() {
-            @Override
-            public void visitAnyHouse(House house) {
+        grid.acceptHouses(house -> {
+            if (house.isSolved()) {
+                return;
+            }
 
-                if (house.isSolved()) {
-                    return;
-                }
-
-                for (Cell cell : house.cells()) {
-                    if (!cell.isAssigned()) {
-                        findSubset(grid,
-                                   hintAggregator,
-                                   house,
-                                   new BitSet(grid.getCellCount()),
-                                   cell,
-                                   new BitSet(grid.getGridSize() + 1),
-                                   1);
-                    }
+            for (Cell cell : house.cells()) {
+                if (!cell.isAssigned()) {
+                    findSubset(grid,
+                               hintAggregator,
+                               house,
+                               new BitSet(grid.getCellCount()),
+                               cell,
+                               new BitSet(grid.getGridSize() + 1),
+                               1);
                 }
             }
         });
