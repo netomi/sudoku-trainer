@@ -41,7 +41,7 @@ public enum SolvingTechnique {
 
     // Locked subsets.
     LOCKED_PAIR("Locked Pair"),
-    //LOCKED_TRIPLE("Locked Triple"),
+    LOCKED_TRIPLE("Locked Triple"),
 
     // Basic fish.
     X_WING("X-Wing"),

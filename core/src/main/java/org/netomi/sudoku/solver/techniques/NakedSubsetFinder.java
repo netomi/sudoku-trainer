@@ -25,17 +25,22 @@ import org.netomi.sudoku.solver.HintAggregator;
 import java.util.BitSet;
 
 /**
- * A {@code HintFinder} implementation that looks for houses
- * where a subset of cells has the same candidates left,
- * forming a naked subset. All matching candidates in other cells
- * of the same house can be removed.
+ * A {@code HintFinder} implementation that looks for houses where a subset of cells
+ * has the same candidates left, forming a naked subset. All matching candidates in
+ * other cells of the same house can be removed.
  */
 public abstract class NakedSubsetFinder extends AbstractHintFinder {
 
-    private final int subSetSize;
+    private final int     subSetSize;
+    private final boolean findLockedHouses;
 
     protected NakedSubsetFinder(int subSetSize) {
-        this.subSetSize = subSetSize;
+        this(subSetSize, false);
+    }
+
+    protected NakedSubsetFinder(int subSetSize, boolean findLockedHouses) {
+        this.subSetSize       = subSetSize;
+        this.findLockedHouses = findLockedHouses;
     }
 
     @Override
@@ -85,6 +90,19 @@ public abstract class NakedSubsetFinder extends AbstractHintFinder {
 
             if (allVisitedValues.cardinality() == subSetSize) {
                 BitSet affectedCells = Grids.getCells(house);
+
+                if (findLockedHouses) {
+                    House.Row row = Grids.getSingleRow(grid, visitedCells);
+                    if (row != null) {
+                        affectedCells.or(Grids.getCells(row));
+                    }
+
+                    House.Column col = Grids.getSingleColumn(grid, visitedCells);
+                    if (col != null) {
+                        affectedCells.or(Grids.getCells(col));
+                    }
+                }
+
                 affectedCells.andNot(visitedCells);
 
                 eliminateValuesFromCells(grid, hintAggregator, affectedCells, allVisitedValues);
