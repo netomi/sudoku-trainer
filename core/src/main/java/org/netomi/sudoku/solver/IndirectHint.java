@@ -32,11 +32,17 @@ public class IndirectHint extends Hint {
     private final BitSet   cellIndices;
     private final BitSet[] excludedValues;
 
-    public IndirectHint(Grid.Type type, SolvingTechnique solvingTechnique, BitSet cellIndices, BitSet excludedValues) {
+    public IndirectHint(Grid.Type        type,
+                        SolvingTechnique solvingTechnique,
+                        BitSet           cellIndices,
+                        BitSet           excludedValues) {
         this(type, solvingTechnique, cellIndices, expand(excludedValues, cellIndices.cardinality()));
     }
 
-    public IndirectHint(Grid.Type type, SolvingTechnique solvingTechnique, BitSet cellIndices, BitSet[] excludedValues) {
+    public IndirectHint(Grid.Type        type,
+                        SolvingTechnique solvingTechnique,
+                        BitSet           cellIndices,
+                        BitSet[]         excludedValues) {
         super(type, solvingTechnique);
         this.cellIndices    = cellIndices;
         this.excludedValues = excludedValues;
@@ -101,6 +107,6 @@ public class IndirectHint extends Hint {
 
         eliminations.delete(eliminations.length() - 2, eliminations.length());
 
-        return String.format("%s: %s", getSolvingTechnique().getName(), eliminations.toString());
+        return String.format("%s: => %s", getSolvingTechnique().getName(), eliminations.toString());
     }
 }

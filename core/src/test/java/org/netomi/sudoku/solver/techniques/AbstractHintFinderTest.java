@@ -89,7 +89,7 @@ public abstract class AbstractHintFinderTest {
 
                     for (Hint hint : hints) {
                         String result = ((DirectHint) hint).asString();
-                        if (result.equals(testCase.getPlacement().toString())) {
+                        if (result.equals(testCase.getPlacement().asPlacement())) {
                             foundExpectedResult = true;
                             break;
                         }
@@ -273,6 +273,14 @@ public abstract class AbstractHintFinderTest {
             return row   == candidate.row &&
                    col   == candidate.col &&
                    value == candidate.value;
+        }
+
+        public String asPlacement() {
+            return String.format("r%dc%d=%d", row, col, value);
+        }
+
+        public String asElimination() {
+            return toString();
         }
 
         @Override
