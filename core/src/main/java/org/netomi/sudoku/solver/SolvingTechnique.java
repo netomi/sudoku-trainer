@@ -39,6 +39,10 @@ public enum SolvingTechnique {
     NAKED_TRIPLE("Naked Triple"),
     NAKED_QUADRUPLE("Naked Quadruple"),
 
+    // Locked subsets.
+    LOCKED_PAIR("Locked Pair"),
+    //LOCKED_TRIPLE("Locked Triple"),
+
     // Basic fish.
     X_WING("X-Wing"),
     SWORDFISH("Swordfish"),

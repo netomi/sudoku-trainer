@@ -33,6 +33,16 @@ import java.util.BitSet;
  */
 public class NakedPairFinder extends AbstractHintFinder {
 
+    private final boolean findLockedHouses;
+
+    public NakedPairFinder() {
+        this(false);
+    }
+
+    protected NakedPairFinder(boolean findLockedHouses) {
+        this.findLockedHouses = findLockedHouses;
+    }
+
     @Override
     public SolvingTechnique getSolvingTechnique() {
         return SolvingTechnique.NAKED_PAIR;
@@ -43,15 +53,12 @@ public class NakedPairFinder extends AbstractHintFinder {
         grid.acceptHouses(house -> {
             for (Cell cell : house.cells()) {
                 BitSet possibleValues = cell.getPossibleValues();
-
                 if (possibleValues.cardinality() != 2) {
                     continue;
                 }
 
                 for (Cell otherCell : house.cells(cell.getCellIndex() + 1)) {
-
                     BitSet otherPossibleValues = otherCell.getPossibleValues();
-
                     if (otherPossibleValues.cardinality() != 2) {
                         continue;
                     }
@@ -63,6 +70,19 @@ public class NakedPairFinder extends AbstractHintFinder {
 
                     if (matching.cardinality() == 0) {
                         BitSet affectedCells = Grids.getCells(house);
+
+                        if (findLockedHouses) {
+                            BitSet pairCells = Grids.toBitSet(cell, otherCell);
+                            House.Row row = Grids.getSingleRow(grid, pairCells);
+                            if (row != null) {
+                                affectedCells.or(Grids.getCells(row));
+                            }
+
+                            House.Column col = Grids.getSingleColumn(grid, pairCells);
+                            if (col != null) {
+                                affectedCells.or(Grids.getCells(col));
+                            }
+                        }
 
                         affectedCells.clear(cell.getCellIndex());
                         affectedCells.clear(otherCell.getCellIndex());
