@@ -22,7 +22,6 @@ package org.netomi.sudoku.solver.techniques;
 import org.netomi.sudoku.model.Grid;
 import org.netomi.sudoku.model.GridUtil;
 import org.netomi.sudoku.model.House;
-import org.netomi.sudoku.model.HouseVisitor;
 import org.netomi.sudoku.solver.HintAggregator;
 import org.netomi.sudoku.solver.SolvingTechnique;
 
