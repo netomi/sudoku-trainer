@@ -1,0 +1,20 @@
+.grid {
+    -fx-border-color: black;
+    -fx-border-width: 3px;
+}
+
+.cell {
+    -fx-border-color: grey;
+    -fx-border-width: 1px;
+
+    -fx-background-color:derive(dodgerblue,0.9);
+}
+
+.cell-value {
+    -fx-font-size: 32px;
+}
+
+.cell-focus {
+    -fx-border-color: yellow;
+    -fx-border-width: 2px;
+}

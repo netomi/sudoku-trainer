@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import org.netomi.sudoku.ui.view.*?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.netomi.sudoku.ui.controller.MainController">
+   <children>
+      <BorderPane prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <top>
+            <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+              <buttons>
+                  <Button fx:id="loadButton" onAction="#loadModel" mnemonicParsing="false" text="Open..." ButtonBar.buttonData="LEFT" />
+                  <Button fx:id="saveButton" onAction="#saveModel" mnemonicParsing="false" text="Save" ButtonBar.buttonData="LEFT" />
+
+                  <ToggleButton fx:id="controlToggleButton" mnemonicParsing="false" onAction="#toggleControls" selected="true" text="Controls" ButtonBar.buttonData="RIGHT" />
+              </buttons>
+               <BorderPane.margin>
+                  <Insets left="5.0" right="5.0" />
+               </BorderPane.margin>
+            </ButtonBar>
+         </top>
+         <center>
+            <GridPane fx:id="divider" hgap="2.0" BorderPane.alignment="CENTER">
+              <columnConstraints>
+                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints hgrow="NEVER" minWidth="0.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <GridView fx:id="modelGrid" prefHeight="358.0" prefWidth="474.0" />
+                  <Accordion GridPane.columnIndex="1">
+                    <panes>
+                      <TitledPane animated="false" text="Layout">
+                        <content>
+                          <AnchorPane maxHeight="1.7976931348623157E308" minHeight="0.0" minWidth="0.0">
+                                 <children>
+                                    <GridPane hgap="15.0" vgap="15.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0">
+                                      <columnConstraints>
+                                        <ColumnConstraints halignment="RIGHT" hgrow="ALWAYS" minWidth="10.0" />
+                                        <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" minWidth="10.0" />
+                                      </columnConstraints>
+                                      <rowConstraints>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                      </rowConstraints>
+                                       <children>
+                                          <Label text="Rows" />
+                                          <Slider fx:id="rowSlider" majorTickUnit="20.0" min="10.0" max="75" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="40.0" GridPane.columnIndex="1">
+                                             <opaqueInsets>
+                                                <Insets />
+                                             </opaqueInsets>
+                                             <GridPane.margin>
+                                                <Insets />
+                                             </GridPane.margin></Slider>
+                                          <Label text="Cols" GridPane.rowIndex="1" />
+                                          <Slider fx:id="colSlider" majorTickUnit="20.0" min="10.0" max="75" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="40.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                          <Button mnemonicParsing="false" onAction="#resetGrid" text="Reset Grid" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
+                                       </children>
+                                       <opaqueInsets>
+                                          <Insets />
+                                       </opaqueInsets>
+                                    </GridPane>
+                                 </children>
+                                 <opaqueInsets>
+                                    <Insets />
+                                 </opaqueInsets>
+                                 </AnchorPane>
+                        </content>
+                      </TitledPane>
+                    </panes>
+                  </Accordion>
+               </children>
+            </GridPane>
+         </center>
+         <bottom>
+            <HBox fx:id="statusBar">
+               <children>
+                  <Label fx:id="statusLabel" />
+               </children>
+               <BorderPane.margin>
+                  <Insets />
+               </BorderPane.margin>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding></HBox>
+         </bottom>
+      </BorderPane>
+   </children>
+</AnchorPane>

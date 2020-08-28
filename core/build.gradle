@@ -1,6 +1,3 @@
-group 'org.netomi.sudoku'
-version '1.0-SNAPSHOT'
-
 test {
     useJUnitPlatform()
 }
