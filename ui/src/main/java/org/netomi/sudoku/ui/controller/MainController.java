@@ -19,11 +19,16 @@
  */
 package org.netomi.sudoku.ui.controller;
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.GridPane;
+import org.netomi.sudoku.io.GridValueLoader;
 import org.netomi.sudoku.model.Grid;
 import org.netomi.sudoku.model.PredefinedType;
 import org.netomi.sudoku.ui.service.ModelService;
@@ -39,6 +44,9 @@ import java.util.ResourceBundle;
  * @author Thomas Neidhart
  */
 public class MainController implements Initializable {
+
+    @FXML
+    private AnchorPane mainPane;
 
     @FXML
     private Button loadButton;
@@ -84,7 +92,22 @@ public class MainController implements Initializable {
         modelGrid.modelProperty().bind(modelService.modelProperty());
         updateModel();
 
-        //statusLabel.textProperty().bind(evolutionStats.textProperty());
+        initializeFontSizeManager();
+    }
+
+    private void initializeFontSizeManager() {
+        // Cf. https://stackoverflow.com/questions/13246211/javafx-how-to-get-stage-from-controller-during-initialization
+        mainPane.sceneProperty().addListener((observableScene, oldScene, newScene) -> {
+            // We need a scene to work on
+            if (oldScene == null && newScene != null) {
+                DoubleProperty fontSize = new SimpleDoubleProperty(0);
+                fontSize.bind(newScene.widthProperty().add(newScene.heightProperty())
+                        .divide(1280 + 720) // I know, it's a very rough approximation :)
+                        .multiply(100)); // get a suitable value to put before the '%' symbol in the style
+                mainPane.styleProperty().bind(
+                        Bindings.concat("-fx-font-size: ", fontSize.asString("%.0f")).concat("%;"));
+            }
+        });
     }
 
     public void toggleControls(ActionEvent actionEvent) {
@@ -101,7 +124,11 @@ public class MainController implements Initializable {
     }
 
     private void updateModel() {
-        modelService.setModel(Grid.of(PredefinedType.CLASSIC_9x9));
+        Grid grid = Grid.of(PredefinedType.CLASSIC_9x9);
+        String input = "000000010400000000020000000000050407008000300001090000300400200050100000000806000";
+        grid.accept(new GridValueLoader(input));
+
+        modelService.setModel(grid);
     }
 
     public void saveModel(ActionEvent actionEvent) {

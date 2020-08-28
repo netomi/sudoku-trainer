@@ -10,8 +10,14 @@
     -fx-background-color:derive(dodgerblue,0.9);
 }
 
-.cell-value {
-    -fx-font-size: 32px;
+.cell-assigned-value {
+    -fx-text-fill: black;
+    -fx-font-size: 3em;
+}
+
+.cell-possible-value {
+    -fx-text-fill: grey;
+    -fx-font-size: 1.5em;
 }
 
 .cell-focus {

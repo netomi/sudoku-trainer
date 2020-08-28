@@ -20,15 +20,24 @@
 package org.netomi.sudoku.ui.view;
 
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableIntegerValue;
+import javafx.collections.*;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import org.netomi.sudoku.model.Cell;
+import org.netomi.sudoku.model.Grids;
+
+import java.util.BitSet;
 
 /**
  * The view to display the state of an individual cell within a
@@ -40,10 +49,11 @@ public class CellView extends StackPane {
 
     private final Cell cell;
 
-    private final ObjectProperty<Integer> value = new SimpleObjectProperty<>();
+    private final IntegerProperty        value          = new SimpleIntegerProperty(0);
+    private final ObservableIntegerArray possibleValues = FXCollections.observableIntegerArray();
 
-    private final GridPane numbers;
-    private final Label label;
+    private final GridPane possibleValuesPane;
+    private final Label    assignedValueLabel;
 
     public CellView(Cell cell) {
         this.cell = cell;
@@ -53,53 +63,74 @@ public class CellView extends StackPane {
         setMinSize(30, 30);
         setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 
-        numbers = new GridPane();
-
+        possibleValuesPane = new GridPane();
         for (int i = 0; i < 3; i++) {
             RowConstraints row1 = new RowConstraints(10, 20, Double.MAX_VALUE);
             row1.setVgrow(Priority.ALWAYS);
             row1.setValignment(VPos.CENTER);
-            numbers.getRowConstraints().add(row1);
+            possibleValuesPane.getRowConstraints().add(row1);
 
             ColumnConstraints col1 = new ColumnConstraints(10, 20, Double.MAX_VALUE);
             col1.setHgrow(Priority.ALWAYS);
             col1.setHalignment(HPos.CENTER);
-            numbers.getColumnConstraints().add(col1);
+            possibleValuesPane.getColumnConstraints().add(col1);
         }
 
+        int tmpValue = 1;
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
-                Label label = new Label("" + (i * 3 + j));
-                numbers.add(label, j, i);
+                Label label = new Label(Integer.toString(tmpValue++));
+                label.getStyleClass().add("cell-possible-value");
+                possibleValuesPane.add(label, j, i);
             }
         }
 
-        label = new Label("" + value.getValue());
-        label.getStyleClass().add("cell-value");
-        getChildren().addAll(numbers, label);
+        assignedValueLabel = new Label();
+        assignedValueLabel.getStyleClass().add("cell-assigned-value");
+        getChildren().addAll(possibleValuesPane, assignedValueLabel);
+        assignedValueLabel.setVisible(false);
 
         setFocusTraversable(true);
-        //requestFocus();
 
-        label.textProperty().bind(Bindings.createStringBinding(() -> {
-            if (value.get()==null) {
-                return "";
-            } else {
-                return "" + value.getValue();
+        assignedValueLabel.textProperty().bind(Bindings.createStringBinding(() -> Integer.toString(value.getValue()), value));
+
+        value.addListener((observable, oldValue, newValue) -> {
+            possibleValuesPane.setVisible(newValue.intValue() == 0);
+            assignedValueLabel.setVisible(newValue.intValue() != 0);
+        });
+
+        possibleValues.addListener((observableArray, sizeChanged, from, to) -> {
+            ObservableList<Node> children = possibleValuesPane.getChildren();
+
+            for (Node node : children) {
+                node.setVisible(false);
             }
-        }, value));
 
+            for (int index = from; index < to; index++) {
+                int value = observableArray.get(index);
+                children.get(value - 1).setVisible(true);
+            }
+        });
+
+        setupEventListeners();
+
+        refreshView();
+    }
+
+    private void setupEventListeners() {
         setOnMousePressed(event -> CellView.this.requestFocus());
 
         setOnKeyPressed(new EventHandler<>() {
             @Override
             public void handle(KeyEvent event) {
-                try {
-                    value.setValue(Integer.valueOf(event.getText()));
-
-                    numbers.setVisible(false);
-                    System.out.println(this.toString() + " set to " + value.getValue());
-                } catch (NumberFormatException ex) {
+                if (event.getCode() == KeyCode.DELETE) {
+                    value.setValue(0);
+                } else {
+                    try {
+                        value.setValue(Integer.valueOf(event.getText()));
+                        System.out.println(this.toString() + " set to " + value.getValue());
+                    } catch (NumberFormatException ex) {
+                    }
                 }
             }
         });
@@ -125,6 +156,11 @@ public class CellView extends StackPane {
 
     public int getColumn() {
         return cell.getColumnIndex();
+    }
+
+    public void refreshView() {
+        value.set(cell.getValue());
+        possibleValues.setAll(Grids.toIntArray(cell.getPossibleValues()));
     }
 
     @Override

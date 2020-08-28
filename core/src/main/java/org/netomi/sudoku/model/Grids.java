@@ -143,6 +143,14 @@ public class Grids {
         return result;
     }
 
+    public static int[] toIntArray(BitSet values) {
+        int[] result = new int[values.cardinality()];
+        for (int value = values.nextSetBit(1), idx = 0; value >= 0; value = values.nextSetBit(value + 1)) {
+            result[idx++] = value;
+        }
+        return result;
+    }
+
     public static BitSet getCells(House... houses) {
         BitSet result = new BitSet();
 

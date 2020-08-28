@@ -22,6 +22,7 @@ package org.netomi.sudoku.ui.view;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.layout.*;
 import org.netomi.sudoku.model.Cell;
 import org.netomi.sudoku.model.Grid;
@@ -35,16 +36,9 @@ public class GridView extends GridPane {
 
     private ObjectProperty<Grid> modelProperty = new SimpleObjectProperty<>();
 
-    private CellView[][] cellGrid;
-
     public GridView() {
         getStyleClass().add("grid");
-
         setPadding(new Insets(2, 2, 2, 2));
-
-//        setHgap(2);
-//        setVgap(2);
-
         modelProperty.addListener((observable, oldValue, newValue) -> updateModel());
     }
 
@@ -67,8 +61,6 @@ public class GridView extends GridPane {
 
         Grid model = getModel();
 
-        cellGrid = new CellView[model.getGridSize()][model.getGridSize()];
-
         for (Cell cell : model.cells()) {
             CellView cellView = new CellView(cell);
 
@@ -76,8 +68,6 @@ public class GridView extends GridPane {
             int row    = cell.getRowIndex();
 
             add(cellView, column, row);
-
-            cellGrid[row][column] = cellView;
         }
 
         for (int i = 0; i < model.getGridSize(); i++) {
@@ -90,6 +80,14 @@ public class GridView extends GridPane {
             ColumnConstraints col = new ColumnConstraints(3, 100, Double.MAX_VALUE);
             col.setHgrow(Priority.ALWAYS);
             getColumnConstraints().add(col);
+        }
+    }
+
+    public void refreshView() {
+        for (Node child : getChildren()) {
+            if (child instanceof CellView) {
+                ((CellView) child).refreshView();
+            }
         }
     }
 }

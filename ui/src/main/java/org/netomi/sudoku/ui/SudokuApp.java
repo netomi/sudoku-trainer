@@ -33,9 +33,7 @@ import javax.inject.Inject;
 import java.util.Arrays;
 
 /**
- * A simple Conway's Game of Life application.
- * <p>
- * It allows to visualize and simulate a cellular automata.
+ * A sudoku trainer / solver application.
  *
  * @author Thomas Neidhart
  */
@@ -66,12 +64,10 @@ public class SudokuApp extends Application {
     }
 
     private static class AppModule extends AbstractModule {
-
         @Override
         protected void configure() {
             bind(ModelService.class).to(ModelServiceImpl.class);
         }
-
     }
 
 }
