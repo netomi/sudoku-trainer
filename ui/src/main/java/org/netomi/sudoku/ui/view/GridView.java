@@ -28,7 +28,6 @@ import org.netomi.sudoku.model.Cell;
 import org.netomi.sudoku.model.Grid;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * The main grid view to visualize the state of a sudoku grid.
@@ -70,7 +69,7 @@ public class GridView extends GridPane {
             int column = cell.getColumnIndex();
             int row    = cell.getRowIndex();
 
-            cellView.valueProperty().addListener((observable, oldValue, newValue) -> refreshView());
+            cellView.dirtyProperty().addListener((observable, oldValue, newValue) -> { if (newValue) refreshView(); });
 
             add(cellView, column, row);
         }

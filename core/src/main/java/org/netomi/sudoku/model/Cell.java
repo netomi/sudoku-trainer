@@ -19,7 +19,9 @@
  */
 package org.netomi.sudoku.model;
 
+import java.util.Arrays;
 import java.util.BitSet;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -57,6 +59,10 @@ public class Cell {
         this.possibleValues = new BitSet(owner.getGridSize() + 1);
         this.possibleValues.set(1, owner.getGridSize() + 1);
         this.excludedValues = new BitSet(owner.getGridSize() + 1);
+    }
+
+    public Grid getOwner() {
+        return owner;
     }
 
     /**

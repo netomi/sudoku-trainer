@@ -1,16 +1,19 @@
 .grid {
     -fx-border-color: black;
-    -fx-border-width: 3px;
+    -fx-border-width: 2px;
 }
 
 .cell {
     -fx-border-color: grey;
     -fx-border-width: 1px;
-
-    -fx-background-color:derive(dodgerblue,0.9);
 }
 
 .cell-assigned-value {
+    -fx-text-fill: blue;
+    -fx-font-size: 3em;
+}
+
+.cell-given-value {
     -fx-text-fill: black;
     -fx-font-size: 3em;
 }
@@ -25,6 +28,5 @@
 }
 
 .cell-focus {
-    -fx-border-color: yellow;
-    -fx-border-width: 2px;
+    -fx-background-color: yellow;
 }

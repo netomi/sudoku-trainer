@@ -20,7 +20,9 @@
 package org.netomi.sudoku.ui.view;
 
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.collections.*;
 import javafx.geometry.HPos;
@@ -34,7 +36,6 @@ import org.netomi.sudoku.model.Grid;
 import org.netomi.sudoku.model.Grids;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * The view to display the state of an individual cell within a
@@ -48,6 +49,7 @@ public class CellView extends StackPane {
 
     private final IntegerProperty        value          = new SimpleIntegerProperty(0);
     private final ObservableIntegerArray possibleValues = FXCollections.observableIntegerArray();
+    private final BooleanProperty        dirty          = new SimpleBooleanProperty(false);
 
     private final GridPane possibleValuesPane;
     private final Label    assignedValueLabel;
@@ -56,6 +58,8 @@ public class CellView extends StackPane {
         this.cell = cell;
 
         getStyleClass().add("cell");
+
+        setBorderStyle(cell);
 
         setMinSize(30, 30);
         setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
@@ -83,7 +87,11 @@ public class CellView extends StackPane {
         }
 
         assignedValueLabel = new Label();
-        assignedValueLabel.getStyleClass().add("cell-assigned-value");
+        if (cell.isGiven()) {
+            assignedValueLabel.getStyleClass().add("cell-given-value");
+        } else {
+            assignedValueLabel.getStyleClass().add("cell-assigned-value");
+        }
         getChildren().addAll(possibleValuesPane, assignedValueLabel);
         assignedValueLabel.setVisible(false);
 
@@ -112,6 +120,78 @@ public class CellView extends StackPane {
         setupEventListeners();
     }
 
+    private void setBorderStyle(Cell cell) {
+        StringBuilder borderStyle = new StringBuilder();
+        StringBuilder borderColor = new StringBuilder();
+        StringBuilder borderWidth = new StringBuilder();
+
+        borderStyle.append("-fx-border-style: ");
+        borderColor.append("-fx-border-color: ");
+        borderWidth.append("-fx-border-width: ");
+
+        Cell topCell = getAdjacentCell(cell, cell.getCellIndex() - cell.getOwner().getGridSize());
+        if (topCell != null && topCell.getBlockIndex() == cell.getBlockIndex()) {
+            borderStyle.append(" solid");
+            borderColor.append(" grey");
+            borderWidth.append(" 1px");
+
+        } else {
+            borderStyle.append(" solid");
+            borderColor.append(" black");
+            borderWidth.append(" 2px");
+        }
+
+        Cell rightCell = getAdjacentCell(cell, cell.getCellIndex() + 1);
+        if (rightCell != null && rightCell.getBlockIndex() == cell.getBlockIndex()) {
+            borderStyle.append(" solid");
+            borderColor.append(" grey");
+            borderWidth.append(" 1px");
+
+        } else {
+            borderStyle.append(" solid");
+            borderColor.append(" black");
+            borderWidth.append(" 2px");
+        }
+
+        Cell bottomCell = getAdjacentCell(cell, cell.getCellIndex() + cell.getOwner().getGridSize());
+        if (bottomCell != null && bottomCell.getBlockIndex() == cell.getBlockIndex()) {
+            borderStyle.append(" solid");
+            borderColor.append(" grey");
+            borderWidth.append(" 1px");
+
+        } else {
+            borderStyle.append(" solid");
+            borderColor.append(" black");
+            borderWidth.append(" 2px");
+        }
+
+        Cell leftCell = getAdjacentCell(cell, cell.getCellIndex() - 1);
+        if (leftCell != null && leftCell.getBlockIndex() == cell.getBlockIndex()) {
+            borderStyle.append(" solid");
+            borderColor.append(" grey");
+            borderWidth.append(" 1px");
+
+        } else {
+            borderStyle.append(" solid");
+            borderColor.append(" black");
+            borderWidth.append(" 2px");
+        }
+
+        borderStyle.append(";");
+        borderColor.append(";");
+        borderWidth.append(";");
+
+        setStyle(borderStyle.toString() + borderColor.toString() + borderWidth.toString());
+    }
+
+    private Cell getAdjacentCell(Cell cell, int adjacentCellIndex) {
+        if (adjacentCellIndex >= 0 &&
+            adjacentCellIndex < cell.getOwner().getCellCount()) {
+            return cell.getOwner().getCell(adjacentCellIndex);
+        }
+        return null;
+    }
+
     private void setupEventListeners() {
         setOnMousePressed(event -> CellView.this.requestFocus());
 
@@ -123,13 +203,13 @@ public class CellView extends StackPane {
             if (event.getCode() == KeyCode.DELETE) {
                 cell.setValue(0);
                 value.setValue(0);
-                System.out.println(cell.getName() + " cleared");
+                dirty.set(true);
             } else {
                 try {
                     int newValue = Integer.parseInt(event.getText());
                     cell.setValue(newValue);
                     value.setValue(newValue);
-                    System.out.println(cell.getName() + " set to " + value.getValue());
+                    dirty.set(true);
                 } catch (NumberFormatException ex) {}
             }
         });
@@ -155,8 +235,8 @@ public class CellView extends StackPane {
         return cell.getColumnIndex();
     }
 
-    public IntegerProperty valueProperty() {
-        return value;
+    public BooleanProperty dirtyProperty() {
+        return dirty;
     }
 
     public void refreshView(Collection<Grid.Conflict> conflicts) {
@@ -177,6 +257,7 @@ public class CellView extends StackPane {
 
         value.set(cell.getValue());
         possibleValues.setAll(Grids.toIntArray(cell.getPossibleValues()));
+        dirty.set(false);
     }
 
     @Override
