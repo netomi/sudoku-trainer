@@ -129,6 +129,12 @@ public class Grid {
         return cells;
     }
 
+    public Iterable<Cell> assignedCells() {
+        return () -> cells.stream()
+                          .filter(cell -> cell.isAssigned())
+                          .iterator();
+    }
+
     public Iterable<Cell> unassignedCells() {
         return () -> cells.stream()
                           .filter(cell -> !cell.isAssigned())
@@ -275,9 +281,9 @@ public class Grid {
         }
 
         // First: update assigned values in affected houses.
-        cell.getRow().updateAssignedValues(oldValue, newValue);
-        cell.getColumn().updateAssignedValues(oldValue, newValue);
-        cell.getBlock().updateAssignedValues(oldValue, newValue);
+        cell.getRow().updateAssignedValues();
+        cell.getColumn().updateAssignedValues();
+        cell.getBlock().updateAssignedValues();
 
         // Second: update possible values in affected cells.
         for (Cell affectedCell : concat(cell, cell.peers())) {

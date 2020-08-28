@@ -21,23 +21,16 @@ package org.netomi.sudoku.ui.view;
 
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ObservableIntegerValue;
 import javafx.collections.*;
-import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import org.netomi.sudoku.model.Cell;
 import org.netomi.sudoku.model.Grids;
-
-import java.util.BitSet;
 
 /**
  * The view to display the state of an individual cell within a
@@ -120,18 +113,21 @@ public class CellView extends StackPane {
     private void setupEventListeners() {
         setOnMousePressed(event -> CellView.this.requestFocus());
 
-        setOnKeyPressed(new EventHandler<>() {
-            @Override
-            public void handle(KeyEvent event) {
-                if (event.getCode() == KeyCode.DELETE) {
-                    value.setValue(0);
-                } else {
-                    try {
-                        value.setValue(Integer.valueOf(event.getText()));
-                        System.out.println(this.toString() + " set to " + value.getValue());
-                    } catch (NumberFormatException ex) {
-                    }
-                }
+        setOnKeyPressed(event -> {
+            if (cell.isGiven()) {
+                return;
+            }
+
+            if (event.getCode() == KeyCode.DELETE) {
+                cell.setValue(0);
+                value.setValue(0);
+            } else {
+                try {
+                    int newValue = Integer.parseInt(event.getText());
+                    cell.setValue(newValue);
+                    value.setValue(newValue);
+                    System.out.println(cell.getName() + " set to " + value.getValue());
+                } catch (NumberFormatException ex) {}
             }
         });
 
@@ -140,12 +136,10 @@ public class CellView extends StackPane {
             {
                 getStyleClass().remove("cell-focus");
                 getStyleClass().add("cell-focus");
-                System.out.println("Textfield " + CellView.this.toString() + " on focus");
             }
             else
             {
                 getStyleClass().remove("cell-focus");
-                System.out.println("Textfield " + CellView.this.toString() + " out focus");
             }
         });
     }
@@ -156,6 +150,10 @@ public class CellView extends StackPane {
 
     public int getColumn() {
         return cell.getColumnIndex();
+    }
+
+    public IntegerProperty valueProperty() {
+        return value;
     }
 
     public void refreshView() {

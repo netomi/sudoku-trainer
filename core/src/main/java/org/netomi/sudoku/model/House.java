@@ -128,6 +128,21 @@ public abstract class House {
     }
 
     /**
+     * Returns an {@code #Iterable} containing all assigned cells of this {@code #House}.
+     */
+    public Iterable<Cell> assignedCells() {
+        return assignedCells(0);
+    }
+
+    /**
+     * Returns an {@code #Iterable} containing all assigned cells of this {@code #House},
+     * whose cell index is >= startIndex.
+     */
+    public Iterable<Cell> assignedCells(int startIndex) {
+        return owner.getCells(cells, (cell) -> cell.isAssigned(), startIndex);
+    }
+
+    /**
      * Returns an {@code #Iterable} containing all unassigned cells of this {@code #House}.
      */
     public Iterable<Cell> unassignedCells() {
@@ -232,28 +247,16 @@ public abstract class House {
         return cloned;
     }
 
-    BitSet updateAssignedValues(int oldValue, int newValue) {
-        assignedValues.clear(oldValue);
-        if (newValue > 0) {
-            assignedValues.set(newValue);
-        }
-        return assignedValues;
-    }
-
     void updateAssignedValues() {
         assignedValues.clear();
-        for (Cell cell : cells()) {
-            if (cell.isAssigned()) {
-                assignedValues.set(cell.getValue());
-            }
+        for (Cell cell : assignedCells()) {
+            assignedValues.set(cell.getValue());
         }
     }
 
     void updatePossibleValuesInCells() {
-        for (Cell cell : cells()) {
-            if (!cell.isAssigned()) {
-                cell.updatePossibleValues(assignedValues);
-            }
+        for (Cell cell : unassignedCells()) {
+            cell.updatePossibleValues(assignedValues);
         }
     }
 

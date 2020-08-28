@@ -67,6 +67,8 @@ public class GridView extends GridPane {
             int column = cell.getColumnIndex();
             int row    = cell.getRowIndex();
 
+            cellView.valueProperty().addListener((observable, oldValue, newValue) -> refreshView());
+
             add(cellView, column, row);
         }
 
