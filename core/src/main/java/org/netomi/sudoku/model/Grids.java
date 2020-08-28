@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.BitSet;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class Grids {
 
@@ -133,6 +135,11 @@ public class Grids {
 
     public static Iterable<Integer> getValues(Grid grid, BitSet values) {
         return () -> new Grid.ValueIterator(values, 1, grid.getGridSize(), false);
+    }
+
+    public static List<Cell> toCellList(Grid grid, BitSet cells) {
+        return StreamSupport.stream(grid.getCells(cells).spliterator(), false)
+                            .collect(Collectors.toList());
     }
 
     public static Collection<Integer> toIntCollection(BitSet values) {

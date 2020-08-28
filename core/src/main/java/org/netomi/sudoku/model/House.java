@@ -184,13 +184,11 @@ public abstract class House {
      */
     public boolean isValid() {
         BitSet assignedValues = new BitSet();
-        for (Cell cell : cells()) {
-            if (cell.isAssigned()) {
-                if (!assignedValues.get(cell.getValue())) {
-                    assignedValues.set(cell.getValue());
-                } else {
-                    return false;
-                }
+        for (Cell cell : assignedCells()) {
+            if (!assignedValues.get(cell.getValue())) {
+                assignedValues.set(cell.getValue());
+            } else {
+                return false;
             }
         }
         return true;

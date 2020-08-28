@@ -234,6 +234,30 @@ public class Grid {
         return true;
     }
 
+    public Collection<Conflict> getConflicts() {
+        Set<BitSet>     foundConflicts = new HashSet<>();
+        Collection<Conflict> conflicts = new ArrayList<>();
+
+        for (Cell cell : assignedCells()) {
+            int value = cell.getValue();
+
+            BitSet conflictCells =
+                Grids.toBitSet(getCells(cell.getPeers(),
+                                        c -> c.isAssigned() && c.getValue() == value));
+
+            if (conflictCells.cardinality() > 0) {
+                conflictCells.set(cell.getCellIndex());
+
+                if (!foundConflicts.contains(conflictCells)) {
+                    foundConflicts.add(conflictCells);
+                    conflicts.add(new Conflict(Grids.toCellList(this, conflictCells)));
+                }
+            }
+        }
+
+        return conflicts;
+    }
+
     // Visitor methods.
 
     public <T> T accept(GridVisitor<T> visitor) {
@@ -450,6 +474,39 @@ public class Grid {
         @Override
         public String toString() {
             return String.format("%dx%d", gridSize, gridSize);
+        }
+    }
+
+    public static class Conflict {
+        private final List<Cell> cellsInConflict;
+
+        public Conflict(List<Cell> cells) {
+            if (cells == null || cells.size() < 2) {
+                throw new IllegalArgumentException("cells must not be null or contain less than 2 elements");
+            }
+            this.cellsInConflict = cells;
+        }
+
+        public Iterable<Cell> getCellsInConflict() {
+            return cellsInConflict;
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+
+            Cell firstCell = cellsInConflict.get(0);
+            sb.append(firstCell.getName());
+
+            for (int idx = 1; idx < cellsInConflict.size(); idx++) {
+                sb.append(" = ");
+                sb.append(cellsInConflict.get(idx).getName());
+            }
+
+            sb.append(" = ");
+            sb.append(firstCell.getValue());
+
+            return sb.toString();
         }
     }
 
