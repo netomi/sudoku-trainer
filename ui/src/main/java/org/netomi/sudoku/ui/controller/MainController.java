@@ -104,7 +104,7 @@ public class MainController implements Initializable {
                 fontSize.bind(newScene.widthProperty().add(newScene.heightProperty())
                         .divide(1280 + 720) // I know, it's a very rough approximation :)
                         .multiply(100)); // get a suitable value to put before the '%' symbol in the style
-                mainPane.styleProperty().bind(
+                modelGrid.styleProperty().bind(
                         Bindings.concat("-fx-font-size: ", fontSize.asString("%.0f")).concat("%;"));
             }
         });

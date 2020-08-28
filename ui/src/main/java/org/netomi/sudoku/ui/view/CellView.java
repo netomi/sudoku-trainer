@@ -129,59 +129,41 @@ public class CellView extends StackPane {
         borderColor.append("-fx-border-color: ");
         borderWidth.append("-fx-border-width: ");
 
-        Cell topCell = getAdjacentCell(cell, cell.getCellIndex() - cell.getOwner().getGridSize());
-        if (topCell != null && topCell.getBlockIndex() == cell.getBlockIndex()) {
-            borderStyle.append(" solid");
-            borderColor.append(" grey");
-            borderWidth.append(" 1px");
+        selectBorder(getAdjacentCell(cell, cell.getCellIndex() - cell.getOwner().getGridSize()),
+                     borderStyle, borderColor, borderWidth);
 
-        } else {
-            borderStyle.append(" solid");
-            borderColor.append(" black");
-            borderWidth.append(" 2px");
-        }
+        int nextCellIndex = (cell.getCellIndex() + 1) % cell.getOwner().getGridSize() == 0 ? -1 : cell.getCellIndex() + 1;
+        selectBorder(getAdjacentCell(cell, nextCellIndex), borderStyle, borderColor, borderWidth);
 
-        Cell rightCell = getAdjacentCell(cell, cell.getCellIndex() + 1);
-        if (rightCell != null && rightCell.getBlockIndex() == cell.getBlockIndex()) {
-            borderStyle.append(" solid");
-            borderColor.append(" grey");
-            borderWidth.append(" 1px");
+        selectBorder(getAdjacentCell(cell, cell.getCellIndex() + cell.getOwner().getGridSize()),
+                     borderStyle, borderColor, borderWidth);
 
-        } else {
-            borderStyle.append(" solid");
-            borderColor.append(" black");
-            borderWidth.append(" 2px");
-        }
-
-        Cell bottomCell = getAdjacentCell(cell, cell.getCellIndex() + cell.getOwner().getGridSize());
-        if (bottomCell != null && bottomCell.getBlockIndex() == cell.getBlockIndex()) {
-            borderStyle.append(" solid");
-            borderColor.append(" grey");
-            borderWidth.append(" 1px");
-
-        } else {
-            borderStyle.append(" solid");
-            borderColor.append(" black");
-            borderWidth.append(" 2px");
-        }
-
-        Cell leftCell = getAdjacentCell(cell, cell.getCellIndex() - 1);
-        if (leftCell != null && leftCell.getBlockIndex() == cell.getBlockIndex()) {
-            borderStyle.append(" solid");
-            borderColor.append(" grey");
-            borderWidth.append(" 1px");
-
-        } else {
-            borderStyle.append(" solid");
-            borderColor.append(" black");
-            borderWidth.append(" 2px");
-        }
+        int previousCellIndex = cell.getCellIndex() % cell.getOwner().getGridSize() == 0 ? -1 : cell.getCellIndex() - 1;
+        selectBorder(getAdjacentCell(cell, previousCellIndex), borderStyle, borderColor, borderWidth);
 
         borderStyle.append(";");
         borderColor.append(";");
         borderWidth.append(";");
 
         setStyle(borderStyle.toString() + borderColor.toString() + borderWidth.toString());
+    }
+
+    private void selectBorder(Cell neighbour, StringBuilder borderStyle, StringBuilder borderColor, StringBuilder borderWidth) {
+        if (neighbour != null) {
+            if (neighbour.getBlockIndex() == cell.getBlockIndex()) {
+                borderStyle.append(" solid");
+                borderColor.append(" grey");
+                borderWidth.append(" 1px");
+            } else {
+                borderStyle.append(" solid");
+                borderColor.append(" black");
+                borderWidth.append(" 2px");
+            }
+        } else {
+            borderStyle.append(" solid");
+            borderColor.append(" black");
+            borderWidth.append(" 4px");
+        }
     }
 
     private Cell getAdjacentCell(Cell cell, int adjacentCellIndex) {
