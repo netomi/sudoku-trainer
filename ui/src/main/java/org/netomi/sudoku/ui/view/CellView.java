@@ -30,7 +30,11 @@ import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import org.netomi.sudoku.model.Cell;
+import org.netomi.sudoku.model.Grid;
 import org.netomi.sudoku.model.Grids;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * The view to display the state of an individual cell within a
@@ -106,8 +110,6 @@ public class CellView extends StackPane {
         });
 
         setupEventListeners();
-
-        refreshView();
     }
 
     private void setupEventListeners() {
@@ -121,6 +123,7 @@ public class CellView extends StackPane {
             if (event.getCode() == KeyCode.DELETE) {
                 cell.setValue(0);
                 value.setValue(0);
+                System.out.println(cell.getName() + " cleared");
             } else {
                 try {
                     int newValue = Integer.parseInt(event.getText());
@@ -156,7 +159,22 @@ public class CellView extends StackPane {
         return value;
     }
 
-    public void refreshView() {
+    public void refreshView(Collection<Grid.Conflict> conflicts) {
+        boolean foundConflict = false;
+        for (Grid.Conflict conflict : conflicts) {
+            if (conflict.contains(cell)) {
+                foundConflict = true;
+                break;
+            }
+        }
+
+        if (foundConflict) {
+            assignedValueLabel.getStyleClass().remove("cell-value-conflict");
+            assignedValueLabel.getStyleClass().add("cell-value-conflict");
+        } else {
+            assignedValueLabel.getStyleClass().remove("cell-value-conflict");
+        }
+
         value.set(cell.getValue());
         possibleValues.setAll(Grids.toIntArray(cell.getPossibleValues()));
     }

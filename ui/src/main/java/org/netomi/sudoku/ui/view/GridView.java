@@ -27,6 +27,9 @@ import javafx.scene.layout.*;
 import org.netomi.sudoku.model.Cell;
 import org.netomi.sudoku.model.Grid;
 
+import java.util.Collection;
+import java.util.List;
+
 /**
  * The main grid view to visualize the state of a sudoku grid.
  *
@@ -83,12 +86,16 @@ public class GridView extends GridPane {
             col.setHgrow(Priority.ALWAYS);
             getColumnConstraints().add(col);
         }
+
+        refreshView();
     }
 
     public void refreshView() {
+        Collection<Grid.Conflict> conflicts = getModel().getConflicts();
+
         for (Node child : getChildren()) {
             if (child instanceof CellView) {
-                ((CellView) child).refreshView();
+                ((CellView) child).refreshView(conflicts);
             }
         }
     }

@@ -131,7 +131,7 @@ public class Grid {
 
     public Iterable<Cell> assignedCells() {
         return () -> cells.stream()
-                          .filter(cell -> cell.isAssigned())
+                          .filter(Cell::isAssigned)
                           .iterator();
     }
 
@@ -238,19 +238,21 @@ public class Grid {
         Set<BitSet>     foundConflicts = new HashSet<>();
         Collection<Conflict> conflicts = new ArrayList<>();
 
-        for (Cell cell : assignedCells()) {
-            int value = cell.getValue();
+        for (House house : houses()) {
+            for (Cell cell : house.assignedCells()) {
+                int value = cell.getValue();
 
-            BitSet conflictCells =
-                Grids.toBitSet(getCells(cell.getPeers(),
-                                        c -> c.isAssigned() && c.getValue() == value));
+                BitSet conflictCells =
+                        Grids.toBitSet(getCells(cell.getPeers(),
+                                c -> c.isAssigned() && c.getValue() == value));
 
-            if (conflictCells.cardinality() > 0) {
-                conflictCells.set(cell.getCellIndex());
+                if (conflictCells.cardinality() > 0) {
+                    conflictCells.set(cell.getCellIndex());
 
-                if (!foundConflicts.contains(conflictCells)) {
-                    foundConflicts.add(conflictCells);
-                    conflicts.add(new Conflict(Grids.toCellList(this, conflictCells)));
+                    if (!foundConflicts.contains(conflictCells)) {
+                        foundConflicts.add(conflictCells);
+                        conflicts.add(new Conflict(Grids.toCellList(this, conflictCells)));
+                    }
                 }
             }
         }
@@ -489,6 +491,10 @@ public class Grid {
 
         public Iterable<Cell> getCellsInConflict() {
             return cellsInConflict;
+        }
+
+        public boolean contains(Cell otherCell) {
+            return cellsInConflict.contains(otherCell);
         }
 
         @Override
