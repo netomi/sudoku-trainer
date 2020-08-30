@@ -70,7 +70,7 @@ public class IndirectHint extends Hint {
     public void apply(Grid targetGrid, boolean updateGrid) {
         int index = 0;
         for (Cell cell : Grids.getCells(targetGrid, cellIndices)) {
-            cell.excludePossibleValues(excludedValues[index++]);
+            cell.excludePossibleValues(excludedValues[index++], updateGrid);
         }
     }
 

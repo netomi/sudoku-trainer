@@ -37,3 +37,8 @@
     -fx-background-radius: 15 15 15 15;
     -fx-background-color: lightgreen;
 }
+
+.cell-indirect-hint {
+    -fx-background-radius: 15 15 15 15;
+    -fx-background-color: lightcoral;
+}

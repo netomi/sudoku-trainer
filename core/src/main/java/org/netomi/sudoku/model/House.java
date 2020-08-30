@@ -252,6 +252,10 @@ public abstract class House {
         }
     }
 
+    void updatePossibleValuesInCell(Cell cell) {
+        cell.updatePossibleValues(assignedValues);
+    }
+
     void updatePossibleValuesInCells() {
         for (Cell cell : unassignedCells()) {
             cell.updatePossibleValues(assignedValues);

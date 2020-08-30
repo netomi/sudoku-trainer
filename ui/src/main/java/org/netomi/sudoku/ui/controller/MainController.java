@@ -111,6 +111,47 @@ public class MainController implements Initializable {
             modelGrid.refreshView();
         });
 
+        hintListView.setCellFactory(lv -> {
+            ListCell<Hint> cell = new ListCell<>();
+
+            ContextMenu contextMenu = new ContextMenu();
+
+            MenuItem applyItem = new MenuItem();
+            applyItem.setText("Apply");
+            applyItem.setOnAction(event -> {
+                Hint hint = cell.getItem();
+                hint.apply(modelService.getModel(), true);
+                modelGrid.refreshView();
+            });
+
+            MenuItem applyUptoItem = new MenuItem();
+            applyUptoItem.setText("Apply upto");
+            applyUptoItem.setOnAction(event -> {
+                int index = cell.getIndex();
+                for (int i = 0; i <= index; i++) {
+                    Hint hint = hintList.get(i);
+                    hint.apply(modelService.getModel(), false);
+                }
+
+                modelService.getModel().updateState();
+                modelGrid.refreshView();
+            });
+
+            contextMenu.getItems().addAll(applyItem, applyUptoItem);
+
+            cell.textProperty().bind(cell.itemProperty().asString());
+
+            cell.emptyProperty().addListener((obs, wasEmpty, isNowEmpty) -> {
+                if (isNowEmpty) {
+                    cell.setContextMenu(null);
+                } else {
+                    cell.setContextMenu(contextMenu);
+                }
+            });
+
+            return cell ;
+        });
+
         initializeFontSizeManager();
     }
 
@@ -149,8 +190,10 @@ public class MainController implements Initializable {
     }
 
     private void updateModel() {
-        Grid grid = Grid.of(PredefinedType.CLASSIC_9x9);
-        String input = "000000010400000000020000000000050407008000300001090000300400200050100000000806000";
+        Grid grid = Grid.of(PredefinedType.JIGSAW_1);
+        String input = "3.......4..2.6.1...1.9.8.2...5...6...2.....1...9...8...8.3.4.6...4.1.9..5.......7"; // jigsaw
+        //String input = "4.....8.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......"; // 9x9
+        //String input = "000000010400000000020000000000050407008000300001090000300400200050100000000806000"; // 9x9
         grid.accept(new GridValueLoader(input));
 
         modelService.setModel(grid);

@@ -228,22 +228,30 @@ public class Cell {
      * Excludes the given values from the set of possible values.
      * @param values the values to exclude
      */
-    public void excludePossibleValues(int... values) {
+    public void excludePossibleValues(boolean updateGrid, int... values) {
         owner.invalidateState();
         for (int value : values) {
             excludedValues.set(value);
         }
-        owner.notifyPossibleValuesChanged(this);
+        possibleValues.andNot(excludedValues);
+
+        if (updateGrid) {
+            owner.notifyPossibleValuesChanged(this);
+        }
     }
 
     /**
      * Excludes the given values from the set of possible values.
      * @param values the values to exclude
      */
-    public void excludePossibleValues(BitSet values) {
+    public void excludePossibleValues(BitSet values, boolean updateGrid) {
         owner.invalidateState();
         excludedValues.or(values);
-        owner.notifyPossibleValuesChanged(this);
+        possibleValues.andNot(excludedValues);
+
+        if (updateGrid) {
+            owner.notifyPossibleValuesChanged(this);
+        }
     }
 
     BitSet getExcludedValues() {
@@ -253,10 +261,18 @@ public class Cell {
     /**
      * Clears the set of excluded values for this cell.
      */
-    public void clearExcludedValues() {
+    public void clearExcludedValues(boolean updateGrid) {
         owner.invalidateState();
         excludedValues.clear();
-        owner.notifyPossibleValuesChanged(this);
+        resetPossibleValues();
+
+        for (House house : Arrays.asList(getRow(), getColumn(), getBlock())) {
+            house.updatePossibleValuesInCell(this);
+        }
+
+        if (updateGrid) {
+            owner.notifyPossibleValuesChanged(this);
+        }
     }
 
     void resetPossibleValues() {

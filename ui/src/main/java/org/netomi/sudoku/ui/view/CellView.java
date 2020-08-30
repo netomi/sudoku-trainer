@@ -36,7 +36,9 @@ import org.netomi.sudoku.model.Grid;
 import org.netomi.sudoku.model.Grids;
 import org.netomi.sudoku.solver.DirectHint;
 import org.netomi.sudoku.solver.Hint;
+import org.netomi.sudoku.solver.IndirectHint;
 
+import java.util.BitSet;
 import java.util.Collection;
 
 /**
@@ -239,18 +241,30 @@ public class CellView extends StackPane {
             assignedValueLabel.getStyleClass().remove("cell-value-conflict");
         }
 
+        possibleValuesPane.getChildren().forEach((child) -> child.getStyleClass().remove("cell-direct-hint"));
+        possibleValuesPane.getChildren().forEach((child) -> child.getStyleClass().remove("cell-indirect-hint"));
         if (displayedHint != null) {
             if (displayedHint instanceof DirectHint) {
                 DirectHint directHint = (DirectHint) displayedHint;
                 if (directHint.getCellIndex() == cell.getCellIndex()) {
                     int value = directHint.getValue();
                     possibleValuesPane.getChildren().get(value - 1).getStyleClass().add("cell-direct-hint");
-                } else {
-                    possibleValuesPane.getChildren().forEach((child) -> child.getStyleClass().remove("cell-direct-hint"));
+                }
+            } else if (displayedHint instanceof IndirectHint) {
+                IndirectHint indirectHint = (IndirectHint) displayedHint;
+                int cellIndex = -1;
+                int i = 0;
+                BitSet affectedCells = indirectHint.getCellIndices();
+                while ((cellIndex = affectedCells.nextSetBit(cellIndex + 1)) >= 0) {
+                    if (cellIndex == cell.getCellIndex()) {
+                        BitSet excludedValues = indirectHint.getExcludedValues()[i];
+                        for (int value : Grids.getValues(cell.getOwner(), excludedValues)) {
+                            possibleValuesPane.getChildren().get(value - 1).getStyleClass().add("cell-indirect-hint");
+                        }
+                    }
+                    i++;
                 }
             }
-        } else {
-            possibleValuesPane.getChildren().forEach((child) -> child.getStyleClass().remove("cell-direct-hint"));
         }
 
         value.set(cell.getValue());
