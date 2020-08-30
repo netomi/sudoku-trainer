@@ -46,6 +46,10 @@ public class HintAggregator implements Iterable<Hint> {
         targetGrid.updateState();
     }
 
+    public Collection<Hint> getHints() {
+        return hints;
+    }
+
     @Override
     public Iterator<Hint> iterator() {
         return hints.iterator();

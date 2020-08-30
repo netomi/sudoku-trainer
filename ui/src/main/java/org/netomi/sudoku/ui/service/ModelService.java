@@ -21,6 +21,7 @@ package org.netomi.sudoku.ui.service;
 
 import javafx.beans.property.ObjectProperty;
 import org.netomi.sudoku.model.Grid;
+import org.netomi.sudoku.solver.Hint;
 
 /**
  * A simple service to access the current sudoku model.
@@ -31,4 +32,8 @@ public interface ModelService {
     Grid getModel();
     void setModel(Grid model);
     ObjectProperty<Grid> modelProperty();
+
+    void setHint(Hint hint);
+    Hint getHint();
+    ObjectProperty<Hint> hintProperty();
 }

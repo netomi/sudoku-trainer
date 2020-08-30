@@ -34,6 +34,8 @@ import javafx.scene.layout.*;
 import org.netomi.sudoku.model.Cell;
 import org.netomi.sudoku.model.Grid;
 import org.netomi.sudoku.model.Grids;
+import org.netomi.sudoku.solver.DirectHint;
+import org.netomi.sudoku.solver.Hint;
 
 import java.util.Collection;
 
@@ -221,7 +223,7 @@ public class CellView extends StackPane {
         return dirty;
     }
 
-    public void refreshView(Collection<Grid.Conflict> conflicts) {
+    public void refreshView(Collection<Grid.Conflict> conflicts, Hint displayedHint) {
         boolean foundConflict = false;
         for (Grid.Conflict conflict : conflicts) {
             if (conflict.contains(cell)) {
@@ -235,6 +237,20 @@ public class CellView extends StackPane {
             assignedValueLabel.getStyleClass().add("cell-value-conflict");
         } else {
             assignedValueLabel.getStyleClass().remove("cell-value-conflict");
+        }
+
+        if (displayedHint != null) {
+            if (displayedHint instanceof DirectHint) {
+                DirectHint directHint = (DirectHint) displayedHint;
+                if (directHint.getCellIndex() == cell.getCellIndex()) {
+                    int value = directHint.getValue();
+                    possibleValuesPane.getChildren().get(value - 1).getStyleClass().add("cell-direct-hint");
+                } else {
+                    possibleValuesPane.getChildren().forEach((child) -> child.getStyleClass().remove("cell-direct-hint"));
+                }
+            }
+        } else {
+            possibleValuesPane.getChildren().forEach((child) -> child.getStyleClass().remove("cell-direct-hint"));
         }
 
         value.set(cell.getValue());

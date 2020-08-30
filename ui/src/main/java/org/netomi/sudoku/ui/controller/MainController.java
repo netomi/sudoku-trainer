@@ -22,6 +22,8 @@ package org.netomi.sudoku.ui.controller;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -31,6 +33,9 @@ import javafx.scene.layout.GridPane;
 import org.netomi.sudoku.io.GridValueLoader;
 import org.netomi.sudoku.model.Grid;
 import org.netomi.sudoku.model.PredefinedType;
+import org.netomi.sudoku.solver.Hint;
+import org.netomi.sudoku.solver.HintAggregator;
+import org.netomi.sudoku.solver.HintSolver;
 import org.netomi.sudoku.ui.service.ModelService;
 import org.netomi.sudoku.ui.view.GridView;
 
@@ -72,8 +77,13 @@ public class MainController implements Initializable {
     @FXML
     private Label statusLabel;
 
+    @FXML
+    private ListView<Hint> hintListView;
+
     @Inject
     private ModelService modelService;
+
+    private final ObservableList<Hint> hintList = FXCollections.observableArrayList();
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -90,7 +100,16 @@ public class MainController implements Initializable {
         });
 
         modelGrid.modelProperty().bind(modelService.modelProperty());
+        modelGrid.hintProperty().bind(modelService.hintProperty());
+
         updateModel();
+
+        hintListView.setItems(hintList);
+
+        hintListView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            modelService.setHint(newValue);
+            modelGrid.refreshView();
+        });
 
         initializeFontSizeManager();
     }
@@ -121,6 +140,12 @@ public class MainController implements Initializable {
 
     public void resetGrid(ActionEvent actionEvent) {
         modelGrid.resetGrid();
+    }
+
+    public void findHints(ActionEvent actionEvent) {
+        HintSolver hintSolver = new HintSolver();
+        HintAggregator hints = hintSolver.findHints(modelService.getModel());
+        hintList.setAll(hints.getHints());
     }
 
     private void updateModel() {

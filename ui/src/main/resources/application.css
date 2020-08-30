@@ -25,8 +25,15 @@
 .cell-possible-value {
     -fx-text-fill: grey;
     -fx-font-size: 1.5em;
+    -fx-pref-width: 2em;
+    -fx-padding: 0 0 0 5;
 }
 
 .cell-focus {
     -fx-background-color: yellow;
+}
+
+.cell-direct-hint {
+    -fx-background-radius: 15 15 15 15;
+    -fx-background-color: lightgreen;
 }

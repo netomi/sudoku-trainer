@@ -11,8 +11,8 @@
          <top>
             <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
               <buttons>
-                  <Button fx:id="loadButton" onAction="#loadModel" mnemonicParsing="false" text="Open..." ButtonBar.buttonData="LEFT" />
-                  <Button fx:id="saveButton" onAction="#saveModel" mnemonicParsing="false" text="Save" ButtonBar.buttonData="LEFT" />
+                  <Button fx:id="loadButton" mnemonicParsing="false" onAction="#loadModel" text="Open..." ButtonBar.buttonData="LEFT" />
+                  <Button fx:id="saveButton" mnemonicParsing="false" onAction="#saveModel" text="Save" ButtonBar.buttonData="LEFT" />
 
                   <ToggleButton fx:id="controlToggleButton" mnemonicParsing="false" onAction="#toggleControls" selected="true" text="Controls" ButtonBar.buttonData="RIGHT" />
               </buttons>
@@ -50,7 +50,7 @@
                                       </rowConstraints>
                                        <children>
                                           <Label text="Rows" />
-                                          <Slider fx:id="rowSlider" majorTickUnit="20.0" min="10.0" max="75" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="40.0" GridPane.columnIndex="1">
+                                          <Slider fx:id="rowSlider" majorTickUnit="20.0" max="75" min="10.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="40.0" GridPane.columnIndex="1">
                                              <opaqueInsets>
                                                 <Insets />
                                              </opaqueInsets>
@@ -58,7 +58,7 @@
                                                 <Insets />
                                              </GridPane.margin></Slider>
                                           <Label text="Cols" GridPane.rowIndex="1" />
-                                          <Slider fx:id="colSlider" majorTickUnit="20.0" min="10.0" max="75" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="40.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                          <Slider fx:id="colSlider" majorTickUnit="20.0" max="75" min="10.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="40.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                           <Button mnemonicParsing="false" onAction="#resetGrid" text="Reset Grid" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" />
                                        </children>
                                        <opaqueInsets>
@@ -72,6 +72,21 @@
                                  </AnchorPane>
                         </content>
                       </TitledPane>
+                      <TitledPane animated="false" text="Solver">
+                           <content>
+                              <BorderPane prefHeight="200.0" prefWidth="200.0">
+                                 <center>
+                                    <ListView fx:id="hintListView" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+                                 </center>
+                                 <top>
+                                    <Button mnemonicParsing="false" onAction="#findHints" text="Find Hints" BorderPane.alignment="CENTER">
+                                       <BorderPane.margin>
+                                          <Insets bottom="10.0" />
+                                       </BorderPane.margin>
+                                    </Button>
+                                 </top>
+                              </BorderPane>
+                           </content></TitledPane>
                     </panes>
                   </Accordion>
                </children>

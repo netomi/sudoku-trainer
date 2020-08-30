@@ -42,9 +42,12 @@ public class HintSolver implements GridSolver {
         finderList.add(new NakedPairFinder());
         finderList.add(new NakedTripleFinder());
         finderList.add(new NakedQuadrupleFinder());
+        finderList.add(new LockedPairFinder());
+        finderList.add(new LockedTripleFinder());
         finderList.add(new XWingHintFinder());
         finderList.add(new SwordFishFinder());
         finderList.add(new JellyFishFinder());
+        finderList.add(new RemotePairFinder());
     }
 
     public HintSolver(HintFinder finder) {

@@ -26,6 +26,7 @@ import javafx.scene.Node;
 import javafx.scene.layout.*;
 import org.netomi.sudoku.model.Cell;
 import org.netomi.sudoku.model.Grid;
+import org.netomi.sudoku.solver.Hint;
 
 import java.util.Collection;
 
@@ -37,6 +38,8 @@ import java.util.Collection;
 public class GridView extends GridPane {
 
     private ObjectProperty<Grid> modelProperty = new SimpleObjectProperty<>();
+    private ObjectProperty<Hint> hintProperty  = new SimpleObjectProperty<>();
+
 
     public GridView() {
         getStyleClass().add("grid");
@@ -46,6 +49,10 @@ public class GridView extends GridPane {
 
     public ObjectProperty<Grid> modelProperty() {
         return modelProperty;
+    }
+
+    public ObjectProperty<Hint> hintProperty() {
+        return hintProperty;
     }
 
     public Grid getModel() {
@@ -90,11 +97,12 @@ public class GridView extends GridPane {
     }
 
     public void refreshView() {
+        System.out.println("refresh");
         Collection<Grid.Conflict> conflicts = getModel().getConflicts();
 
         for (Node child : getChildren()) {
             if (child instanceof CellView) {
-                ((CellView) child).refreshView(conflicts);
+                ((CellView) child).refreshView(conflicts, hintProperty.getValue());
             }
         }
     }

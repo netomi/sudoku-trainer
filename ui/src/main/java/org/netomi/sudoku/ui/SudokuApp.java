@@ -22,6 +22,8 @@ package org.netomi.sudoku.ui;
 import com.gluonhq.ignite.guice.GuiceContext;
 import com.google.inject.AbstractModule;
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;

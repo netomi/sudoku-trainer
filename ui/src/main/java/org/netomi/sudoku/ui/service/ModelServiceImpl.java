@@ -22,18 +22,21 @@ package org.netomi.sudoku.ui.service;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import org.netomi.sudoku.model.Grid;
+import org.netomi.sudoku.solver.Hint;
 
 import javax.inject.Singleton;
 
 @Singleton
 public class ModelServiceImpl implements ModelService {
     private final ObjectProperty<Grid> modelProperty = new SimpleObjectProperty<>();
+    private final ObjectProperty<Hint> displayedHint = new SimpleObjectProperty<>();
 
     @Override
     public Grid getModel() {
         return modelProperty.get();
     }
 
+    @Override
     public void setModel(Grid model) {
         modelProperty.set(model);
     }
@@ -41,5 +44,20 @@ public class ModelServiceImpl implements ModelService {
     @Override
     public ObjectProperty<Grid> modelProperty() {
         return modelProperty;
+    }
+
+    @Override
+    public void setHint(Hint hint) {
+        displayedHint.set(hint);
+    }
+
+    @Override
+    public Hint getHint() {
+        return displayedHint.get();
+    }
+
+    @Override
+    public ObjectProperty<Hint> hintProperty() {
+        return displayedHint;
     }
 }
