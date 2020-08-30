@@ -79,7 +79,7 @@ public abstract class AbstractHintFinderTest {
 
                 for (Candidate c : testCase.getDeletedCandidates()) {
                     Cell cell = grid.getCell(c.getRow(), c.getCol());
-                    cell.excludePossibleValues(c.getValue());
+                    cell.excludePossibleValues(false, c.getValue());
                 }
 
                 HintAggregator hints = solver.findAllHintsSingleStep(grid);

@@ -59,7 +59,7 @@ public class SolverTest {
 
                 Cell cell = grid.getCell(row, col);
 
-                cell.excludePossibleValues(value);
+                cell.excludePossibleValues(false, value);
             }
         }
 
