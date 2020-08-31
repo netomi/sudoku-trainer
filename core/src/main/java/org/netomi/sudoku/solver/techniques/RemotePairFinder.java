@@ -37,7 +37,7 @@ public class RemotePairFinder extends AbstractHintFinder
 
     @Override
     public void findHints(Grid grid, HintAggregator hintAggregator) {
-        Set<BitSet> visitedChains = new HashSet<>();
+        Set<CellSet> visitedChains = new HashSet<>();
 
         grid.acceptCells(cell -> {
             ValueSet possibleValues = cell.getPossibleValues();
@@ -53,7 +53,7 @@ public class RemotePairFinder extends AbstractHintFinder
                            HintAggregator hintAggregator,
                            Cell           currentCell,
                            Chain          currentChain,
-                           Set<BitSet>    visitedChains,
+                           Set<CellSet>   visitedChains,
                            int            length) {
 
         currentChain.addLink(currentCell);
@@ -65,13 +65,12 @@ public class RemotePairFinder extends AbstractHintFinder
         }
 
         if (length > 3 && length % 2 == 0) {
-            BitSet affectedCells = Grids.toBitSet(currentCell.peers());
+            CellSet affectedCells = Grids.toCellSet(grid, currentCell.peers());
             affectedCells.andNot(currentChain.cells);
 
-            for (Cell affectedCell : Grids.getCells(grid, affectedCells)) {
-                BitSet peers = Grids.toBitSet(affectedCell.peers());
-
-                BitSet endPoints = Grids.toBitSet(currentChain.startCell, currentCell);
+            for (Cell affectedCell : affectedCells.allCells(grid)) {
+                CellSet peers     = Grids.toCellSet(grid, affectedCell.peers());
+                CellSet endPoints = CellSet.of(currentChain.startCell, currentCell);
                 peers.and(endPoints);
                 if (peers.cardinality() < 2) {
                     affectedCells.clear(affectedCell.getCellIndex());
@@ -79,7 +78,7 @@ public class RemotePairFinder extends AbstractHintFinder
             }
 
             if (eliminateValuesFromCells(grid, hintAggregator, affectedCells, possibleValues)) {
-                visitedChains.add((BitSet) currentChain.cells.clone());
+                visitedChains.add(currentChain.cells.copy());
             }
         }
 
@@ -101,12 +100,12 @@ public class RemotePairFinder extends AbstractHintFinder
     }
 
     private static class Chain {
-        private final Cell   startCell;
-        private final BitSet cells;
+        private final Cell    startCell;
+        private final CellSet cells;
 
         Chain(Grid grid, Cell startCell) {
             this.startCell = startCell;
-            this.cells     = new BitSet(grid.getCellCount());
+            this.cells     = CellSet.empty(grid);
             this.cells.set(startCell.getCellIndex());
         }
 

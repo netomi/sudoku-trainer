@@ -29,13 +29,9 @@ public class Grids
     // hide constructor of utility class.
     private Grids() {}
 
-    public static BitSet toRowSet(Grid grid, BitSet cells) {
-        BitSet rows = new BitSet(grid.getGridSize());
-
-        for (Cell cell : grid.getCells(cells)) {
-            rows.set(cell.getRowIndex());
-        }
-
+    public static CellSet toRowSet(Grid grid, CellSet cells) {
+        CellSet rows = CellSet.empty(grid);
+        cells.allCells(grid).forEach(cell -> rows.set(cell.getRowIndex()));
         return rows;
     }
 
@@ -46,22 +42,16 @@ public class Grids
      * @return the row all cells are contained in, or {@code null} if the
      * cells are contained in different rows.
      */
-    public static House.Row getSingleRow(Grid grid, BitSet cells) {
-        BitSet rows = toRowSet(grid, cells);
-        if (rows.cardinality() == 1) {
-            return grid.getRow(rows.nextSetBit(0));
-        } else {
-            return null;
-        }
+    public static House.Row getSingleRow(Grid grid, CellSet cells) {
+        CellSet rows = toRowSet(grid, cells);
+        return rows.cardinality() == 1 ?
+            grid.getRow(rows.firstSetBit()) :
+            null;
     }
 
-    public static BitSet toColumnSet(Grid grid, BitSet cells) {
-        BitSet columns = new BitSet(grid.getGridSize());
-
-        for (Cell cell : grid.getCells(cells)) {
-            columns.set(cell.getColumnIndex());
-        }
-
+    public static CellSet toColumnSet(Grid grid, CellSet cells) {
+        CellSet columns = CellSet.empty(grid);
+        cells.allCells(grid).forEach(cell -> columns.set(cell.getColumnIndex()));
         return columns;
     }
 
@@ -72,22 +62,16 @@ public class Grids
      * @return the column all cells are contained in, or {@code null} if the
      * cells are contained in different columns.
      */
-    public static House.Column getSingleColumn(Grid grid, BitSet cells) {
-        BitSet columns = toColumnSet(grid, cells);
-        if (columns.cardinality() == 1) {
-            return grid.getColumn(columns.nextSetBit(0));
-        } else {
-            return null;
-        }
+    public static House.Column getSingleColumn(Grid grid, CellSet cells) {
+        CellSet columns = toColumnSet(grid, cells);
+        return columns.cardinality() == 1 ?
+            grid.getColumn(columns.firstSetBit()) :
+            null;
     }
 
-    public static BitSet toBlockSet(Grid grid, BitSet cells) {
-        BitSet blocks = new BitSet(grid.getGridSize());
-
-        for (Cell cell : grid.getCells(cells)) {
-            blocks.set(cell.getBlockIndex());
-        }
-
+    public static CellSet toBlockSet(Grid grid, CellSet cells) {
+        CellSet blocks = CellSet.empty(grid);
+        cells.allCells(grid).forEach(cell -> blocks.set(cell.getBlockIndex()));
         return blocks;
     }
 
@@ -98,51 +82,29 @@ public class Grids
      * @return the block all cells are contained in, or {@code null} if the
      * cells are contained in different blocks.
      */
-    public static House.Block getSingleBlock(Grid grid, BitSet cells) {
-        BitSet blocks = toBlockSet(grid, cells);
-        if (blocks.cardinality() == 1) {
-            return grid.getBlock(blocks.nextSetBit(0));
-        } else {
-            return null;
-        }
+    public static House.Block getSingleBlock(Grid grid, CellSet cells) {
+        CellSet blocks = toBlockSet(grid, cells);
+        return blocks.cardinality() == 1 ?
+            grid.getBlock(blocks.firstSetBit()) :
+            null;
     }
 
-    public static Iterable<Cell> getCells(Grid grid, BitSet cells) {
-        return grid.getCells(cells);
+    public static CellSet toCellSet(Grid grid, Iterable<Cell> cells) {
+        CellSet cellSet = CellSet.empty(grid);
+        cells.forEach(cell -> cellSet.set(cell.getCellIndex()));
+        return cellSet;
     }
 
-    public static BitSet toBitSet(Cell... cells) {
-        BitSet bitSet = new BitSet();
-
-        for (Cell cell : cells) {
-            bitSet.set(cell.getCellIndex());
-        }
-
-        return bitSet;
-    }
-
-    public static BitSet toBitSet(Iterable<Cell> cells) {
-        BitSet bitSet = new BitSet();
-
-        for (Cell cell : cells) {
-            bitSet.set(cell.getCellIndex());
-        }
-
-        return bitSet;
-    }
-
-    public static List<Cell> toCellList(Grid grid, BitSet cells) {
-        return StreamSupport.stream(grid.getCells(cells).spliterator(), false)
+    public static List<Cell> toCellList(Grid grid, CellSet cells) {
+        return StreamSupport.stream(cells.allCells(grid).spliterator(), false)
                             .collect(Collectors.toList());
     }
 
-    public static BitSet getCells(House... houses) {
-        BitSet result = new BitSet();
-
-        for (House house : houses) {
-            result.or(house.getCells());
+    public static CellSet getCells(House house, House... otherHouses) {
+        CellSet result = house.getCells().copy();
+        for (House otherHouse : otherHouses) {
+            result.or(otherHouse.getCells());
         }
-
         return result;
     }
 }

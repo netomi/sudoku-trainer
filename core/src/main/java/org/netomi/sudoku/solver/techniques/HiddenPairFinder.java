@@ -19,12 +19,11 @@
  */
 package org.netomi.sudoku.solver.techniques;
 
+import org.netomi.sudoku.model.CellSet;
 import org.netomi.sudoku.model.Grid;
 import org.netomi.sudoku.model.ValueSet;
 import org.netomi.sudoku.solver.HintAggregator;
 import org.netomi.sudoku.solver.SolvingTechnique;
-
-import java.util.*;
 
 /**
  * A {@code HintFinder} implementation that looks for houses
@@ -43,23 +42,20 @@ public class HiddenPairFinder extends AbstractHintFinder
     public void findHints(Grid grid, HintAggregator hintAggregator) {
         grid.acceptHouses(house -> {
             for (int value : house.unassignedValues()) {
-                BitSet potentialPositions = house.getPotentialPositions(value);
+                CellSet potentialPositions = house.getPotentialPositions(value);
                 if (potentialPositions.cardinality() != 2) {
                     continue;
                 }
 
                 for (int otherValue : house.unassignedValues(value + 1)) {
-                    BitSet otherPotentialPositions = house.getPotentialPositions(otherValue);
+                    CellSet otherPotentialPositions = house.getPotentialPositions(otherValue);
                     if (otherPotentialPositions.cardinality() != 2) {
                         continue;
                     }
 
                     // If the two bitsets, containing the possible positions for some values,
                     // share the exact same positions, we have found a hidden pair.
-                    BitSet matching = (BitSet) potentialPositions.clone();
-                    matching.xor(otherPotentialPositions);
-
-                    if (matching.cardinality() == 0) {
+                    if (potentialPositions.equals(otherPotentialPositions)) {
                         ValueSet allowedValues = ValueSet.of(grid, value, otherValue);
                         eliminateNotAllowedValuesFromCells(grid, hintAggregator, potentialPositions, allowedValues);
                     }

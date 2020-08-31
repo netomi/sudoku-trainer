@@ -19,10 +19,7 @@
  */
 package org.netomi.sudoku.solver;
 
-import org.netomi.sudoku.model.Cell;
-import org.netomi.sudoku.model.Grid;
-import org.netomi.sudoku.model.Grids;
-import org.netomi.sudoku.model.ValueSet;
+import org.netomi.sudoku.model.*;
 
 import java.util.Arrays;
 import java.util.BitSet;
@@ -30,19 +27,19 @@ import java.util.Objects;
 
 public class IndirectHint extends Hint
 {
-    private final BitSet     cellIndices;
+    private final CellSet    cellIndices;
     private final ValueSet[] excludedValues;
 
     public IndirectHint(Grid.Type        type,
                         SolvingTechnique solvingTechnique,
-                        BitSet           cellIndices,
+                        CellSet          cellIndices,
                         ValueSet         excludedValues) {
         this(type, solvingTechnique, cellIndices, expand(excludedValues, cellIndices.cardinality()));
     }
 
     public IndirectHint(Grid.Type        type,
                         SolvingTechnique solvingTechnique,
-                        BitSet           cellIndices,
+                        CellSet          cellIndices,
                         ValueSet[]       excludedValues) {
         super(type, solvingTechnique);
         this.cellIndices    = cellIndices;
@@ -59,7 +56,7 @@ public class IndirectHint extends Hint
         return result;
     }
 
-    public BitSet getCellIndices() {
+    public CellSet getCellIndices() {
         return cellIndices;
     }
 
@@ -70,7 +67,7 @@ public class IndirectHint extends Hint
     @Override
     public void apply(Grid targetGrid, boolean updateGrid) {
         int index = 0;
-        for (Cell cell : Grids.getCells(targetGrid, cellIndices)) {
+        for (Cell cell : cellIndices.allCells(targetGrid)) {
             cell.excludePossibleValues(excludedValues[index++], updateGrid);
         }
     }
@@ -99,7 +96,7 @@ public class IndirectHint extends Hint
         StringBuilder eliminations = new StringBuilder();
 
         int index = 0;
-        for (int cellIndex = cellIndices.nextSetBit(0); cellIndex >= 0; cellIndex = cellIndices.nextSetBit(cellIndex + 1)) {
+        for (int cellIndex : cellIndices.allSetBits()) {
             eliminations.append(getGridType().getCellName(cellIndex));
             eliminations.append("<>");
             eliminations.append(excludedValues[index++].toCollection());

@@ -20,7 +20,6 @@
 package org.netomi.sudoku.model;
 
 import java.util.Arrays;
-import java.util.BitSet;
 import java.util.Objects;
 
 /**
@@ -32,7 +31,7 @@ public class Cell
 {
     // Immutable properties.
     private final Grid    owner;
-    private final BitSet  peers;
+    private final CellSet peers;
 
     private final int     cellIndex;
     private final int     rowIndex;
@@ -46,8 +45,8 @@ public class Cell
     private final ValueSet excludedValues;
 
     Cell(Grid owner, int cellIndex, int rowIndex, int columnIndex, int blockIndex) {
-        this.owner  = owner;
-        this.peers  = new BitSet(owner.getCellCount());
+        this.owner       = owner;
+        this.peers       = CellSet.empty(owner);
 
         this.cellIndex   = cellIndex;
         this.rowIndex    = rowIndex;
@@ -187,12 +186,12 @@ public class Cell
         this.given = given;
     }
 
-    void addPeers(BitSet cells) {
+    void addPeers(CellSet cells) {
         peers.or(cells);
         peers.clear(cellIndex);
     }
 
-    BitSet getPeers() {
+    CellSet getPeers() {
         return peers;
     }
 
@@ -201,7 +200,7 @@ public class Cell
      * this cell, i.e. are contained in the same row, column or block.
      */
     public Iterable<Cell> peers() {
-        return owner.getCells(peers);
+        return peers.allCells(owner);
     }
 
     /**

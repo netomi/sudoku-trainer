@@ -107,7 +107,7 @@ public abstract class AbstractHintFinderTest {
                         IndirectHint indirectHint = (IndirectHint) hint;
 
                         int index = 0;
-                        for (Cell cell : Grids.getCells(grid, indirectHint.getCellIndices())) {
+                        for (Cell cell : indirectHint.getCellIndices().allCells(grid)) {
 
                             for (int excludedValue : indirectHint.getExcludedValues()[index].allSetBits()) {
                                 Candidate candidate =

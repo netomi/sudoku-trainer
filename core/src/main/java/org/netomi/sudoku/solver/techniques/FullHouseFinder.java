@@ -25,8 +25,6 @@ import org.netomi.sudoku.model.ValueSet;
 import org.netomi.sudoku.solver.HintAggregator;
 import org.netomi.sudoku.solver.SolvingTechnique;
 
-import java.util.BitSet;
-
 /**
  * A {@code HintFinder} implementation to look for houses which have a
  * single missing digit to place.

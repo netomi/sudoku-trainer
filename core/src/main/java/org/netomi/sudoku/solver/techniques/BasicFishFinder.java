@@ -23,7 +23,6 @@ import org.netomi.sudoku.model.*;
 import org.netomi.sudoku.solver.HintAggregator;
 
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.List;
 
 /**
@@ -54,7 +53,7 @@ public abstract class BasicFishFinder extends AbstractHintFinder
                             new ArrayList<>(),
                             house,
                             value,
-                            new BitSet(grid.getGridSize()),
+                            CellSet.empty(grid),
                             1);
             }
         };
@@ -68,19 +67,19 @@ public abstract class BasicFishFinder extends AbstractHintFinder
                                 List<House>    visitedRegions,
                                 House          house,
                                 int            value,
-                                BitSet         coverSet,
+                                CellSet        coverSet, // TODO: the cover set is actually not a cell set but rather a house set
                                 int            level) {
 
         if (level > size) {
             return false;
         }
 
-        BitSet potentialPositions = house.getPotentialPositions(value);
+        CellSet potentialPositions = house.getPotentialPositions(value);
         if (potentialPositions.cardinality() > size) {
             return false;
         }
 
-        BitSet mergedCoverSet = (BitSet) coverSet.clone();
+        CellSet mergedCoverSet = coverSet.copy();
         mergedCoverSet.or(getCoverSet(grid, house, potentialPositions));
         if (mergedCoverSet.cardinality() > size) {
             return false;
@@ -91,7 +90,7 @@ public abstract class BasicFishFinder extends AbstractHintFinder
         if (level == size) {
 
             // get affected cells from cover sets.
-            BitSet affectedCells = getCellsOfCoverSet(grid, house.getType(), mergedCoverSet);
+            CellSet affectedCells = getCellsOfCoverSet(grid, house.getType(), mergedCoverSet);
 
             // remove all cells from base sets.
             for (House row : visitedRegions) {
@@ -111,7 +110,7 @@ public abstract class BasicFishFinder extends AbstractHintFinder
         boolean foundHint = false;
         for (House nextHouse : grid.regionsAfter(house)) {
             if (!nextHouse.isSolved() &&
-                !nextHouse.getAssignedValues().isSet(value)) {
+                !nextHouse.getAssignedValues().get(value)) {
                 foundHint |= findBaseSet(grid, hintAggregator, visitedRegions, nextHouse, value, mergedCoverSet, level + 1);
             }
         }
@@ -120,7 +119,7 @@ public abstract class BasicFishFinder extends AbstractHintFinder
         return foundHint;
     }
 
-    private BitSet getCoverSet(Grid grid, House house, BitSet potentialPositions) {
+    private CellSet getCoverSet(Grid grid, House house, CellSet potentialPositions) {
         switch (house.getType()) {
             case ROW:
                 return Grids.toColumnSet(grid, potentialPositions);
@@ -133,10 +132,10 @@ public abstract class BasicFishFinder extends AbstractHintFinder
         }
     }
 
-    private BitSet getCellsOfCoverSet(Grid grid, House.Type baseSetType, BitSet coverSet) {
-        BitSet affectedCells = new BitSet(grid.getCellCount());
+    private CellSet getCellsOfCoverSet(Grid grid, House.Type baseSetType, CellSet coverSet) {
+        CellSet affectedCells = CellSet.empty(grid);
 
-        for (int i = coverSet.nextSetBit(0); i >= 0; i = coverSet.nextSetBit(i + 1)) {
+        for (int i : coverSet.allSetBits()) {
             House house =
                 baseSetType == House.Type.ROW ?
                     grid.getColumn(i) :

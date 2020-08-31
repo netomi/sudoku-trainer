@@ -31,10 +31,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
-import org.netomi.sudoku.model.Cell;
-import org.netomi.sudoku.model.Grid;
-import org.netomi.sudoku.model.Grids;
-import org.netomi.sudoku.model.ValueSet;
+import org.netomi.sudoku.model.*;
 import org.netomi.sudoku.solver.DirectHint;
 import org.netomi.sudoku.solver.Hint;
 import org.netomi.sudoku.solver.IndirectHint;
@@ -253,10 +250,9 @@ public class CellView extends StackPane {
                 }
             } else if (displayedHint instanceof IndirectHint) {
                 IndirectHint indirectHint = (IndirectHint) displayedHint;
-                int cellIndex = -1;
                 int i = 0;
-                BitSet affectedCells = indirectHint.getCellIndices();
-                while ((cellIndex = affectedCells.nextSetBit(cellIndex + 1)) >= 0) {
+                CellSet affectedCells = indirectHint.getCellIndices();
+                for (int cellIndex : affectedCells.allSetBits()) {
                     if (cellIndex == cell.getCellIndex()) {
                         ValueSet excludedValues = indirectHint.getExcludedValues()[i];
                         for (int value : excludedValues.allSetBits()) {

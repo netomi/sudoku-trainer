@@ -20,8 +20,6 @@
 package org.netomi.sudoku.model;
 
 import java.util.BitSet;
-import java.util.Iterator;
-import java.util.function.Predicate;
 
 /**
  * A class representing a certain region within a sudoku grid.
@@ -38,9 +36,9 @@ import java.util.function.Predicate;
 public abstract class House
 {
     // Immutable properties.
-    private final Grid   owner;
-    private final int    regionIndex;
-    private final BitSet cells;
+    private final Grid    owner;
+    private final int     regionIndex;
+    private final CellSet cells;
 
     // Mutable properties.
     private final ValueSet assignedValues;
@@ -48,7 +46,7 @@ public abstract class House
     House(Grid owner, int regionIndex) {
         this.owner          = owner;
         this.regionIndex    = regionIndex;
-        this.cells          = new BitSet(owner.getCellCount());
+        this.cells          = CellSet.empty(owner);
         this.assignedValues = ValueSet.empty(owner);
     }
 
@@ -75,7 +73,7 @@ public abstract class House
         cells.set(cell.getCellIndex());
     }
 
-    BitSet getCells() {
+    CellSet getCells() {
         return cells;
     }
 
@@ -102,11 +100,11 @@ public abstract class House
      * <p>
      * Note: an empty input always returns {@code true}.
      *
-     * @param cells a {@code #BitSet} whose bits represent cells in the grid
+     * @param otherCells a {@code #CellSet} whose bits represent cells in the grid
      */
-    public boolean containsAllCells(BitSet cells) {
-        for (int i = cells.nextSetBit(0); i >= 0; i = cells.nextSetBit(i + 1)) {
-            if (!containsCell(i)) {
+    public boolean containsAllCells(CellSet otherCells) {
+        for (int index : otherCells.allSetBits()) {
+            if (!containsCell(index)) {
                 return false;
             }
         }
@@ -117,7 +115,7 @@ public abstract class House
      * Returns an {@code #Iterable} containing all cells of this {@code #House}.
      */
     public Iterable<Cell> cells() {
-        return owner.getCells(cells);
+        return cells.allCells(owner);
     }
 
     /**
@@ -125,7 +123,7 @@ public abstract class House
      * whose cell index is >= startIndex.
      */
     public Iterable<Cell> cells(int startIndex) {
-        return owner.getCells(cells, startIndex);
+        return cells.allCells(owner, startIndex);
     }
 
     /**
@@ -140,7 +138,7 @@ public abstract class House
      * whose cell index is >= startIndex.
      */
     public Iterable<Cell> assignedCells(int startIndex) {
-        return owner.getCells(cells, (cell) -> cell.isAssigned(), startIndex);
+        return cells.filteredCells(owner, Cell::isAssigned, startIndex);
     }
 
     /**
@@ -155,7 +153,7 @@ public abstract class House
      * whose cell index is >= startIndex.
      */
     public Iterable<Cell> unassignedCells(int startIndex) {
-        return owner.getCells(cells, (cell) -> !cell.isAssigned(), startIndex);
+        return cells.filteredCells(owner, cell -> !cell.isAssigned(), startIndex);
     }
 
     /**
@@ -163,21 +161,21 @@ public abstract class House
      * excluding all cells contained in the provided houses.
      */
     public Iterable<Cell> cellsExcluding(House... excludedHouses) {
-        BitSet ownCells = (BitSet) cells.clone();
+        CellSet ownCells = cells.copy();
         for (House house : excludedHouses) {
             ownCells.andNot(house.cells);
         }
-        return owner.getCells(ownCells);
+        return ownCells.allCells(owner);
     }
 
     /**
      * Returns an {@code #Iterable} containing all cells of this {@code #House}
      * excluding all cells contained in the provided bitset.
      */
-    public Iterable<Cell> cellsExcluding(BitSet excludedCells) {
-        BitSet ownCells = (BitSet) cells.clone();
+    public Iterable<Cell> cellsExcluding(CellSet excludedCells) {
+        CellSet ownCells = cells.copy();
         ownCells.andNot(excludedCells);
-        return owner.getCells(ownCells);
+        return ownCells.allCells(owner);
     }
 
     /**
@@ -233,17 +231,17 @@ public abstract class House
      * @param value the value to check for
      */
     public Iterable<Cell> potentialCells(int value) {
-        return owner.getCells(getPotentialPositions(value));
+        return getPotentialPositions(value).allCells(owner);
     }
 
-    public BitSet getPotentialPositions(int value) {
+    public CellSet getPotentialPositions(int value) {
         owner.throwIfStateIsInvalid();
-        BitSet possiblePositions = owner.potentialPositions[value - 1];
+        CellSet possiblePositions = owner.potentialPositions.get(value - 1);
 
-        BitSet cloned = (BitSet) possiblePositions.clone();
-        cloned.and(cells);
+        CellSet result = possiblePositions.copy();
+        result.and(cells);
 
-        return cloned;
+        return result;
     }
 
     void updateAssignedValues() {

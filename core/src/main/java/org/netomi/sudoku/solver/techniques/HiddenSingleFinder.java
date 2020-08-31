@@ -19,11 +19,10 @@
  */
 package org.netomi.sudoku.solver.techniques;
 
+import org.netomi.sudoku.model.CellSet;
 import org.netomi.sudoku.model.Grid;
 import org.netomi.sudoku.solver.HintAggregator;
 import org.netomi.sudoku.solver.SolvingTechnique;
-
-import java.util.BitSet;
 
 /**
  * A {@code HintFinder} implementation that looks for houses
@@ -41,9 +40,9 @@ public class HiddenSingleFinder extends AbstractHintFinder
     public void findHints(Grid grid, HintAggregator hintAggregator) {
         grid.acceptHouses(house -> {
             for (int value : house.unassignedValues()) {
-                BitSet possiblePositions = house.getPotentialPositions(value);
+                CellSet possiblePositions = house.getPotentialPositions(value);
                 if (possiblePositions.cardinality() == 1) {
-                    int cellIndex = possiblePositions.nextSetBit(0);
+                    int cellIndex = possiblePositions.firstSetBit();
                     placeValueInCell(grid, hintAggregator, cellIndex, value);
                 }
             }

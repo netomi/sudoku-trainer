@@ -31,5 +31,4 @@ public class XWingHintFinder extends BasicFishFinder
     public SolvingTechnique getSolvingTechnique() {
         return SolvingTechnique.X_WING;
     }
-
 }

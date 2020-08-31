@@ -61,7 +61,7 @@ abstract class BaseBitSet<T extends BaseBitSet<?>>
         bits.clear(getOffset(), size);
     }
 
-    public boolean isSet(int bit) {
+    public boolean get(int bit) {
         checkInput(bit);
         return bits.get(bit);
     }
@@ -89,15 +89,15 @@ abstract class BaseBitSet<T extends BaseBitSet<?>>
     }
 
     public Iterable<Integer> allSetBits() {
-        return () -> new ValueIterator(getOffset(), size, false);
+        return () -> new BitIterator(getOffset(), size, false);
     }
 
     public Iterable<Integer> allUnsetBits() {
-        return () -> new ValueIterator(getOffset(), size, true);
+        return () -> new BitIterator(getOffset(), size, true);
     }
 
     public Iterable<Integer> allUnsetBits(int startBit) {
-        return () -> new ValueIterator(startBit, size, true);
+        return () -> new BitIterator(startBit, size, true);
     }
 
     public void and(T other) {
@@ -150,12 +150,14 @@ abstract class BaseBitSet<T extends BaseBitSet<?>>
         return bits.toString();
     }
 
-    private class ValueIterator implements Iterator<Integer> {
+    // inner helper classes.
+
+    private class BitIterator implements Iterator<Integer> {
         private final int     toIndex;
         private final boolean inverse;
         private       int     nextOffset;
 
-        ValueIterator(int fromIndex, int toIndex, boolean inverse) {
+        BitIterator(int fromIndex, int toIndex, boolean inverse) {
             this.toIndex    = toIndex;
             this.inverse    = inverse;
             this.nextOffset = nextBit(fromIndex);
@@ -175,9 +177,9 @@ abstract class BaseBitSet<T extends BaseBitSet<?>>
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }
-            Integer value = nextOffset;
+            Integer bit = nextOffset;
             nextOffset = nextBit(nextOffset + 1);
-            return value;
+            return bit;
         }
     }
 }

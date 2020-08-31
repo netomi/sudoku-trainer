@@ -20,7 +20,7 @@
 package org.netomi.sudoku.model;
 
 import java.util.*;
-import java.util.function.Predicate;
+import java.util.stream.IntStream;
 
 public class Grid
 {
@@ -31,7 +31,7 @@ public class Grid
     private transient final List<House.Column> columns;
     private transient final List<House.Block>  blocks;
 
-    protected transient final BitSet[] potentialPositions;
+    protected transient final List<CellSet> potentialPositions;
 
     private boolean stateValid;
 
@@ -47,7 +47,7 @@ public class Grid
         this.type = type;
 
         int gridSize  = type.getGridSize();
-        int cellCount = gridSize * gridSize;
+        int cellCount = type.getCellCount();
 
         this.cells = new ArrayList<>(cellCount);
 
@@ -56,9 +56,9 @@ public class Grid
         this.blocks  = new ArrayList<>(gridSize);
 
         for (int i = 0; i < gridSize; i++) {
-            rows.add(new House.Row(this, i));
+            rows   .add(new House.Row   (this, i));
             columns.add(new House.Column(this, i));
-            blocks.add(new House.Block(this, i));
+            blocks .add(new House.Block (this, i));
         }
 
         for (int i = 0; i < cellCount; i++) {
@@ -79,16 +79,10 @@ public class Grid
         }
 
         // Initialize peers for each cell.
-        for (House house : houses()) {
-            for (Cell cell : house.cells()) {
-                cell.addPeers(house.getCells());
-            }
-        }
+        houses().forEach(house -> house.cells().forEach(cell -> cell.addPeers(house.getCells())));
 
-        this.potentialPositions = new BitSet[getGridSize()];
-        for (int i = 0; i < potentialPositions.length; i++) {
-            potentialPositions[i] = new BitSet(getCellCount());
-        }
+        potentialPositions = new ArrayList<>(getGridSize());
+        IntStream.range(0, getGridSize()).forEach(idx -> potentialPositions.add(CellSet.empty(this)));
 
         stateValid = false;
     }
@@ -194,22 +188,6 @@ public class Grid
         return blocks.get(blockIndex);
     }
 
-    Iterable<Cell> getCells(BitSet cells) {
-        return () -> new CellIterator(cells);
-    }
-
-    Iterable<Cell> getCells(BitSet cells, Predicate<Cell> predicate) {
-        return () -> new CellIterator(cells, predicate);
-    }
-
-    Iterable<Cell> getCells(BitSet cells, Predicate<Cell> predicate, int startIndex) {
-        return () -> new CellIterator(cells, predicate, startIndex);
-    }
-
-    Iterable<Cell> getCells(BitSet cells, int startIndex) {
-        return () -> new CellIterator(cells, startIndex);
-    }
-
     /**
      * Returns whether the sudoku grid is fully solved with a valid solution.
      */
@@ -236,17 +214,17 @@ public class Grid
     }
 
     public Collection<Conflict> getConflicts() {
-        Set<BitSet>     foundConflicts = new HashSet<>();
+        Set<CellSet>    foundConflicts = new HashSet<>();
         Collection<Conflict> conflicts = new ArrayList<>();
 
         for (House house : houses()) {
             for (Cell cell : house.assignedCells()) {
                 int value = cell.getValue();
 
-                BitSet conflictCells =
-                        Grids.toBitSet(getCells(cell.getPeers(),
-                                c -> c.isAssigned() && c.getValue() == value));
+                Iterable<Cell> conflictPeers =
+                    cell.getPeers().filteredCells(this, c -> c.isAssigned() && c.getValue() == value);
 
+                CellSet conflictCells = Grids.toCellSet(this, conflictPeers);
                 if (conflictCells.cardinality() > 0) {
                     conflictCells.set(cell.getCellIndex());
 
@@ -268,27 +246,19 @@ public class Grid
     }
 
     public void acceptCells(CellVisitor visitor) {
-        for (Cell cell : cells()) {
-            visitor.visitCell(cell);
-        }
+        cells().forEach(visitor::visitCell);
     }
 
     public void acceptRows(HouseVisitor visitor) {
-        for (House.Row row : rows) {
-            visitor.visitRow(row);
-        }
+        rows.forEach(visitor::visitRow);
     }
 
     public void acceptColumns(HouseVisitor visitor) {
-        for (House.Column column : columns) {
-            visitor.visitColumn(column);
-        }
+        columns.forEach(visitor::visitColumn);
     }
 
     public void acceptBlocks(HouseVisitor visitor) {
-        for (House.Block block : blocks) {
-            visitor.visitBlock(block);
-        }
+        blocks.forEach(visitor::visitBlock);
     }
 
     public void acceptHouses(HouseVisitor visitor) {
@@ -321,15 +291,15 @@ public class Grid
         }
 
         // Third: update potential positions for affected cells.
-        BitSet peers = cell.getPeers();
-        for (BitSet positions : potentialPositions) {
+        CellSet peers = cell.getPeers();
+        for (CellSet positions : potentialPositions) {
             positions.clear(cell.getCellIndex());
             positions.andNot(peers);
         }
 
         for (Cell affectedCell : concat(cell, cell.peers())) {
             for (int value : affectedCell.getPossibleValues().allSetBits()) {
-                potentialPositions[value - 1].set(affectedCell.getCellIndex());
+                potentialPositions.get(value - 1).set(affectedCell.getCellIndex());
             }
         }
     }
@@ -337,12 +307,12 @@ public class Grid
     void notifyPossibleValuesChanged(Cell cell) {
         stateValid = true;
 
-        for (BitSet potentialPositions : this.potentialPositions) {
+        for (CellSet potentialPositions : potentialPositions) {
             potentialPositions.clear(cell.getCellIndex());
         }
 
         for (int value : cell.getPossibleValues().allSetBits()) {
-            potentialPositions[value - 1].set(cell.getCellIndex());
+            potentialPositions.get(value - 1).set(cell.getCellIndex());
         }
     }
 
@@ -362,67 +332,42 @@ public class Grid
         stateValid = true;
 
         // First: reset the possible values in all cells.
-        for (Cell cell : cells()) {
-            cell.resetPossibleValues();
-        }
+        cells().forEach(Cell::resetPossibleValues);
 
         // Second: refresh all assigned values in each house.
-        for (House house : houses()) {
-            house.updateAssignedValues();
-        }
+        houses().forEach(House::updateAssignedValues);
 
         // Third: remove potential values in each cell which
         //        are already assigned in the houses it is contained.
-        for (House house : houses()) {
-            house.updatePossibleValuesInCells();
-        }
+        houses().forEach(House::updatePossibleValuesInCells);
 
         // Fourth: refresh all possible positions for each cell.
-        for (BitSet positions : potentialPositions) {
-            positions.clear();
-        }
+        potentialPositions.forEach(CellSet::clearAll);
 
         for (Cell cell : cells()) {
             for (int value : cell.getPossibleValues().allSetBits()) {
-                potentialPositions[value - 1].set(cell.getCellIndex());
+                potentialPositions.get(value - 1).set(cell.getCellIndex());
             }
         }
     }
 
     public void clear() {
-        for (Cell cell : cells()) {
-            cell.clear(false);
-        }
-
-        for (House house : houses()) {
-            house.clear();
-        }
-
-        for (BitSet bitSet : potentialPositions) {
-            bitSet.clear();
-        }
-
+        cells().forEach(cell -> cell.clear(false));
+        houses().forEach(House::clear);
+        potentialPositions.forEach(CellSet::clearAll);
         updateState();
     }
 
     public void reset() {
-        for (Cell cell : cells()) {
-            cell.reset();
-        }
-
+        cells().forEach(Cell::reset);
         updateState();
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-
         sb.append("Grid [").append(type).append("]:\n");
-
-        for (Cell cell : cells()) {
-            sb.append("  ").append(cell).append("\n");
-        }
-
+        cells().forEach(cell -> sb.append("  ").append(cell).append("\n"));
         return sb.toString();
     }
 
@@ -511,67 +456,6 @@ public class Grid
             sb.append(firstCell.getValue());
 
             return sb.toString();
-        }
-    }
-
-    private class CellIterator implements Iterator<Cell> {
-
-        private final BitSet          cells;
-        private final Predicate<Cell> predicate;
-        private       int             nextOffset;
-        private       Cell            nextCell;
-        private       boolean         nextCellSet;
-
-        CellIterator(BitSet cells) {
-            this(cells, (cell) -> true, 0);
-        }
-
-        CellIterator(BitSet cells, int startIndex) {
-            this(cells, (cell) -> true, startIndex);
-        }
-
-        CellIterator(BitSet cells, Predicate<Cell> predicate) {
-            this(cells, predicate, 0);
-        }
-
-        CellIterator(BitSet cells, Predicate<Cell> predicate, int startIndex) {
-            this.cells       = cells;
-            this.predicate   = predicate;
-            this.nextCell    = null;
-            this.nextCellSet = false;
-            advanceIterator(startIndex);
-        }
-
-        private boolean advanceIterator(int startIndex) {
-            if (nextOffset < 0) {
-                return false;
-            }
-
-            int startOffset = startIndex;
-            while ((nextOffset = cells.nextSetBit(startOffset)) >= 0) {
-                Cell cell = getCell(nextOffset);
-                if (predicate.test(cell)) {
-                    nextCell    = cell;
-                    nextCellSet = true;
-                    return true;
-                }
-                startOffset = nextOffset + 1;
-            }
-            return false;
-        }
-
-        @Override
-        public boolean hasNext() {
-            return nextCellSet || advanceIterator(nextOffset + 1);
-        }
-
-        @Override
-        public Cell next() {
-            if (!hasNext()) {
-                throw new NoSuchElementException();
-            }
-            nextCellSet = false;
-            return nextCell;
         }
     }
 

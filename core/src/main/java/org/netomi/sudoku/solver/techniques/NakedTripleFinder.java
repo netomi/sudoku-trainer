@@ -36,5 +36,4 @@ public class NakedTripleFinder extends NakedSubsetFinder
     public SolvingTechnique getSolvingTechnique() {
         return SolvingTechnique.NAKED_TRIPLE;
     }
-
 }

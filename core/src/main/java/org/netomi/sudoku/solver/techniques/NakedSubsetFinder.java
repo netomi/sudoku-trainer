@@ -22,8 +22,6 @@ package org.netomi.sudoku.solver.techniques;
 import org.netomi.sudoku.model.*;
 import org.netomi.sudoku.solver.HintAggregator;
 
-import java.util.BitSet;
-
 /**
  * A {@code HintFinder} implementation that looks for houses where a subset
  * of cells has the same candidates left, forming a naked subset. All matching
@@ -54,7 +52,7 @@ public abstract class NakedSubsetFinder extends AbstractHintFinder
                 findSubset(grid,
                            hintAggregator,
                            house,
-                           new BitSet(grid.getCellCount()),
+                           CellSet.empty(grid),
                            cell,
                            ValueSet.empty(grid),
                            1);
@@ -65,7 +63,7 @@ public abstract class NakedSubsetFinder extends AbstractHintFinder
     private boolean findSubset(Grid           grid,
                                HintAggregator hintAggregator,
                                House          house,
-                               BitSet         visitedCells,
+                               CellSet        visitedCells,
                                Cell           currentCell,
                                ValueSet       visitedValues,
                                int            level) {
@@ -87,7 +85,7 @@ public abstract class NakedSubsetFinder extends AbstractHintFinder
             boolean foundHint = false;
 
             if (allVisitedValues.cardinality() == subSetSize) {
-                BitSet affectedCells = Grids.getCells(house);
+                CellSet affectedCells = Grids.getCells(house);
 
                 if (findLockedHouses) {
                     House.Row row = Grids.getSingleRow(grid, visitedCells);
@@ -113,7 +111,13 @@ public abstract class NakedSubsetFinder extends AbstractHintFinder
 
         boolean foundHint = false;
         for (Cell nextCell : house.unassignedCells(currentCell.getCellIndex() + 1)) {
-            foundHint |= findSubset(grid, hintAggregator, house, visitedCells, nextCell, allVisitedValues, level + 1);
+            foundHint |= findSubset(grid,
+                                    hintAggregator,
+                                    house,
+                                    visitedCells,
+                                    nextCell,
+                                    allVisitedValues,
+                                    level + 1);
         }
 
         visitedCells.clear(currentCell.getCellIndex());

@@ -37,5 +37,4 @@ public class HiddenTripleFinder extends HiddenSubsetFinder
     public SolvingTechnique getSolvingTechnique() {
         return SolvingTechnique.HIDDEN_TRIPLE;
     }
-
 }

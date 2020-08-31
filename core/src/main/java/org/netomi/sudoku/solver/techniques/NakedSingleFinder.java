@@ -24,8 +24,6 @@ import org.netomi.sudoku.model.ValueSet;
 import org.netomi.sudoku.solver.HintAggregator;
 import org.netomi.sudoku.solver.SolvingTechnique;
 
-import java.util.BitSet;
-
 /**
  * A {@code HintFinder} implementation that checks if digit can only
  * be placed in a single cell within a specific house.

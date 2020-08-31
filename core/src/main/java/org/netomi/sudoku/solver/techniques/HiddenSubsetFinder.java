@@ -19,12 +19,11 @@
  */
 package org.netomi.sudoku.solver.techniques;
 
+import org.netomi.sudoku.model.CellSet;
 import org.netomi.sudoku.model.Grid;
 import org.netomi.sudoku.model.House;
 import org.netomi.sudoku.model.ValueSet;
 import org.netomi.sudoku.solver.HintAggregator;
-
-import java.util.BitSet;
 
 /**
  *  A {@code HintFinder} implementation that looks for houses
@@ -53,7 +52,7 @@ public abstract class HiddenSubsetFinder extends AbstractHintFinder
                            house,
                            ValueSet.empty(grid),
                            value,
-                           new BitSet(grid.getCellCount()),
+                           CellSet.empty(grid),
                            1);
             }
         });
@@ -64,16 +63,16 @@ public abstract class HiddenSubsetFinder extends AbstractHintFinder
                                House          house,
                                ValueSet       visitedValues,
                                int            currentValue,
-                               BitSet         visitedPositions,
+                               CellSet        visitedPositions,
                                int            level) {
 
         if (level > subSetSize) {
             return false;
         }
 
-        BitSet potentialPositions = house.getPotentialPositions(currentValue);
+        CellSet potentialPositions = house.getPotentialPositions(currentValue);
 
-        BitSet allPotentialPositions = (BitSet) visitedPositions.clone();
+        CellSet allPotentialPositions = visitedPositions.copy();
         allPotentialPositions.or(potentialPositions);
 
         if (allPotentialPositions.cardinality() > subSetSize) {
@@ -96,7 +95,13 @@ public abstract class HiddenSubsetFinder extends AbstractHintFinder
 
         boolean foundHint = false;
         for (int nextValue : house.unassignedValues(currentValue + 1)) {
-            foundHint |= findSubset(grid, hintAggregator, house, visitedValues, nextValue, allPotentialPositions, level + 1);
+            foundHint |= findSubset(grid,
+                                    hintAggregator,
+                                    house,
+                                    visitedValues,
+                                    nextValue,
+                                    allPotentialPositions,
+                                    level + 1);
         }
 
         visitedValues.clear(currentValue);

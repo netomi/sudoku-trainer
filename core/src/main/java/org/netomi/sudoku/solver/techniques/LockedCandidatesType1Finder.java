@@ -19,13 +19,12 @@
  */
 package org.netomi.sudoku.solver.techniques;
 
+import org.netomi.sudoku.model.CellSet;
 import org.netomi.sudoku.model.Grid;
 import org.netomi.sudoku.model.Grids;
 import org.netomi.sudoku.model.House;
 import org.netomi.sudoku.solver.HintAggregator;
 import org.netomi.sudoku.solver.SolvingTechnique;
-
-import java.util.BitSet;
 
 public class LockedCandidatesType1Finder extends AbstractHintFinder
 {
@@ -38,7 +37,7 @@ public class LockedCandidatesType1Finder extends AbstractHintFinder
     public void findHints(Grid grid, HintAggregator hintAggregator) {
         grid.acceptBlocks(house -> {
             for (int value : house.unassignedValues()) {
-                BitSet possiblePositions = house.getPotentialPositions(value);
+                CellSet possiblePositions = house.getPotentialPositions(value);
 
                 if (possiblePositions.cardinality() == 0) {
                     continue;

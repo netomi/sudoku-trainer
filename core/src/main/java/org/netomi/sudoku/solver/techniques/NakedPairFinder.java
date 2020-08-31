@@ -23,8 +23,6 @@ import org.netomi.sudoku.model.*;
 import org.netomi.sudoku.solver.HintAggregator;
 import org.netomi.sudoku.solver.SolvingTechnique;
 
-import java.util.BitSet;
-
 /**
  * A {@code HintFinder} implementation that looks for houses where a pair
  * of cells has the same two candidates left, forming a naked pair. The
@@ -65,10 +63,10 @@ public class NakedPairFinder extends AbstractHintFinder
                     // If the two bitsets containing the possible candidate values
                     // have the same candidates, we have found a naked pair.
                     if (possibleValues.equals(otherPossibleValues)) {
-                        BitSet affectedCells = Grids.getCells(house);
+                        CellSet affectedCells = Grids.getCells(house);
 
                         if (findLockedHouses) {
-                            BitSet pairCells = Grids.toBitSet(cell, otherCell);
+                            CellSet pairCells = CellSet.of(cell, otherCell);
                             House.Row row = Grids.getSingleRow(grid, pairCells);
                             if (row != null) {
                                 affectedCells.or(Grids.getCells(row));

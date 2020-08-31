@@ -54,11 +54,11 @@ public abstract class AbstractHintFinder implements HintFinder
                                            House          excludedHouse,
                                            int            excludedValue) {
 
-        BitSet cellsToModify = new BitSet(grid.getCellCount());
+        CellSet cellsToModify = CellSet.empty(grid);
         for (Cell cell : affectedHouse.cellsExcluding(excludedHouse)) {
             // only consider cells which have the excluded value as candidate.
             if (!cell.isAssigned() &&
-                cell.getPossibleValues().isSet(excludedValue)) {
+                cell.getPossibleValues().get(excludedValue)) {
                 cellsToModify.set(cell.getCellIndex());
             }
         }
@@ -82,13 +82,13 @@ public abstract class AbstractHintFinder implements HintFinder
      */
     protected void eliminateNotAllowedValuesFromCells(Grid           grid,
                                                       HintAggregator hintAggregator,
-                                                      BitSet         affectedCells,
+                                                      CellSet        affectedCells,
                                                       ValueSet       allowedValues) {
 
-        BitSet         cellsToModify = new BitSet(grid.getCellCount());
+        CellSet         cellsToModify = CellSet.empty(grid);
         List<ValueSet> excludedValues = new ArrayList<>();
 
-        for (Cell cell : Grids.getCells(grid, affectedCells)) {
+        for (Cell cell : affectedCells.allCells(grid)) {
             if (!cell.isAssigned()) {
                 ValueSet valuesToExclude = valuesExcluding(cell.getPossibleValues(), allowedValues);
 
@@ -116,13 +116,13 @@ public abstract class AbstractHintFinder implements HintFinder
      */
     protected boolean eliminateValuesFromCells(Grid           grid,
                                                HintAggregator hintAggregator,
-                                               BitSet         affectedCells,
+                                               CellSet        affectedCells,
                                                ValueSet       excludedValues) {
 
-        BitSet         cellsToModify       = new BitSet(grid.getCellCount());
+        CellSet        cellsToModify       = CellSet.empty(grid);
         List<ValueSet> valuesToExcludeList = new ArrayList<>();
 
-        for (Cell cell : Grids.getCells(grid, affectedCells)) {
+        for (Cell cell : affectedCells.allCells(grid)) {
             if (!cell.isAssigned()) {
                 ValueSet valuesToExclude = valuesIncluding(cell.getPossibleValues(), excludedValues);
                 if (valuesToExclude.cardinality() > 0) {

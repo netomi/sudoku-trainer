@@ -31,5 +31,4 @@ public class SwordFishFinder extends BasicFishFinder
     public SolvingTechnique getSolvingTechnique() {
         return SolvingTechnique.SWORDFISH;
     }
-
 }
