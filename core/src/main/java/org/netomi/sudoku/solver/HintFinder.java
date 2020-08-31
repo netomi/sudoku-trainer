@@ -21,9 +21,8 @@ package org.netomi.sudoku.solver;
 
 import org.netomi.sudoku.model.Grid;
 
-public interface HintFinder {
-
+public interface HintFinder
+{
     SolvingTechnique getSolvingTechnique();
-
     void findHints(Grid grid, HintAggregator hintAggregator);
 }

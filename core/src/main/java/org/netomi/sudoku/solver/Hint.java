@@ -23,8 +23,8 @@ import org.netomi.sudoku.model.Grid;
 
 import java.util.Objects;
 
-public abstract class Hint {
-
+public abstract class Hint
+{
     private final Grid.Type        type;
     private final SolvingTechnique solvingTechnique;
 

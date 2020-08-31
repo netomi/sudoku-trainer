@@ -27,7 +27,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 
-public class GridValueLoader implements GridVisitor<Grid> {
+public class GridValueLoader implements GridVisitor<Grid>
+{
     private final Reader reader;
 
     public GridValueLoader(String input) {
@@ -42,9 +43,7 @@ public class GridValueLoader implements GridVisitor<Grid> {
     public Grid visitGrid(Grid grid) {
 
         for (Cell cell : grid.cells()) {
-
-            boolean isGiven = true;
-
+            boolean isGiven;
             while (true) {
                 char ch = nextChar();
 

@@ -1,0 +1,14 @@
+Your solution will be verified by a MD5/SHA256 checksum. Your script should be able to generate a file containing all puzzles and their solutions. However, the file will also be manually inspected, so don't try to get a hash collision. Your output file should match:
+
+MD5: 41704fd7d8fd0723a45ffbb2dbbfa488
+SHA256: 0bc8dda364db7b99f389b42383e37b411d9fa022204d124cb3c8959eba252f05
+
+The file will be on the format:
+
+<num_puzzles>
+<unsolved_puzzle#1>,<solved_puzzle#1>
+<unsolved_puzzle#2>,<solved_puzzle#2>
+...
+<unsolved_puzzle#n>,<solved_puzzle#n>
+
+with a single trailing newline.

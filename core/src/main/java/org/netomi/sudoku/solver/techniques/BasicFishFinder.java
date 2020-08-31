@@ -19,10 +19,7 @@
  */
 package org.netomi.sudoku.solver.techniques;
 
-import org.netomi.sudoku.model.Grid;
-import org.netomi.sudoku.model.Grids;
-import org.netomi.sudoku.model.House;
-import org.netomi.sudoku.model.HouseVisitor;
+import org.netomi.sudoku.model.*;
 import org.netomi.sudoku.solver.HintAggregator;
 
 import java.util.ArrayList;
@@ -30,13 +27,13 @@ import java.util.BitSet;
 import java.util.List;
 
 /**
- *  A {@code HintFinder} implementation that looks for houses
- *  where a subset of candidates is constrained to some cells,
- *  forming a hidden subset. All other candidates in these cells
- *  can be removed.
+ * A {@code HintFinder} implementation that looks for houses
+ * where a subset of candidates is constrained to some cells,
+ * forming a hidden subset. All other candidates in these cells
+ * can be removed.
  */
-public abstract class BasicFishFinder extends AbstractHintFinder {
-
+public abstract class BasicFishFinder extends AbstractHintFinder
+{
     private final int size;
 
     protected BasicFishFinder(int size) {
@@ -101,8 +98,7 @@ public abstract class BasicFishFinder extends AbstractHintFinder {
                 affectedCells.andNot(Grids.getCells(row));
             }
 
-            BitSet excludedValue = new BitSet();
-            excludedValue.set(value);
+            ValueSet excludedValue = ValueSet.of(grid, value);
 
             // eliminate the detected fish value from all affected cells,
             // affected cells = cells of cover set - cells of base set
@@ -115,7 +111,7 @@ public abstract class BasicFishFinder extends AbstractHintFinder {
         boolean foundHint = false;
         for (House nextHouse : grid.regionsAfter(house)) {
             if (!nextHouse.isSolved() &&
-                !nextHouse.getAssignedValues().get(value)) {
+                !nextHouse.getAssignedValues().isSet(value)) {
                 foundHint |= findBaseSet(grid, hintAggregator, visitedRegions, nextHouse, value, mergedCoverSet, level + 1);
             }
         }

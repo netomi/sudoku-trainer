@@ -19,7 +19,8 @@
  */
 package org.netomi.sudoku.solver;
 
-public enum SolvingTechnique {
+public enum SolvingTechnique
+{
     // Singles.
     FULL_HOUSE("Full House"),
     HIDDEN_SINGLE("Hidden Single"),

@@ -27,8 +27,8 @@ import org.netomi.sudoku.solver.SolvingTechnique;
  * forming a hidden triple. All other candidates in these cells
  * can be removed.
  */
-public class HiddenTripleFinder extends HiddenSubsetFinder {
-
+public class HiddenTripleFinder extends HiddenSubsetFinder
+{
     public HiddenTripleFinder() {
         super(3);
     }

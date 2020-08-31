@@ -21,8 +21,8 @@ package org.netomi.sudoku.solver.techniques;
 
 import org.netomi.sudoku.solver.SolvingTechnique;
 
-public class XWingHintFinder extends BasicFishFinder {
-
+public class XWingHintFinder extends BasicFishFinder
+{
     public XWingHintFinder() {
         super(2);
     }

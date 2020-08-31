@@ -21,8 +21,8 @@ package org.netomi.sudoku.solver.techniques;
 
 import org.netomi.sudoku.solver.SolvingTechnique;
 
-public class JellyFishFinder extends BasicFishFinder {
-
+public class JellyFishFinder extends BasicFishFinder
+{
     public JellyFishFinder() {
         super(4);
     }
@@ -31,5 +31,4 @@ public class JellyFishFinder extends BasicFishFinder {
     public SolvingTechnique getSolvingTechnique() {
         return SolvingTechnique.JELLYFISH;
     }
-
 }

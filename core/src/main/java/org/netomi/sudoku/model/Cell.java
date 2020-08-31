@@ -21,7 +21,6 @@ package org.netomi.sudoku.model;
 
 import java.util.Arrays;
 import java.util.BitSet;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -29,7 +28,8 @@ import java.util.Objects;
  *
  * @author Thomas Neidhart
  */
-public class Cell {
+public class Cell
+{
     // Immutable properties.
     private final Grid    owner;
     private final BitSet  peers;
@@ -40,10 +40,10 @@ public class Cell {
     private final int     blockIndex;
 
     // Mutable properties.
-    private       int     value;
-    private       boolean given;
-    private final BitSet  possibleValues;
-    private final BitSet  excludedValues;
+    private       int      value;
+    private       boolean  given;
+    private final ValueSet possibleValues;
+    private final ValueSet excludedValues;
 
     Cell(Grid owner, int cellIndex, int rowIndex, int columnIndex, int blockIndex) {
         this.owner  = owner;
@@ -56,9 +56,8 @@ public class Cell {
 
         this.value          = 0;
         this.given          = false;
-        this.possibleValues = new BitSet(owner.getGridSize() + 1);
-        this.possibleValues.set(1, owner.getGridSize() + 1);
-        this.excludedValues = new BitSet(owner.getGridSize() + 1);
+        this.possibleValues = ValueSet.fullySet(owner);
+        this.excludedValues = ValueSet.empty(owner);
     }
 
     public Grid getOwner() {
@@ -219,7 +218,7 @@ public class Cell {
      *
      * @throws RuntimeException if the internal state is not updated
      */
-    public BitSet getPossibleValues() {
+    public ValueSet getPossibleValues() {
         owner.throwIfStateIsInvalid();
         return possibleValues;
     }
@@ -244,7 +243,7 @@ public class Cell {
      * Excludes the given values from the set of possible values.
      * @param values the values to exclude
      */
-    public void excludePossibleValues(BitSet values, boolean updateGrid) {
+    public void excludePossibleValues(ValueSet values, boolean updateGrid) {
         owner.invalidateState();
         excludedValues.or(values);
         possibleValues.andNot(excludedValues);
@@ -254,7 +253,7 @@ public class Cell {
         }
     }
 
-    BitSet getExcludedValues() {
+    ValueSet getExcludedValues() {
         return excludedValues;
     }
 
@@ -263,7 +262,7 @@ public class Cell {
      */
     public void clearExcludedValues(boolean updateGrid) {
         owner.invalidateState();
-        excludedValues.clear();
+        excludedValues.clearAll();
         resetPossibleValues();
 
         for (House house : Arrays.asList(getRow(), getColumn(), getBlock())) {
@@ -276,14 +275,15 @@ public class Cell {
     }
 
     void resetPossibleValues() {
-        possibleValues.clear();
         if (!isAssigned()) {
-            possibleValues.set(1, owner.getGridSize() + 1);
+            possibleValues.setAll();
             possibleValues.andNot(excludedValues);
+        } else {
+            possibleValues.clearAll();
         }
     }
 
-    void updatePossibleValues(BitSet assignedValues) {
+    void updatePossibleValues(ValueSet assignedValues) {
         possibleValues.andNot(assignedValues);
     }
 
@@ -306,9 +306,8 @@ public class Cell {
 
         given = false;
 
-        possibleValues.clear();
-        possibleValues.set(1, owner.getGridSize() + 1);
-        excludedValues.clear();
+        possibleValues.setAll();
+        excludedValues.clearAll();
 
         setValue(0, updateGrid);
     }
@@ -330,9 +329,8 @@ public class Cell {
     public void reset(boolean updateGrid) {
         owner.invalidateState();
 
-        possibleValues.clear();
-        possibleValues.set(1, owner.getGridSize() + 1);
-        excludedValues.clear();
+        possibleValues.setAll();
+        excludedValues.clearAll();
 
         if (!given) {
             setValue(0, updateGrid);

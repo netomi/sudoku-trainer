@@ -27,8 +27,8 @@ import org.netomi.sudoku.solver.SolvingTechnique;
 
 import java.util.BitSet;
 
-public class LockedCandidatesType1Finder extends AbstractHintFinder {
-
+public class LockedCandidatesType1Finder extends AbstractHintFinder
+{
     @Override
     public SolvingTechnique getSolvingTechnique() {
         return SolvingTechnique.LOCKED_CANDIDATES_TYPE_1;

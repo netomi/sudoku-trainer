@@ -26,8 +26,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class HintSolver implements GridSolver {
-
+public class HintSolver implements GridSolver
+{
     private final List<HintFinder> finderList = new ArrayList<>();
 
     public HintSolver() {

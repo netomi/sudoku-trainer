@@ -28,8 +28,8 @@ import java.util.*;
 /**
  * A {@code HintFinder} implementation ...
  */
-public class RemotePairFinder extends AbstractHintFinder {
-
+public class RemotePairFinder extends AbstractHintFinder
+{
     @Override
     public SolvingTechnique getSolvingTechnique() {
         return SolvingTechnique.REMOTE_PAIR;
@@ -40,7 +40,7 @@ public class RemotePairFinder extends AbstractHintFinder {
         Set<BitSet> visitedChains = new HashSet<>();
 
         grid.acceptCells(cell -> {
-            BitSet possibleValues = cell.getPossibleValues();
+            ValueSet possibleValues = cell.getPossibleValues();
             if (possibleValues.cardinality() != 2) {
                 return;
             }
@@ -57,7 +57,7 @@ public class RemotePairFinder extends AbstractHintFinder {
                            int            length) {
 
         currentChain.addLink(currentCell);
-        BitSet possibleValues = currentCell.getPossibleValues();
+        ValueSet possibleValues = currentCell.getPossibleValues();
 
         // make sure we do not add chains twice: in forward and reverse order.
         if (visitedChains.contains(currentChain.cells)) {
@@ -88,7 +88,7 @@ public class RemotePairFinder extends AbstractHintFinder {
                 continue;
             }
 
-            BitSet possibleValuesOfNextCell = nextCell.getPossibleValues();
+            ValueSet possibleValuesOfNextCell = nextCell.getPossibleValues();
             if (possibleValuesOfNextCell.cardinality() != 2 ||
                 !possibleValues.equals(possibleValuesOfNextCell)) {
                 continue;

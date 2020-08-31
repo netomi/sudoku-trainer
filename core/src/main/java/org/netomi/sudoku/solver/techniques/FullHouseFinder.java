@@ -21,6 +21,7 @@ package org.netomi.sudoku.solver.techniques;
 
 import org.netomi.sudoku.model.Cell;
 import org.netomi.sudoku.model.Grid;
+import org.netomi.sudoku.model.ValueSet;
 import org.netomi.sudoku.solver.HintAggregator;
 import org.netomi.sudoku.solver.SolvingTechnique;
 
@@ -30,8 +31,8 @@ import java.util.BitSet;
  * A {@code HintFinder} implementation to look for houses which have a
  * single missing digit to place.
  */
-public class FullHouseFinder extends AbstractHintFinder {
-
+public class FullHouseFinder extends AbstractHintFinder
+{
     @Override
     public SolvingTechnique getSolvingTechnique() {
         return SolvingTechnique.FULL_HOUSE;
@@ -42,9 +43,9 @@ public class FullHouseFinder extends AbstractHintFinder {
         final int expectedCardinality = grid.getGridSize() - 1;
 
         grid.acceptHouses(house -> {
-            BitSet assignedValues = house.getAssignedValues();
+            ValueSet assignedValues = house.getAssignedValues();
             if (assignedValues.cardinality() == expectedCardinality) {
-                int value = assignedValues.nextClearBit(1);
+                int value = assignedValues.firstUnsetBit();
 
                 // Create a hint for all unassigned cells.
                 for (Cell cell : house.unassignedCells()) {

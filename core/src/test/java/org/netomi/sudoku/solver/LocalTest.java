@@ -25,6 +25,7 @@ import org.netomi.sudoku.io.GridValueLoader;
 import org.netomi.sudoku.model.Cell;
 import org.netomi.sudoku.model.Grid;
 import org.netomi.sudoku.model.PredefinedType;
+import org.netomi.sudoku.model.ValueSet;
 
 import java.util.Collection;
 
@@ -113,5 +114,16 @@ public class LocalTest {
 //        System.out.println("Solving sudoku with brute-force took " + (end - start) / 1e6 + "ms");
 //        resultGrid.accept(new GridPrinter(GridPrinter.STYLE.SIMPLE));
 //        System.out.println("grid valid = " + resultGrid.isValid());
+
+        ValueSet valueSet = ValueSet.empty(grid);
+
+        valueSet.set(3);
+        valueSet.set(9);
+
+        System.out.println(valueSet);
+
+        for (int value : valueSet.allSetBits()) {
+            System.out.println(value);
+        }
     }
 }

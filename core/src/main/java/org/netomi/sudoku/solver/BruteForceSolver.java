@@ -21,13 +21,14 @@ package org.netomi.sudoku.solver;
 
 import org.netomi.sudoku.model.Cell;
 import org.netomi.sudoku.model.Grid;
+import org.netomi.sudoku.model.ValueSet;
 import org.netomi.sudoku.solver.techniques.HiddenSingleFinder;
 import org.netomi.sudoku.solver.techniques.NakedSingleFinder;
 
 import java.util.*;
 
-public class BruteForceSolver implements GridSolver {
-
+public class BruteForceSolver implements GridSolver
+{
     private final HintSolver hintSolver;
     private int guesses;
     private int backtracks;
@@ -89,7 +90,7 @@ public class BruteForceSolver implements GridSolver {
 
         Cell nextCell = selectNextCell(unassignedCells);
 
-        BitSet possibleValues = (BitSet) nextCell.getPossibleValues().clone();
+        ValueSet possibleValues = nextCell.getPossibleValues().copy();
 
         while (possibleValues.cardinality() > 0) {
             if (possibleValues.cardinality() > 1) {
@@ -99,9 +100,9 @@ public class BruteForceSolver implements GridSolver {
             int value;
 
             if (forward) {
-                value = possibleValues.nextSetBit(1);
+                value = possibleValues.firstSetBit();
             } else {
-                value = possibleValues.previousSetBit(grid.getGridSize() + 1);
+                value = possibleValues.previousSetBit(possibleValues.getLastBitIndex());
             }
 
             possibleValues.clear(value);

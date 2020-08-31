@@ -22,13 +22,12 @@ package org.netomi.sudoku.solver.techniques;
 import org.netomi.sudoku.solver.SolvingTechnique;
 
 /**
- * A {@code HintFinder} implementation that looks for houses
- * where a subset of 3 cells has the same three candidates left,
- * forming a naked triple. The candidates in other cells
- * of the same house can be removed.
+ * A {@code HintFinder} implementation that looks for houses where a subset
+ * of 3 cells has the same three candidates left, forming a naked triple. The
+ * candidates in other cells of the same house can be removed.
  */
-public class NakedTripleFinder extends NakedSubsetFinder {
-
+public class NakedTripleFinder extends NakedSubsetFinder
+{
     public NakedTripleFinder() {
         super(3);
     }

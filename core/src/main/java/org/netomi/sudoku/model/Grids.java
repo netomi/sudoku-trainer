@@ -19,15 +19,13 @@
  */
 package org.netomi.sudoku.model;
 
-import java.util.ArrayList;
 import java.util.BitSet;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-public class Grids {
-
+public class Grids
+{
     // hide constructor of utility class.
     private Grids() {}
 
@@ -133,29 +131,9 @@ public class Grids {
         return bitSet;
     }
 
-    public static Iterable<Integer> getValues(Grid grid, BitSet values) {
-        return () -> new Grid.ValueIterator(values, 1, grid.getGridSize(), false);
-    }
-
     public static List<Cell> toCellList(Grid grid, BitSet cells) {
         return StreamSupport.stream(grid.getCells(cells).spliterator(), false)
                             .collect(Collectors.toList());
-    }
-
-    public static Collection<Integer> toIntCollection(BitSet values) {
-        List<Integer> result = new ArrayList<>(values.cardinality());
-        for (int value = values.nextSetBit(1); value >= 0; value = values.nextSetBit(value + 1)) {
-            result.add(value);
-        }
-        return result;
-    }
-
-    public static int[] toIntArray(BitSet values) {
-        int[] result = new int[values.cardinality()];
-        for (int value = values.nextSetBit(1), idx = 0; value >= 0; value = values.nextSetBit(value + 1)) {
-            result[idx++] = value;
-        }
-        return result;
     }
 
     public static BitSet getCells(House... houses) {

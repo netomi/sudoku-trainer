@@ -21,7 +21,7 @@ package org.netomi.sudoku.solver;
 
 import org.netomi.sudoku.model.Grid;
 
-public interface GridSolver {
-
+public interface GridSolver
+{
     Grid solve(Grid grid);
 }

@@ -26,8 +26,8 @@ import org.netomi.sudoku.model.House;
 
 import java.io.PrintStream;
 
-public class GridPrinter implements GridVisitor<Grid> {
-
+public class GridPrinter implements GridVisitor<Grid>
+{
     public enum STYLE {
         ONE_LINE,
         SIMPLE

@@ -26,6 +26,7 @@ package org.netomi.sudoku.model;
  *
  * @author Thomas Neidhart
  */
-public interface CellVisitor {
+public interface CellVisitor
+{
     void visitCell(Cell cell);
 }

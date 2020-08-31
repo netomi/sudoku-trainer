@@ -21,6 +21,7 @@ package org.netomi.sudoku.solver.techniques;
 
 import org.netomi.sudoku.model.Grid;
 import org.netomi.sudoku.model.House;
+import org.netomi.sudoku.model.ValueSet;
 import org.netomi.sudoku.solver.HintAggregator;
 
 import java.util.BitSet;
@@ -31,8 +32,8 @@ import java.util.BitSet;
  *  forming a hidden subset. All other candidates in these cells
  *  can be removed.
  */
-public abstract class HiddenSubsetFinder extends AbstractHintFinder {
-
+public abstract class HiddenSubsetFinder extends AbstractHintFinder
+{
     private final int subSetSize;
 
     protected HiddenSubsetFinder(int subSetSize) {
@@ -50,7 +51,7 @@ public abstract class HiddenSubsetFinder extends AbstractHintFinder {
                 findSubset(grid,
                            hintAggregator,
                            house,
-                           new BitSet(grid.getGridSize() + 1),
+                           ValueSet.empty(grid),
                            value,
                            new BitSet(grid.getCellCount()),
                            1);
@@ -61,7 +62,7 @@ public abstract class HiddenSubsetFinder extends AbstractHintFinder {
     private boolean findSubset(Grid           grid,
                                HintAggregator hintAggregator,
                                House          house,
-                               BitSet         visitedValues,
+                               ValueSet       visitedValues,
                                int            currentValue,
                                BitSet         visitedPositions,
                                int            level) {

@@ -22,13 +22,13 @@ package org.netomi.sudoku.solver.techniques;
 import org.netomi.sudoku.solver.SolvingTechnique;
 
 /**
- * A {@code HintFinder} implementation that looks for houses where a pair of cells
- * has the same two candidates left, forming a locked pair if they are on the same
- * row or column. The same candidates in other cells of the same house and row / column
- * can be removed.
+ * A {@code HintFinder} implementation that looks for houses, where a pair
+ * of cells has the same two candidates left, forming a locked pair if they
+ * are on the same row or column. The same candidates in other cells of the
+ * same house and row / column can be removed.
  */
-public class LockedPairFinder extends NakedPairFinder {
-
+public class LockedPairFinder extends NakedPairFinder
+{
     public LockedPairFinder() {
         super(true);
     }

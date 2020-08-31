@@ -21,8 +21,8 @@ package org.netomi.sudoku.solver.techniques;
 
 import org.netomi.sudoku.solver.SolvingTechnique;
 
-public class SwordFishFinder extends BasicFishFinder {
-
+public class SwordFishFinder extends BasicFishFinder
+{
     public SwordFishFinder() {
         super(3);
     }

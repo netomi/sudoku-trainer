@@ -25,8 +25,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 
-public class HintAggregator implements Iterable<Hint> {
-
+public class HintAggregator implements Iterable<Hint>
+{
     protected final Collection<Hint> hints;
 
     public HintAggregator() {

@@ -24,6 +24,7 @@ package org.netomi.sudoku.model;
  *
  * @author Thomas Neidhart
  */
-public interface GridVisitor<T> {
+public interface GridVisitor<T>
+{
     T visitGrid(Grid grid);
 }

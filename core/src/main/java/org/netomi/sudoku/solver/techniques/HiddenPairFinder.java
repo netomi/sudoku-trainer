@@ -20,6 +20,7 @@
 package org.netomi.sudoku.solver.techniques;
 
 import org.netomi.sudoku.model.Grid;
+import org.netomi.sudoku.model.ValueSet;
 import org.netomi.sudoku.solver.HintAggregator;
 import org.netomi.sudoku.solver.SolvingTechnique;
 
@@ -31,8 +32,8 @@ import java.util.*;
  * cells, forming a hidden pair. Any other candidate in these
  * cells can be removed.
  */
-public class HiddenPairFinder extends AbstractHintFinder {
-
+public class HiddenPairFinder extends AbstractHintFinder
+{
     @Override
     public SolvingTechnique getSolvingTechnique() {
         return SolvingTechnique.HIDDEN_PAIR;
@@ -43,15 +44,12 @@ public class HiddenPairFinder extends AbstractHintFinder {
         grid.acceptHouses(house -> {
             for (int value : house.unassignedValues()) {
                 BitSet potentialPositions = house.getPotentialPositions(value);
-
                 if (potentialPositions.cardinality() != 2) {
                     continue;
                 }
 
                 for (int otherValue : house.unassignedValues(value + 1)) {
-
                     BitSet otherPotentialPositions = house.getPotentialPositions(otherValue);
-
                     if (otherPotentialPositions.cardinality() != 2) {
                         continue;
                     }
@@ -61,11 +59,8 @@ public class HiddenPairFinder extends AbstractHintFinder {
                     BitSet matching = (BitSet) potentialPositions.clone();
                     matching.xor(otherPotentialPositions);
 
-                    BitSet allowedValues = new BitSet();
-                    allowedValues.set(value);
-                    allowedValues.set(otherValue);
-
                     if (matching.cardinality() == 0) {
+                        ValueSet allowedValues = ValueSet.of(grid, value, otherValue);
                         eliminateNotAllowedValuesFromCells(grid, hintAggregator, potentialPositions, allowedValues);
                     }
                 }

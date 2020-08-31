@@ -20,6 +20,7 @@
 package org.netomi.sudoku.solver.techniques;
 
 import org.netomi.sudoku.model.Grid;
+import org.netomi.sudoku.model.ValueSet;
 import org.netomi.sudoku.solver.HintAggregator;
 import org.netomi.sudoku.solver.SolvingTechnique;
 
@@ -29,8 +30,8 @@ import java.util.BitSet;
  * A {@code HintFinder} implementation that checks if digit can only
  * be placed in a single cell within a specific house.
  */
-public class NakedSingleFinder extends AbstractHintFinder {
-
+public class NakedSingleFinder extends AbstractHintFinder
+{
     @Override
     public SolvingTechnique getSolvingTechnique() {
         return SolvingTechnique.NAKED_SINGLE;
@@ -40,9 +41,9 @@ public class NakedSingleFinder extends AbstractHintFinder {
     public void findHints(Grid grid, HintAggregator hintAggregator) {
         grid.acceptCells((cell) -> {
             if (!cell.isAssigned()) {
-                BitSet possibleValues = cell.getPossibleValues();
+                ValueSet possibleValues = cell.getPossibleValues();
                 if (possibleValues.cardinality() == 1) {
-                    int value = possibleValues.nextSetBit(1);
+                    int value = possibleValues.firstSetBit();
                     placeValueInCell(grid, hintAggregator, cell.getCellIndex(), value);
                 }
             }

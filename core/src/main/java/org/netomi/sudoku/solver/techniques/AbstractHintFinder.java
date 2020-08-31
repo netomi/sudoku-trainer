@@ -19,16 +19,13 @@
  */
 package org.netomi.sudoku.solver.techniques;
 
-import org.netomi.sudoku.model.Cell;
-import org.netomi.sudoku.model.Grid;
-import org.netomi.sudoku.model.Grids;
-import org.netomi.sudoku.model.House;
+import org.netomi.sudoku.model.*;
 import org.netomi.sudoku.solver.*;
 
 import java.util.*;
 
-public abstract class AbstractHintFinder implements HintFinder {
-
+public abstract class AbstractHintFinder implements HintFinder
+{
     /**
      * Adds a direct placement hint to the {@code HintAggregator}.
      */
@@ -61,13 +58,12 @@ public abstract class AbstractHintFinder implements HintFinder {
         for (Cell cell : affectedHouse.cellsExcluding(excludedHouse)) {
             // only consider cells which have the excluded value as candidate.
             if (!cell.isAssigned() &&
-                cell.getPossibleValues().get(excludedValue)) {
+                cell.getPossibleValues().isSet(excludedValue)) {
                 cellsToModify.set(cell.getCellIndex());
             }
         }
 
-        BitSet eliminations = new BitSet(grid.getGridSize() + 1);
-        eliminations.set(excludedValue);
+        ValueSet eliminations = ValueSet.of(grid, excludedValue);
 
         if (cellsToModify.cardinality() > 0) {
             hintAggregator.addHint(new IndirectHint(grid.getType(),
@@ -87,14 +83,14 @@ public abstract class AbstractHintFinder implements HintFinder {
     protected void eliminateNotAllowedValuesFromCells(Grid           grid,
                                                       HintAggregator hintAggregator,
                                                       BitSet         affectedCells,
-                                                      BitSet         allowedValues) {
+                                                      ValueSet       allowedValues) {
 
-        BitSet       cellsToModify = new BitSet(grid.getCellCount());
-        List<BitSet> excludedValues = new ArrayList<>();
+        BitSet         cellsToModify = new BitSet(grid.getCellCount());
+        List<ValueSet> excludedValues = new ArrayList<>();
 
         for (Cell cell : Grids.getCells(grid, affectedCells)) {
             if (!cell.isAssigned()) {
-                BitSet valuesToExclude = valuesExcluding(cell.getPossibleValues(), allowedValues);
+                ValueSet valuesToExclude = valuesExcluding(cell.getPossibleValues(), allowedValues);
 
                 if (valuesToExclude.cardinality() > 0) {
                     cellsToModify.set(cell.getCellIndex());
@@ -107,7 +103,7 @@ public abstract class AbstractHintFinder implements HintFinder {
             hintAggregator.addHint(new IndirectHint(grid.getType(),
                                                     getSolvingTechnique(),
                                                     cellsToModify,
-                                                    excludedValues.toArray(new BitSet[0])));
+                                                    excludedValues.toArray(new ValueSet[0])));
         }
     }
 
@@ -121,15 +117,14 @@ public abstract class AbstractHintFinder implements HintFinder {
     protected boolean eliminateValuesFromCells(Grid           grid,
                                                HintAggregator hintAggregator,
                                                BitSet         affectedCells,
-                                               BitSet         excludedValues) {
+                                               ValueSet       excludedValues) {
 
-        BitSet       cellsToModify       = new BitSet(grid.getCellCount());
-        List<BitSet> valuesToExcludeList = new ArrayList<>();
+        BitSet         cellsToModify       = new BitSet(grid.getCellCount());
+        List<ValueSet> valuesToExcludeList = new ArrayList<>();
 
         for (Cell cell : Grids.getCells(grid, affectedCells)) {
             if (!cell.isAssigned()) {
-                BitSet valuesToExclude = valuesIncluding(cell.getPossibleValues(), excludedValues);
-
+                ValueSet valuesToExclude = valuesIncluding(cell.getPossibleValues(), excludedValues);
                 if (valuesToExclude.cardinality() > 0) {
                     cellsToModify.set(cell.getCellIndex());
                     valuesToExcludeList.add(valuesToExclude);
@@ -141,7 +136,7 @@ public abstract class AbstractHintFinder implements HintFinder {
             hintAggregator.addHint(new IndirectHint(grid.getType(),
                                                     getSolvingTechnique(),
                                                     cellsToModify,
-                                                    valuesToExcludeList.toArray(new BitSet[0])));
+                                                    valuesToExcludeList.toArray(new ValueSet[0])));
             return true;
         } else {
             return false;
@@ -152,8 +147,8 @@ public abstract class AbstractHintFinder implements HintFinder {
      * Returns a BitSet containing all values that have been set in the given bitset
      * excluding the values contained in the excludedValues array.
      */
-    private static BitSet valuesExcluding(BitSet values, BitSet excludedValues) {
-        BitSet result = (BitSet) values.clone();
+    private static ValueSet valuesExcluding(ValueSet values, ValueSet excludedValues) {
+        ValueSet result = values.copy();
         result.andNot(excludedValues);
         return result;
     }
@@ -162,8 +157,8 @@ public abstract class AbstractHintFinder implements HintFinder {
      * Returns an array containing all values that have been set in the given bitset
      * only including the values contained in the includedValues bitset.
      */
-    private static BitSet valuesIncluding(BitSet values, BitSet includedValues) {
-        BitSet result = (BitSet) includedValues.clone();
+    private static ValueSet valuesIncluding(ValueSet values, ValueSet includedValues) {
+        ValueSet result = includedValues.copy();
         result.and(values);
         return result;
     }

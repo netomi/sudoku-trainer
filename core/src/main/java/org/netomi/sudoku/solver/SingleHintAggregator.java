@@ -19,8 +19,8 @@
  */
 package org.netomi.sudoku.solver;
 
-public class SingleHintAggregator extends HintAggregator {
-
+public class SingleHintAggregator extends HintAggregator
+{
     @Override
     public void addHint(Hint hint) {
         super.addHint(hint);

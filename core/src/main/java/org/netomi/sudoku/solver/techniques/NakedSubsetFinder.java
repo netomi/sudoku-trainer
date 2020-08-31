@@ -25,12 +25,12 @@ import org.netomi.sudoku.solver.HintAggregator;
 import java.util.BitSet;
 
 /**
- * A {@code HintFinder} implementation that looks for houses where a subset of cells
- * has the same candidates left, forming a naked subset. All matching candidates in
- * other cells of the same house can be removed.
+ * A {@code HintFinder} implementation that looks for houses where a subset
+ * of cells has the same candidates left, forming a naked subset. All matching
+ * candidates in other cells of the same house can be removed.
  */
-public abstract class NakedSubsetFinder extends AbstractHintFinder {
-
+public abstract class NakedSubsetFinder extends AbstractHintFinder
+{
     private final int     subSetSize;
     private final boolean findLockedHouses;
 
@@ -56,7 +56,7 @@ public abstract class NakedSubsetFinder extends AbstractHintFinder {
                            house,
                            new BitSet(grid.getCellCount()),
                            cell,
-                           new BitSet(grid.getGridSize() + 1),
+                           ValueSet.empty(grid),
                            1);
             }
         });
@@ -67,14 +67,14 @@ public abstract class NakedSubsetFinder extends AbstractHintFinder {
                                House          house,
                                BitSet         visitedCells,
                                Cell           currentCell,
-                               BitSet         visitedValues,
+                               ValueSet       visitedValues,
                                int            level) {
 
         if (level > subSetSize) {
             return false;
         }
 
-        BitSet allVisitedValues = (BitSet) visitedValues.clone();
+        ValueSet allVisitedValues = visitedValues.copy();
         allVisitedValues.or(currentCell.getPossibleValues());
 
         if (allVisitedValues.cardinality() > subSetSize) {

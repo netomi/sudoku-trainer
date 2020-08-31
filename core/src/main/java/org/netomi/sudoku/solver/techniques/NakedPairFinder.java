@@ -26,13 +26,12 @@ import org.netomi.sudoku.solver.SolvingTechnique;
 import java.util.BitSet;
 
 /**
- * A {@code HintFinder} implementation that looks for houses
- * where a pair of cells has the same two candidates left,
- * forming a naked pair. The same candidates in other cells
- * of the same house can be removed.
+ * A {@code HintFinder} implementation that looks for houses where a pair
+ * of cells has the same two candidates left, forming a naked pair. The
+ * same candidates in other cells of the same house can be removed.
  */
-public class NakedPairFinder extends AbstractHintFinder {
-
+public class NakedPairFinder extends AbstractHintFinder
+{
     private final boolean findLockedHouses;
 
     public NakedPairFinder() {
@@ -52,23 +51,20 @@ public class NakedPairFinder extends AbstractHintFinder {
     public void findHints(Grid grid, HintAggregator hintAggregator) {
         grid.acceptHouses(house -> {
             for (Cell cell : house.cells()) {
-                BitSet possibleValues = cell.getPossibleValues();
+                ValueSet possibleValues = cell.getPossibleValues();
                 if (possibleValues.cardinality() != 2) {
                     continue;
                 }
 
                 for (Cell otherCell : house.cells(cell.getCellIndex() + 1)) {
-                    BitSet otherPossibleValues = otherCell.getPossibleValues();
+                    ValueSet otherPossibleValues = otherCell.getPossibleValues();
                     if (otherPossibleValues.cardinality() != 2) {
                         continue;
                     }
 
                     // If the two bitsets containing the possible candidate values
                     // have the same candidates, we have found a naked pair.
-                    BitSet matching = (BitSet) possibleValues.clone();
-                    matching.xor(otherPossibleValues);
-
-                    if (matching.cardinality() == 0) {
+                    if (possibleValues.equals(otherPossibleValues)) {
                         BitSet affectedCells = Grids.getCells(house);
 
                         if (findLockedHouses) {

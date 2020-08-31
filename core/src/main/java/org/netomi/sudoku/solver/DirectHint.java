@@ -23,8 +23,8 @@ import org.netomi.sudoku.model.Grid;
 
 import java.util.Objects;
 
-public class DirectHint extends Hint {
-
+public class DirectHint extends Hint
+{
     private final int cellIndex;
     private final int value;
 

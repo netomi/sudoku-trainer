@@ -22,13 +22,12 @@ package org.netomi.sudoku.solver.techniques;
 import org.netomi.sudoku.solver.SolvingTechnique;
 
 /**
- * A {@code HintFinder} implementation that looks for houses
- * where a subset of 4 cells has the same four candidates left,
- * forming a naked quadruple. The candidates in other cells
- * of the same house can be removed.
+ * A {@code HintFinder} implementation that looks for houses where a subset
+ * of 4 cells has the same four candidates left, forming a naked quadruple.
+ * The candidates in other cells of the same house can be removed.
  */
-public class NakedQuadrupleFinder extends NakedSubsetFinder {
-
+public class NakedQuadrupleFinder extends NakedSubsetFinder
+{
     public NakedQuadrupleFinder() {
         super(4);
     }

@@ -27,8 +27,8 @@ import org.netomi.sudoku.solver.SolvingTechnique;
  * row or column. The candidates in other cells of the same house and row / columns can
  * be removed.
  */
-public class LockedTripleFinder extends NakedSubsetFinder {
-
+public class LockedTripleFinder extends NakedSubsetFinder
+{
     public LockedTripleFinder() {
         super(3, true);
     }

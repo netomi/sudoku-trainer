@@ -24,7 +24,8 @@ package org.netomi.sudoku.model;
  *
  * @author Thomas Neidhart
  */
-public enum PredefinedType {
+public enum PredefinedType
+{
     CLASSIC_9x9(9) {
         int[] blockMapping =
             {

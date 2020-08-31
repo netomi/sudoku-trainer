@@ -22,15 +22,16 @@ package org.netomi.sudoku.model;
 import java.util.*;
 import java.util.function.Predicate;
 
-public class Grid {
+public class Grid
+{
     private final Type       type;
     private final List<Cell> cells;
 
-    private final List<House.Row>    rows;
-    private final List<House.Column> columns;
-    private final List<House.Block>  blocks;
+    private transient final List<House.Row>    rows;
+    private transient final List<House.Column> columns;
+    private transient final List<House.Block>  blocks;
 
-    protected final BitSet[] potentialPositions;
+    protected transient final BitSet[] potentialPositions;
 
     private boolean stateValid;
 
@@ -327,9 +328,8 @@ public class Grid {
         }
 
         for (Cell affectedCell : concat(cell, cell.peers())) {
-            BitSet possibleValues = affectedCell.getPossibleValues();
-            for (int i = possibleValues.nextSetBit(1); i >= 0; i = possibleValues.nextSetBit(i + 1)) {
-                potentialPositions[i - 1].set(affectedCell.getCellIndex());
+            for (int value : affectedCell.getPossibleValues().allSetBits()) {
+                potentialPositions[value - 1].set(affectedCell.getCellIndex());
             }
         }
     }
@@ -341,9 +341,8 @@ public class Grid {
             potentialPositions.clear(cell.getCellIndex());
         }
 
-        BitSet possibleValues = cell.getPossibleValues();
-        for (int i = possibleValues.nextSetBit(1); i >= 0; i = possibleValues.nextSetBit(i + 1)) {
-            potentialPositions[i - 1].set(cell.getCellIndex());
+        for (int value : cell.getPossibleValues().allSetBits()) {
+            potentialPositions[value - 1].set(cell.getCellIndex());
         }
     }
 
@@ -354,7 +353,7 @@ public class Grid {
     void throwIfStateIsInvalid() {
         if (!stateValid) {
             throw new RuntimeException("Cache data is invalidated, need to call refreshCache() before accessing cached data.");
-        };
+        }
     }
 
     public void updateState() {
@@ -384,9 +383,8 @@ public class Grid {
         }
 
         for (Cell cell : cells()) {
-            BitSet possibleValues = cell.getPossibleValues();
-            for (int i = possibleValues.nextSetBit(1); i >= 0; i = possibleValues.nextSetBit(i + 1)) {
-                potentialPositions[i - 1].set(cell.getCellIndex());
+            for (int value : cell.getPossibleValues().allSetBits()) {
+                potentialPositions[value - 1].set(cell.getCellIndex());
             }
         }
     }
@@ -419,10 +417,10 @@ public class Grid {
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Grid [" + type + "]:\n");
+        sb.append("Grid [").append(type).append("]:\n");
 
         for (Cell cell : cells()) {
-            sb.append("  " + cell.toString() + "\n");
+            sb.append("  ").append(cell).append("\n");
         }
 
         return sb.toString();
@@ -577,50 +575,15 @@ public class Grid {
         }
     }
 
-    protected static class ValueIterator implements Iterator<Integer> {
-
-        private final BitSet  bitSet;
-        private final int     toIndex;
-        private final boolean inverse;
-        private       int     nextOffset;
-
-        ValueIterator(BitSet bitSet, int fromIndex, int toIndex, boolean inverse) {
-            this.bitSet     = bitSet;
-            this.toIndex    = toIndex;
-            this.inverse    = inverse;
-            this.nextOffset = nextBit(fromIndex);
-        }
-
-        private int nextBit(int offset) {
-            return inverse ? bitSet.nextClearBit(offset) :
-                             bitSet.nextSetBit(offset);
-        }
-
-        @Override
-        public boolean hasNext() {
-            return nextOffset >= 0 && nextOffset <= toIndex;
-        }
-
-        @Override
-        public Integer next() {
-            if (!hasNext()) {
-                throw new NoSuchElementException();
-            }
-            Integer value = nextOffset;
-            nextOffset = nextBit(nextOffset + 1);
-            return value;
-        }
-    }
-
     private <T> Iterable<T> concat(Iterable<? extends T>... iterables) {
         return () -> new ConcatIterator<>(iterables);
     }
 
     private <T> Iterable<T> concat(T element, Iterable<T> iterable) {
-        return () -> new ConcatIterator<>(Arrays.asList(element), iterable);
+        return () -> new ConcatIterator<>(Collections.singletonList(element), iterable);
     }
 
-    private class ConcatIterator<T> implements Iterator<T> {
+    private static class ConcatIterator<T> implements Iterator<T> {
         private final Iterable<T>[] iterables;
 
         private int         currentIterableIndex;
@@ -642,7 +605,7 @@ public class Grid {
 
         protected void updateCurrentIterator() {
             if (currentIterator == null) {
-                if(iterables == null || iterables.length == 0) {
+                if(iterables.length == 0) {
                     currentIterator = Collections.emptyIterator();
                 } else {
                     currentIterator = iterables[0].iterator();

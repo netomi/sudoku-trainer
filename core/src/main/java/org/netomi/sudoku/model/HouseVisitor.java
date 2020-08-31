@@ -24,8 +24,8 @@ package org.netomi.sudoku.model;
  *
  * @author Thomas Neidhart
  */
-public interface HouseVisitor {
-
+public interface HouseVisitor
+{
     /**
      * By default, this method is called for any visited {@code #House}.
      */

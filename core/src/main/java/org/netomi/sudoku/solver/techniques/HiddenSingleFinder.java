@@ -30,8 +30,8 @@ import java.util.BitSet;
  * where a certain digit can only be placed in a single cell
  * anymore.
  */
-public class HiddenSingleFinder extends AbstractHintFinder {
-
+public class HiddenSingleFinder extends AbstractHintFinder
+{
     @Override
     public SolvingTechnique getSolvingTechnique() {
         return SolvingTechnique.HIDDEN_SINGLE;

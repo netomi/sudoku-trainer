@@ -27,8 +27,8 @@ import org.netomi.sudoku.solver.SolvingTechnique;
  * forming a hidden quadruple. All other candidates in these cells
  * can be removed.
  */
-public class HiddenQuadrupleFinder extends HiddenSubsetFinder {
-
+public class HiddenQuadrupleFinder extends HiddenSubsetFinder
+{
     public HiddenQuadrupleFinder() {
         super(4);
     }

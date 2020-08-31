@@ -35,20 +35,21 @@ import java.util.function.Predicate;
  *
  * @author Thomas Neidhart
  */
-public abstract class House {
+public abstract class House
+{
     // Immutable properties.
     private final Grid   owner;
     private final int    regionIndex;
     private final BitSet cells;
 
     // Mutable properties.
-    private final BitSet assignedValues;
+    private final ValueSet assignedValues;
 
     House(Grid owner, int regionIndex) {
         this.owner          = owner;
         this.regionIndex    = regionIndex;
         this.cells          = new BitSet(owner.getCellCount());
-        this.assignedValues = new BitSet(owner.getGridSize() + 1);
+        this.assignedValues = ValueSet.empty(owner);
     }
 
     /**
@@ -205,24 +206,24 @@ public abstract class House {
      * Returns the assigned values of all cells contained in this {@code #House}
      * as {@code #BitSet}.
      */
-    public BitSet getAssignedValues() {
+    public ValueSet getAssignedValues() {
         owner.throwIfStateIsInvalid();
         return assignedValues;
     }
 
     public Iterable<Integer> assignedValues() {
         owner.throwIfStateIsInvalid();
-        return () -> new Grid.ValueIterator(assignedValues, 1, owner.getGridSize(), false);
+        return assignedValues.allSetBits();
     }
 
     public Iterable<Integer> unassignedValues() {
         owner.throwIfStateIsInvalid();
-        return () -> new Grid.ValueIterator(assignedValues, 1, owner.getGridSize(), true);
+        return assignedValues.allUnsetBits();
     }
 
     public Iterable<Integer> unassignedValues(int startValue) {
         owner.throwIfStateIsInvalid();
-        return () -> new Grid.ValueIterator(assignedValues, startValue, owner.getGridSize(), true);
+        return assignedValues.allUnsetBits(startValue);
     }
 
     /**
@@ -246,7 +247,7 @@ public abstract class House {
     }
 
     void updateAssignedValues() {
-        assignedValues.clear();
+        assignedValues.clearAll();
         for (Cell cell : assignedCells()) {
             assignedValues.set(cell.getValue());
         }
@@ -263,7 +264,7 @@ public abstract class House {
     }
 
     void clear() {
-        assignedValues.clear();
+        assignedValues.clearAll();
     }
 
     // Concrete classes representing the different regions.
