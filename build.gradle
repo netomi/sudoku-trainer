@@ -64,6 +64,8 @@ subprojects {
             }
         }
         jar.dependsOn compileModuleJava
+
+        compileKotlin.finalizedBy compileModuleJava
     }
 
     jar {

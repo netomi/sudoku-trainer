@@ -1,4 +1,4 @@
 rootProject.name = 'sudoku'
 include 'core'
 include 'ui'
-
+include 'desktop'
