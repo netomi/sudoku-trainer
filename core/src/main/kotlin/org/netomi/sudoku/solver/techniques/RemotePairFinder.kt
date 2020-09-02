@@ -35,7 +35,7 @@ class RemotePairFinder : AbstractHintFinder() {
     override fun findHints(grid: Grid, hintAggregator: HintAggregator) {
         val visitedChains: MutableSet<CellSet> = HashSet()
         grid.acceptCells { cell ->
-            val possibleValues = cell.possibleValues
+            val possibleValues = cell.possibleValueSet
             if (possibleValues.cardinality() == 2) {
                 findChain(grid, hintAggregator, cell, Chain(grid, cell), visitedChains, 1)
             }
@@ -50,18 +50,18 @@ class RemotePairFinder : AbstractHintFinder() {
                           length:         Int)
     {
         currentChain.addLink(currentCell)
-        val possibleValues = currentCell.possibleValues
+        val possibleValues = currentCell.possibleValueSet
         // make sure we do not add chains twice: in forward and reverse order.
         if (visitedChains.contains(currentChain.cells)) {
             return
         }
 
         if (length > 3 && length % 2 == 0) {
-            val affectedCells = currentCell.peers.toMutableCellSet()
+            val affectedCells = currentCell.peerSet.toMutableCellSet()
             affectedCells.andNot(currentChain.cells)
 
             for (affectedCell in affectedCells.allCells(grid)) {
-                val peers = affectedCell.peers.toMutableCellSet()
+                val peers = affectedCell.peerSet.toMutableCellSet()
                 val endPoints = MutableCellSet.of(currentChain.startCell, currentCell)
 
                 peers.and(endPoints)
@@ -76,12 +76,12 @@ class RemotePairFinder : AbstractHintFinder() {
             }
         }
 
-        for (nextCell in currentCell.allPeers()) {
+        for (nextCell in currentCell.peers()) {
             if (currentChain.contains(nextCell)) {
                 continue
             }
 
-            val possibleValuesOfNextCell = nextCell.possibleValues
+            val possibleValuesOfNextCell = nextCell.possibleValueSet
             if (possibleValuesOfNextCell.cardinality() != 2 ||
                 possibleValues != possibleValuesOfNextCell) {
                 continue

@@ -23,7 +23,9 @@ import org.netomi.sudoku.model.Grid
 import org.netomi.sudoku.model.GridVisitor
 import java.io.PrintStream
 
-class GridPrinter constructor(private val style: STYLE, private val ps: PrintStream = System.out) : GridVisitor<Grid> {
+class GridPrinter constructor(private val style: STYLE, private val ps: PrintStream = System.out)
+    : GridVisitor<Grid>
+{
     enum class STYLE {
         ONE_LINE, SIMPLE
     }
@@ -37,16 +39,12 @@ class GridPrinter constructor(private val style: STYLE, private val ps: PrintStr
     }
 
     private fun printOnelineGrid(grid: Grid) {
-        for (cell in grid.cells()) {
-            ps.print(cell.value)
-        }
+        grid.cells().forEach { cell -> ps.println(cell.value) }
     }
 
     private fun printSimpleGrid(grid: Grid) {
         for (row in grid.rows()) {
-            for (cell in row.allCells()) {
-                ps.print(cell.value)
-            }
+            row.cells().forEach { cell -> ps.print(cell.value) }
             ps.println()
         }
     }

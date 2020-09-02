@@ -265,7 +265,7 @@ public class CellView extends StackPane {
         }
 
         value.set(cell.getValue());
-        possibleValues.setAll(cell.getPossibleValues().toArray());
+        possibleValues.setAll(cell.getPossibleValueSet().toArray());
         dirty.set(false);
     }
 

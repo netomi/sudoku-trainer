@@ -75,7 +75,7 @@ class BruteForceSolver : GridSolver {
         }
 
         val nextCell = selectNextCell(unassignedCells)
-        val possibleValues: MutableValueSet = nextCell.possibleValues.toMutableValueSet()
+        val possibleValues: MutableValueSet = nextCell.possibleValueSet.toMutableValueSet()
         while (possibleValues.cardinality() > 0) {
             if (possibleValues.cardinality() > 1) {
                 guesses++
@@ -103,7 +103,7 @@ class BruteForceSolver : GridSolver {
     private fun selectNextCell(cellSet: MutableSet<Cell>): Cell {
         val domains = arrayOfNulls<Cell>(9)
         for (cell in cellSet) {
-            val cardinality = cell.possibleValues.cardinality()
+            val cardinality = cell.possibleValueSet.cardinality()
             if (cardinality == 0) {
                 return cell
             }

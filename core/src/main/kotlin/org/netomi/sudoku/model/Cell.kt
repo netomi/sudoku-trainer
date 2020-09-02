@@ -26,9 +26,9 @@ import java.util.*
  */
 class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowIndex: Int, val columnIndex: Int, val blockIndex: Int)
 {
-    private val _peers: MutableCellSet = MutableCellSet.empty(owner)
-    val peers: CellSet
-        get() = _peers.asCellSet()
+    private val _peerSet: MutableCellSet = MutableCellSet.empty(owner)
+    val peerSet: CellSet
+        get() = _peerSet.asCellSet()
 
     private var _value : Int = 0
     var value: Int
@@ -53,16 +53,16 @@ class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowInde
      */
     var isGiven: Boolean = false
 
-    internal var _possibleValues: MutableValueSet = MutableValueSet.fullySet(owner)
-    val possibleValues: ValueSet
+    internal var _possibleValueSet: MutableValueSet = MutableValueSet.fullySet(owner)
+    val possibleValueSet: ValueSet
         get() {
             owner.throwIfStateIsInvalid()
-            return _possibleValues.asValueSet()
+            return _possibleValueSet.asValueSet()
         }
 
-    private val _excludedValues: MutableValueSet = MutableValueSet.empty(owner)
-    val excludedValues : ValueSet
-        get() = _excludedValues.asValueSet()
+    private val _excludedValueSet: MutableValueSet = MutableValueSet.empty(owner)
+    val excludedValueSet : ValueSet
+        get() = _excludedValueSet.asValueSet()
 
     /**
      * Returns the [Row] this cell belongs to.
@@ -89,16 +89,16 @@ class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowInde
         get() = value > 0
 
     internal fun addPeers(cells: CellSet) {
-        _peers.or(cells)
-        _peers.clear(cellIndex)
+        _peerSet.or(cells)
+        _peerSet.clear(cellIndex)
     }
 
     /**
      * Returns a [Sequence] containing all cell that are visible from
      * this cell, i.e. are contained in the same row, column or block.
      */
-    fun allPeers(): Sequence<Cell> {
-        return _peers.allCells(owner)
+    fun peers(): Sequence<Cell> {
+        return _peerSet.allCells(owner)
     }
 
     /**
@@ -134,9 +134,9 @@ class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowInde
     fun excludePossibleValues(updateGrid: Boolean, vararg values: Int) {
         owner.invalidateState()
         for (value in values) {
-            _excludedValues.set(value)
+            _excludedValueSet.set(value)
         }
-        _possibleValues.andNot(_excludedValues)
+        _possibleValueSet.andNot(_excludedValueSet)
 
         if (updateGrid) {
             owner.notifyPossibleValuesChanged(this)
@@ -149,8 +149,8 @@ class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowInde
      */
     fun excludePossibleValues(values: ValueSet, updateGrid: Boolean = true) {
         owner.invalidateState()
-        _excludedValues.or(values)
-        _possibleValues.andNot(excludedValues)
+        _excludedValueSet.or(values)
+        _possibleValueSet.andNot(_excludedValueSet)
 
         if (updateGrid) {
             owner.notifyPossibleValuesChanged(this)
@@ -162,7 +162,7 @@ class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowInde
      */
     fun clearExcludedValues(updateGrid: Boolean = true) {
         owner.invalidateState()
-        _excludedValues.clearAll()
+        _excludedValueSet.clearAll()
         resetPossibleValues()
         for (house in arrayOf(row, column, block)) {
             house.updatePossibleValuesInCell(this)
@@ -175,15 +175,15 @@ class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowInde
 
     internal fun resetPossibleValues() {
         if (!isAssigned) {
-            _possibleValues.setAll()
-            _possibleValues.andNot(excludedValues)
+            _possibleValueSet.setAll()
+            _possibleValueSet.andNot(_excludedValueSet)
         } else {
-            _possibleValues.clearAll()
+            _possibleValueSet.clearAll()
         }
     }
 
     internal fun updatePossibleValues(assignedValues: ValueSet) {
-        _possibleValues.andNot(assignedValues)
+        _possibleValueSet.andNot(assignedValues)
     }
 
     /**
@@ -194,8 +194,8 @@ class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowInde
     fun clear(updateGrid: Boolean = true) {
         owner.invalidateState()
         isGiven = false
-        _possibleValues.setAll()
-        _excludedValues.clearAll()
+        _possibleValueSet.setAll()
+        _excludedValueSet.clearAll()
         setValue(0, updateGrid)
     }
 
@@ -206,8 +206,8 @@ class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowInde
      */
     fun reset(updateGrid: Boolean = true) {
         owner.invalidateState()
-        _possibleValues.setAll()
-        _excludedValues.clearAll()
+        _possibleValueSet.setAll()
+        _excludedValueSet.clearAll()
         if (!isGiven) {
             setValue(0, updateGrid)
         } else if (updateGrid) {
@@ -236,6 +236,6 @@ class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowInde
     }
 
     override fun toString(): String {
-        return "r%dc%d = %d (%s)".format(rowIndex + 1, columnIndex + 1, value, if (isGiven) "given" else _possibleValues)
+        return "r%dc%d = %d (%s)".format(rowIndex + 1, columnIndex + 1, value, if (isGiven) "given" else _possibleValueSet)
     }
 }

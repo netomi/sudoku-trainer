@@ -94,7 +94,7 @@ abstract class BasicFishFinder protected constructor(private val size: Int)
             val affectedCells = getCellsOfCoverSet(grid, house.type, mergedCoverSet)
             // remove all cells from base sets.
             for (row in visitedRegions) {
-                affectedCells.andNot(row.cells)
+                affectedCells.andNot(row.cellSet)
             }
             val excludedValue = MutableValueSet.of(grid, value)
             // eliminate the detected fish value from all affected cells,
@@ -107,7 +107,7 @@ abstract class BasicFishFinder protected constructor(private val size: Int)
         var foundHint = false
         for (nextHouse in grid.regionsAfter(house)) {
             if (!nextHouse.isSolved &&
-                !nextHouse.assignedValues[value]) {
+                !nextHouse.assignedValueSet[value]) {
                 foundHint = foundHint or findBaseSet(grid, hintAggregator, visitedRegions, nextHouse, value, mergedCoverSet, level + 1)
             }
         }
@@ -127,7 +127,7 @@ abstract class BasicFishFinder protected constructor(private val size: Int)
         val affectedCells = MutableCellSet.empty(grid)
         for (i in coverSet.allSetBits()) {
             val house = if (baseSetType === HouseType.ROW) grid.getColumn(i) else grid.getRow(i)
-            affectedCells.or(house.cells)
+            affectedCells.or(house.cellSet)
         }
         return affectedCells
     }

@@ -61,7 +61,7 @@ abstract class AbstractHintFinder : HintFinder
         for (cell in affectedHouse.cellsExcluding(excludedHouse)) {
             // only consider cells which have the excluded value as candidate.
             if (!cell.isAssigned &&
-                cell.possibleValues[excludedValue]) {
+                cell.possibleValueSet[excludedValue]) {
                 cellsToModify.set(cell.cellIndex)
             }
         }
@@ -91,7 +91,7 @@ abstract class AbstractHintFinder : HintFinder
         val excludedValues: MutableList<ValueSet> = ArrayList()
         for (cell in affectedCells.allCells(grid)) {
             if (!cell.isAssigned) {
-                val valuesToExclude = valuesExcluding(cell.possibleValues, allowedValues)
+                val valuesToExclude = valuesExcluding(cell.possibleValueSet, allowedValues)
                 if (valuesToExclude.cardinality() > 0) {
                     cellsToModify.set(cell.cellIndex)
                     excludedValues.add(valuesToExclude)
@@ -124,7 +124,7 @@ abstract class AbstractHintFinder : HintFinder
 
         for (cell in affectedCells.allCells(grid)) {
             if (!cell.isAssigned) {
-                val valuesToExclude = valuesIncluding(cell.possibleValues, excludedValues)
+                val valuesToExclude = valuesIncluding(cell.possibleValueSet, excludedValues)
                 if (valuesToExclude.cardinality() > 0) {
                     cellsToModify.set(cell.cellIndex)
                     valuesToExcludeList.add(valuesToExclude)

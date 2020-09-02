@@ -44,7 +44,7 @@ class Grid internal constructor(val type: Type) {
             val cell = getCell(otherCell.cellIndex)
             cell.setValue(otherCell.value, false)
             cell.isGiven = otherCell.isGiven
-            cell.excludePossibleValues(otherCell.excludedValues, false)
+            cell.excludePossibleValues(otherCell.excludedValueSet, false)
         }
         updateState()
     }
@@ -143,7 +143,7 @@ class Grid internal constructor(val type: Type) {
             for (house in houses()) {
                 for (cell in house.assignedCells()) {
                     val value = cell.value
-                    val conflictPeers = cell.peers.filteredCells(this, { c -> c.isAssigned && c.value == value })
+                    val conflictPeers = cell.peerSet.filteredCells(this, { c -> c.isAssigned && c.value == value })
                     val conflictCells = MutableCellSet.of(this, conflictPeers)
                     if (conflictCells.cardinality() > 0) {
                         conflictCells.set(cell.cellIndex)
@@ -200,21 +200,21 @@ class Grid internal constructor(val type: Type) {
         cell.block .updateAssignedValues()
 
         // Second: update possible values in affected cells.
-        for (affectedCell in (sequenceOf(cell) + cell.allPeers())) {
+        for (affectedCell in (sequenceOf(cell) + cell.peers())) {
             affectedCell.resetPossibleValues()
-            affectedCell.updatePossibleValues(affectedCell.row._assignedValues)
-            affectedCell.updatePossibleValues(affectedCell.column._assignedValues)
-            affectedCell.updatePossibleValues(affectedCell.block._assignedValues)
+            affectedCell.updatePossibleValues(affectedCell.row._assignedValueSet)
+            affectedCell.updatePossibleValues(affectedCell.column._assignedValueSet)
+            affectedCell.updatePossibleValues(affectedCell.block._assignedValueSet)
         }
         // Third: update potential positions for affected cells.
-        val peers = cell.peers
+        val peers = cell.peerSet
         for (positions in _potentialPositions) {
             positions.clear(cell.cellIndex)
             positions.andNot(peers)
         }
 
-        for (affectedCell in (sequenceOf(cell) + cell.allPeers())) {
-            for (value in affectedCell._possibleValues.allSetBits()) {
+        for (affectedCell in (sequenceOf(cell) + cell.peers())) {
+            for (value in affectedCell._possibleValueSet.allSetBits()) {
                 _potentialPositions[value - 1].set(affectedCell.cellIndex)
             }
         }
@@ -224,7 +224,7 @@ class Grid internal constructor(val type: Type) {
 
     internal fun notifyPossibleValuesChanged(cell: Cell) {
         _potentialPositions.forEach { potentialPosition -> potentialPosition.clear(cell.cellIndex) }
-        cell._possibleValues.allSetBits().forEach { value -> _potentialPositions[value - 1].set(cell.cellIndex) }
+        cell._possibleValueSet.allSetBits().forEach { value -> _potentialPositions[value - 1].set(cell.cellIndex) }
         stateValid = true
     }
 
@@ -256,7 +256,7 @@ class Grid internal constructor(val type: Type) {
         // Fourth: refresh all possible positions for each cell.
         _potentialPositions.forEach { obj: MutableCellSet -> obj.clearAll() }
         for (cell in cells()) {
-            for (value in cell._possibleValues.allSetBits()) {
+            for (value in cell._possibleValueSet.allSetBits()) {
                 _potentialPositions[value - 1].set(cell.cellIndex)
             }
         }
@@ -398,7 +398,7 @@ class Grid internal constructor(val type: Type) {
         }
 
         // Initialize peers for each cell.
-        houses().forEach { house: House -> house.allCells().forEach { cell: Cell -> cell.addPeers(house.cells) } }
+        houses().forEach { house: House -> house.cells().forEach { cell: Cell -> cell.addPeers(house.cellSet) } }
 
         _potentialPositions = ArrayList(gridSize)
         for(idx in 0 until gridSize) {

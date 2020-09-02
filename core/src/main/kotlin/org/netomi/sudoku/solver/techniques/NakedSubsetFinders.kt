@@ -39,13 +39,13 @@ open class NakedPairFinder protected constructor(private val findLockedHouses: B
 
     override fun findHints(grid: Grid, hintAggregator: HintAggregator) {
         grid.acceptHouses { house ->
-            for (cell in house.allCells()) {
-                val possibleValues = cell.possibleValues
+            for (cell in house.cells()) {
+                val possibleValues = cell.possibleValueSet
                 if (possibleValues.cardinality() != 2) {
                     continue
                 }
-                for (otherCell in house.allCells(cell.cellIndex + 1)) {
-                    val otherPossibleValues = otherCell.possibleValues
+                for (otherCell in house.cells(cell.cellIndex + 1)) {
+                    val otherPossibleValues = otherCell.possibleValueSet
                     if (otherPossibleValues.cardinality() != 2) {
                         continue
                     }
@@ -53,16 +53,16 @@ open class NakedPairFinder protected constructor(private val findLockedHouses: B
                     // If the two [CellSet]s containing the possible candidate values
                     // have the same candidates, we have found a naked pair.
                     if (possibleValues == otherPossibleValues) {
-                        val affectedCells = house.cells.toMutableCellSet()
+                        val affectedCells = house.cellSet.toMutableCellSet()
 
                         if (findLockedHouses) {
                             val pairCells = MutableCellSet.of(cell, otherCell)
 
                             val row = pairCells.getSingleRow(grid)
-                            row?.let { affectedCells.or(it.cells) }
+                            row?.let { affectedCells.or(it.cellSet) }
 
                             val col = pairCells.getSingleColumn(grid)
-                            col?.let { affectedCells.or(it.cells) }
+                            col?.let { affectedCells.or(it.cellSet) }
                         }
 
                         affectedCells.clear(cell.cellIndex)
@@ -151,7 +151,7 @@ abstract class NakedSubsetFinder protected constructor(private val subSetSize: I
         }
 
         val allVisitedValues = visitedValues.copy()
-        allVisitedValues.or(currentCell.possibleValues)
+        allVisitedValues.or(currentCell.possibleValueSet)
         if (allVisitedValues.cardinality() > subSetSize) {
             return false
         }
@@ -160,14 +160,14 @@ abstract class NakedSubsetFinder protected constructor(private val subSetSize: I
         if (level == subSetSize) {
             var foundHint = false
             if (allVisitedValues.cardinality() == subSetSize) {
-                val affectedCells = house.cells.toMutableCellSet()
+                val affectedCells = house.cellSet.toMutableCellSet()
 
                 if (findLockedHouses) {
                     val row = visitedCells.getSingleRow(grid)
-                    row?.let { affectedCells.or(it.cells) }
+                    row?.let { affectedCells.or(it.cellSet) }
 
                     val col = visitedCells.getSingleColumn(grid)
-                    col?.let { affectedCells.or(it.cells) }
+                    col?.let { affectedCells.or(it.cellSet) }
                 }
 
                 affectedCells.andNot(visitedCells)

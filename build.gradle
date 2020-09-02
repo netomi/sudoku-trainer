@@ -21,6 +21,9 @@ subprojects {
         junitVersion = "5.3.2"
     }
 
+    sourceCompatibility = '11'
+    targetCompatibility = '11'
+
     compileKotlin {
         kotlinOptions.jvmTarget = "11"
         kotlinOptions.freeCompilerArgs = [
@@ -61,5 +64,9 @@ subprojects {
             }
         }
         jar.dependsOn compileModuleJava
+    }
+
+    jar {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     }
 }

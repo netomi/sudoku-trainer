@@ -35,7 +35,7 @@ class FullHouseFinder : AbstractHintFinder() {
     override fun findHints(grid: Grid, hintAggregator: HintAggregator) {
         val expectedCardinality = grid.gridSize - 1
         grid.acceptHouses { house ->
-            val assignedValues: ValueSet = house.assignedValues
+            val assignedValues = house.assignedValueSet
             if (assignedValues.cardinality() == expectedCardinality) {
                 val value = assignedValues.firstUnsetBit()
                 // Create a hint for all unassigned cells.
@@ -79,7 +79,7 @@ class NakedSingleFinder : AbstractHintFinder() {
     override fun findHints(grid: Grid, hintAggregator: HintAggregator) {
         grid.acceptCells { cell ->
             if (!cell.isAssigned) {
-                val possibleValues = cell.possibleValues
+                val possibleValues = cell.possibleValueSet
                 if (possibleValues.cardinality() == 1) {
                     val value = possibleValues.firstSetBit()
                     placeValueInCell(grid, hintAggregator, cell.cellIndex, value)

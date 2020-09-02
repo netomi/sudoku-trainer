@@ -25,9 +25,9 @@ import java.io.IOException
 import java.io.Reader
 import java.io.StringReader
 
-class GridValueLoader(private val reader: Reader) : GridVisitor<Grid?> {
-
-    constructor(input: String?) : this(StringReader(input))
+class GridValueLoader(private val reader: Reader) : GridVisitor<Grid>
+{
+    constructor(input: String) : this(StringReader(input))
 
     override fun visitGrid(grid: Grid): Grid {
         for (cell in grid.cells()) {

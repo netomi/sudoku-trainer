@@ -31,18 +31,18 @@ import java.util.*
  */
 abstract class House internal constructor(private val owner: Grid, val regionIndex: Int)
 {
-    private val _cells: MutableCellSet = MutableCellSet.empty(owner)
-    val cells: CellSet
-        get() = _cells.asCellSet()
+    private val _cellSet: MutableCellSet = MutableCellSet.empty(owner)
+    val cellSet: CellSet
+        get() = _cellSet.asCellSet()
 
-    internal val _assignedValues: MutableValueSet = MutableValueSet.empty(owner)
-    val assignedValues: ValueSet
+    internal val _assignedValueSet: MutableValueSet = MutableValueSet.empty(owner)
+    val assignedValueSet: ValueSet
         /**
          * Returns the assigned values of all cells contained in this [House] as [ValueSet].
          */
         get() {
             owner.throwIfStateIsInvalid()
-            return _assignedValues.asValueSet()
+            return _assignedValueSet.asValueSet()
         }
 
     /**
@@ -54,13 +54,13 @@ abstract class House internal constructor(private val owner: Grid, val regionInd
      * Returns the number of cells contained in this [House].
      */
     val size: Int
-        get() = _cells.cardinality()
+        get() = _cellSet.cardinality()
 
     /**
      * Adds the given [Cell] to this [House].
      */
     internal fun addCell(cell: Cell) {
-        _cells.set(cell.cellIndex)
+        _cellSet.set(cell.cellIndex)
     }
 
     /**
@@ -70,7 +70,7 @@ abstract class House internal constructor(private val owner: Grid, val regionInd
      * @param cellIndex the index of the cell to check
      */
     fun containsCell(cellIndex: Int): Boolean {
-        return _cells[cellIndex]
+        return _cellSet[cellIndex]
     }
 
     /**
@@ -96,8 +96,8 @@ abstract class House internal constructor(private val owner: Grid, val regionInd
      * Returns a [Sequence] containing all cells of this [House],
      * whose cell index is >= startIndex.
      */
-    fun allCells(startIndex: Int = 0): Sequence<Cell> {
-        return _cells.allCells(owner, startIndex)
+    fun cells(startIndex: Int = 0): Sequence<Cell> {
+        return _cellSet.allCells(owner, startIndex)
     }
 
     /**
@@ -105,7 +105,7 @@ abstract class House internal constructor(private val owner: Grid, val regionInd
      * whose cell index is >= startIndex.
      */
     fun assignedCells(startIndex: Int = 0): Sequence<Cell> {
-        return _cells.filteredCells(owner, { obj: Cell -> obj.isAssigned }, startIndex)
+        return _cellSet.filteredCells(owner, { obj: Cell -> obj.isAssigned }, startIndex)
     }
 
     /**
@@ -113,7 +113,7 @@ abstract class House internal constructor(private val owner: Grid, val regionInd
      * whose cell index is >= startIndex.
      */
     fun unassignedCells(startIndex: Int = 0): Sequence<Cell> {
-        return _cells.filteredCells(owner, { cell -> !cell.isAssigned }, startIndex)
+        return _cellSet.filteredCells(owner, { cell -> !cell.isAssigned }, startIndex)
     }
 
     /**
@@ -121,9 +121,9 @@ abstract class House internal constructor(private val owner: Grid, val regionInd
      * excluding all cells contained in the provided houses.
      */
     fun cellsExcluding(vararg excludedHouses: House): Sequence<Cell> {
-        val ownCells = cells.toMutableCellSet()
+        val ownCells = cellSet.toMutableCellSet()
         for (house in excludedHouses) {
-            ownCells.andNot(house._cells)
+            ownCells.andNot(house._cellSet)
         }
         return ownCells.allCells(owner)
     }
@@ -133,7 +133,7 @@ abstract class House internal constructor(private val owner: Grid, val regionInd
      * excluding all cells contained in the provided [CellSet].
      */
     fun cellsExcluding(excludedCells: CellSet): Sequence<Cell> {
-        val ownCells = cells.toMutableCellSet()
+        val ownCells = cellSet.toMutableCellSet()
         ownCells.andNot(excludedCells)
         return ownCells.allCells(owner)
     }
@@ -158,18 +158,18 @@ abstract class House internal constructor(private val owner: Grid, val regionInd
      * Checks whether all cells in this [House] have unique values assigned.
      */
     val isSolved: Boolean
-        get() = assignedValues.cardinality() == owner.gridSize
+        get() = assignedValueSet.cardinality() == owner.gridSize
 
     fun assignedValues(): Iterable<Int> {
-        return assignedValues.allSetBits()
+        return assignedValueSet.allSetBits()
     }
 
     fun unassignedValues(): Iterable<Int> {
-        return assignedValues.allUnsetBits()
+        return assignedValueSet.allUnsetBits()
     }
 
     fun unassignedValues(startValue: Int): Iterable<Int> {
-        return assignedValues.allUnsetBits(startValue)
+        return assignedValueSet.allUnsetBits(startValue)
     }
 
     /**
@@ -186,27 +186,27 @@ abstract class House internal constructor(private val owner: Grid, val regionInd
         owner.throwIfStateIsInvalid()
         val possiblePositions = owner.getPotentialPositions(value)
         val result = possiblePositions.toMutableCellSet()
-        result.and(_cells)
+        result.and(_cellSet)
         return result
     }
 
     internal fun updateAssignedValues() {
-        _assignedValues.clearAll()
+        _assignedValueSet.clearAll()
         for (cell in assignedCells()) {
-            _assignedValues.set(cell.value)
+            _assignedValueSet.set(cell.value)
         }
     }
 
     internal fun updatePossibleValuesInCell(cell: Cell) {
-        cell.updatePossibleValues(_assignedValues)
+        cell.updatePossibleValues(_assignedValueSet)
     }
 
     internal fun updatePossibleValuesInCells() {
-        unassignedCells().forEach { cell -> cell.updatePossibleValues(_assignedValues) }
+        unassignedCells().forEach { cell -> cell.updatePossibleValues(_assignedValueSet) }
     }
 
     internal fun clear() {
-        _assignedValues.clearAll()
+        _assignedValueSet.clearAll()
     }
 }
 
@@ -227,7 +227,7 @@ class Row internal constructor(owner: Grid, rowIndex: Int) : House(owner, rowInd
         get() = regionIndex + 1
 
     override fun toString(): String {
-        return "r%d = %s".format(rowNumber, _assignedValues)
+        return "r%d = %s".format(rowNumber, _assignedValueSet)
     }
 }
 
@@ -240,7 +240,7 @@ class Column internal constructor(owner: Grid, columnIndex: Int) : House(owner, 
         get() = regionIndex + 1
 
     override fun toString(): String {
-        return "c%d = %s".format(columnNumber, _assignedValues)
+        return "c%d = %s".format(columnNumber, _assignedValueSet)
     }
 }
 
@@ -253,6 +253,6 @@ class Block internal constructor(owner: Grid, blockIndex: Int) : House(owner, bl
         get() = regionIndex + 1
 
     override fun toString(): String {
-        return "b%d = %s".format(blockNumber, _assignedValues)
+        return "b%d = %s".format(blockNumber, _assignedValueSet)
     }
 }
