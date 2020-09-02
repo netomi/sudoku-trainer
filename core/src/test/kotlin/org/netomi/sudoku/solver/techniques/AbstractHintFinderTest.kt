@@ -131,7 +131,7 @@ abstract class AbstractHintFinderTest
         }
 
         override fun toString(): String {
-            return String.format("%s:%s:%s:%s:%s:%s", technique, candidate, givens, deletedCandidates, eliminations, placement)
+            return "%s:%s:%s:%s:%s:%s".format(technique, candidate, givens, deletedCandidates, eliminations, placement)
         }
 
         companion object {
@@ -181,7 +181,7 @@ abstract class AbstractHintFinderTest
         }
 
         fun asPlacement(): String {
-            return String.format("r%dc%d=%d", row, col, value)
+            return "r%dc%d=%d".format(row, col, value)
         }
 
         fun asElimination(): String {
@@ -189,7 +189,7 @@ abstract class AbstractHintFinderTest
         }
 
         override fun toString(): String {
-            return String.format("r%dc%d<>%d", row, col, value)
+            return "r%dc%d<>%d".format(row, col, value)
         }
 
         companion object {

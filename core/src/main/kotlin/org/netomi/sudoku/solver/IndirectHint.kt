@@ -67,7 +67,7 @@ class IndirectHint(type: Grid.Type,
             eliminations.append(", ")
         }
         eliminations.delete(eliminations.length - 2, eliminations.length)
-        return java.lang.String.format("%s: => %s", solvingTechnique.techniqueName, eliminations.toString())
+        return "%s: => %s".format(solvingTechnique.techniqueName, eliminations)
     }
 
     @Suppress("UNCHECKED_CAST")

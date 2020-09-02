@@ -390,12 +390,16 @@ class MutableCellSet : AbstractBitSetImpl<CellSet, MutableCellSet>, CellSet
             return MutableCellSet(grid.cellCount)
         }
 
+        fun of(grid: Grid, cells: Sequence<Cell>): MutableCellSet {
+            val cellSet = empty(grid)
+            cells.forEach { cell -> cellSet.set(cell.cellIndex) }
+            return cellSet
+        }
+
         fun of(cell: Cell, vararg otherCells: Cell): MutableCellSet {
             val cellSet = empty(cell.owner)
             cellSet.set(cell.cellIndex)
-            for (otherCell in otherCells) {
-                cellSet.set(otherCell.cellIndex)
-            }
+            otherCells.forEach { otherCell -> cellSet.set(otherCell.cellIndex) }
             return cellSet
         }
 

@@ -144,7 +144,7 @@ class Grid internal constructor(val type: Type) {
                 for (cell in house.assignedCells()) {
                     val value = cell.value
                     val conflictPeers = cell.peers.filteredCells(this, { c -> c.isAssigned && c.value == value })
-                    val conflictCells = this.toCellSet(conflictPeers)
+                    val conflictCells = MutableCellSet.of(this, conflictPeers)
                     if (conflictCells.cardinality() > 0) {
                         conflictCells.set(cell.cellIndex)
                         if (!foundConflicts.contains(conflictCells)) {
