@@ -34,18 +34,16 @@ class FullHouseFinder : AbstractHintFinder() {
 
     override fun findHints(grid: Grid, hintAggregator: HintAggregator) {
         val expectedCardinality = grid.gridSize - 1
-        grid.acceptHouses( object : HouseVisitor {
-            override fun visitAnyHouse(house: House) {
-                val assignedValues: ValueSet = house.assignedValues
-                if (assignedValues.cardinality() == expectedCardinality) {
-                    val value = assignedValues.firstUnsetBit()
-                    // Create a hint for all unassigned cells.
-                    for (cell in house.unassignedCells()) {
-                        placeValueInCell(grid, hintAggregator, cell.cellIndex, value)
-                    }
+        grid.acceptHouses { house ->
+            val assignedValues: ValueSet = house.assignedValues
+            if (assignedValues.cardinality() == expectedCardinality) {
+                val value = assignedValues.firstUnsetBit()
+                // Create a hint for all unassigned cells.
+                for (cell in house.unassignedCells()) {
+                    placeValueInCell(grid, hintAggregator, cell.cellIndex, value)
                 }
             }
-        })
+        }
     }
 }
 
@@ -58,17 +56,15 @@ class HiddenSingleFinder : AbstractHintFinder() {
         get() = SolvingTechnique.HIDDEN_SINGLE
 
     override fun findHints(grid: Grid, hintAggregator: HintAggregator) {
-        grid.acceptHouses( object : HouseVisitor {
-            override fun visitAnyHouse(house: House) {
-                for (value in house.unassignedValues()) {
-                    val possiblePositions: CellSet = house.getPotentialPositionsAsSet(value)
-                    if (possiblePositions.cardinality() == 1) {
-                        val cellIndex = possiblePositions.firstSetBit()
-                        placeValueInCell(grid, hintAggregator, cellIndex, value)
-                    }
+        grid.acceptHouses { house ->
+            for (value in house.unassignedValues()) {
+                val possiblePositions: CellSet = house.getPotentialPositionsAsSet(value)
+                if (possiblePositions.cardinality() == 1) {
+                    val cellIndex = possiblePositions.firstSetBit()
+                    placeValueInCell(grid, hintAggregator, cellIndex, value)
                 }
             }
-        })
+        }
     }
 }
 
@@ -81,16 +77,14 @@ class NakedSingleFinder : AbstractHintFinder() {
         get() = SolvingTechnique.NAKED_SINGLE
 
     override fun findHints(grid: Grid, hintAggregator: HintAggregator) {
-        grid.acceptCells(object : CellVisitor {
-            override fun visitCell(cell: Cell) {
-                if (!cell.isAssigned) {
-                    val possibleValues = cell.possibleValues
-                    if (possibleValues.cardinality() == 1) {
-                        val value = possibleValues.firstSetBit()
-                        placeValueInCell(grid, hintAggregator, cell.cellIndex, value)
-                    }
+        grid.acceptCells { cell ->
+            if (!cell.isAssigned) {
+                val possibleValues = cell.possibleValues
+                if (possibleValues.cardinality() == 1) {
+                    val value = possibleValues.firstSetBit()
+                    placeValueInCell(grid, hintAggregator, cell.cellIndex, value)
                 }
             }
-        })
+        }
     }
 }

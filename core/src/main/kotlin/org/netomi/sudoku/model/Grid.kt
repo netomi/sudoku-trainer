@@ -291,12 +291,12 @@ class Grid internal constructor(val type: Type) {
     }
 
     // Inner helper classes.
-    interface BlockFunction
+    fun interface BlockFunction
     {
         fun getBlockIndex(cellIndex: Int): Int
     }
 
-    class Type constructor(val gridSize: Int, val blockFunction: BlockFunction)
+    class Type constructor(val gridSize: Int, private val blockFunction: BlockFunction)
     {
         val cellCount: Int = gridSize * gridSize
 

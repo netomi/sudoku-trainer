@@ -35,29 +35,27 @@ class HiddenPairFinder : AbstractHintFinder() {
         get() = SolvingTechnique.HIDDEN_PAIR
 
     override fun findHints(grid: Grid, hintAggregator: HintAggregator) {
-        grid.acceptHouses(object : HouseVisitor {
-            override fun visitAnyHouse(house: House) {
-                for (value in house.unassignedValues()) {
-                    val potentialPositions: CellSet = house.getPotentialPositionsAsSet(value)
-                    if (potentialPositions.cardinality() != 2) {
+        grid.acceptHouses { house ->
+            for (value in house.unassignedValues()) {
+                val potentialPositions: CellSet = house.getPotentialPositionsAsSet(value)
+                if (potentialPositions.cardinality() != 2) {
+                    continue
+                }
+                for (otherValue in house.unassignedValues(value + 1)) {
+                    val otherPotentialPositions: CellSet = house.getPotentialPositionsAsSet(otherValue)
+                    if (otherPotentialPositions.cardinality() != 2) {
                         continue
                     }
-                    for (otherValue in house.unassignedValues(value + 1)) {
-                        val otherPotentialPositions: CellSet = house.getPotentialPositionsAsSet(otherValue)
-                        if (otherPotentialPositions.cardinality() != 2) {
-                            continue
-                        }
 
-                        // If the two bitsets, containing the possible positions for some values,
-                        // share the exact same positions, we have found a hidden pair.
-                        if (potentialPositions == otherPotentialPositions) {
-                            val allowedValues = MutableValueSet.of(grid, value, otherValue)
-                            eliminateNotAllowedValuesFromCells(grid, hintAggregator, potentialPositions, allowedValues)
-                        }
+                    // If the two bitsets, containing the possible positions for some values,
+                    // share the exact same positions, we have found a hidden pair.
+                    if (potentialPositions == otherPotentialPositions) {
+                        val allowedValues = MutableValueSet.of(grid, value, otherValue)
+                        eliminateNotAllowedValuesFromCells(grid, hintAggregator, potentialPositions, allowedValues)
                     }
                 }
             }
-        })
+        }
     }
 }
 
@@ -85,20 +83,18 @@ class HiddenQuadrupleFinder : HiddenSubsetFinder(4) {
 
 abstract class HiddenSubsetFinder protected constructor(private val subSetSize: Int) : AbstractHintFinder() {
     override fun findHints(grid: Grid, hintAggregator: HintAggregator) {
-        grid.acceptHouses(object : HouseVisitor {
-            override fun visitAnyHouse(house: House) {
-                if (house.isSolved) {
-                    return
-                }
-                for (value in house.unassignedValues()) {
-                    findSubset(grid,
-                               hintAggregator,
-                               house,
-                               MutableValueSet.empty(grid),
-                               value,
-                               MutableCellSet.empty(grid),
-                               1)
-                }
+        grid.acceptHouses(HouseVisitor { house ->
+            if (house.isSolved) {
+                return@HouseVisitor
+            }
+            for (value in house.unassignedValues()) {
+                findSubset(grid,
+                           hintAggregator,
+                           house,
+                           MutableValueSet.empty(grid),
+                           value,
+                           MutableCellSet.empty(grid),
+                           1)
             }
         })
     }

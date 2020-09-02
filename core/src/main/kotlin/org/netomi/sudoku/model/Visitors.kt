@@ -22,7 +22,7 @@ package org.netomi.sudoku.model
 /**
  * An interface used to visit a [Grid].
  */
-interface GridVisitor<T>
+fun interface GridVisitor<T>
 {
     fun visitGrid(grid: Grid): T
 }
@@ -32,7 +32,7 @@ interface GridVisitor<T>
  *
  * This interface exists only for convenience reasons.
  */
-interface CellVisitor
+fun interface CellVisitor
 {
     fun visitCell(cell: Cell)
 }
@@ -40,7 +40,7 @@ interface CellVisitor
 /**
  * An interface used to visit a [House].
  */
-interface HouseVisitor
+fun interface HouseVisitor
 {
     /**
      * By default, this method is called for any visited [House].

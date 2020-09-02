@@ -34,15 +34,12 @@ class RemotePairFinder : AbstractHintFinder() {
 
     override fun findHints(grid: Grid, hintAggregator: HintAggregator) {
         val visitedChains: MutableSet<CellSet> = HashSet()
-        grid.acceptCells(object : CellVisitor {
-            override fun visitCell(cell: Cell) {
-                val possibleValues = cell.possibleValues
-                if (possibleValues.cardinality() != 2) {
-                    return
-                }
+        grid.acceptCells { cell ->
+            val possibleValues = cell.possibleValues
+            if (possibleValues.cardinality() == 2) {
                 findChain(grid, hintAggregator, cell, Chain(grid, cell), visitedChains, 1)
             }
-        })
+        }
     }
 
     private fun findChain(grid:           Grid,
@@ -96,7 +93,7 @@ class RemotePairFinder : AbstractHintFinder() {
         currentChain.removeLink(currentCell)
     }
 
-    private class Chain internal constructor(grid: Grid, val startCell: Cell) {
+    private class Chain(grid: Grid, val startCell: Cell) {
         val cells: MutableCellSet = MutableCellSet.empty(grid)
 
         fun addLink(cell: Cell) {

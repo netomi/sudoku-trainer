@@ -38,42 +38,40 @@ open class NakedPairFinder protected constructor(private val findLockedHouses: B
         get() = SolvingTechnique.NAKED_PAIR
 
     override fun findHints(grid: Grid, hintAggregator: HintAggregator) {
-        grid.acceptHouses(object : HouseVisitor {
-            override fun visitAnyHouse(house: House) {
-                for (cell in house.allCells()) {
-                    val possibleValues = cell.possibleValues
-                    if (possibleValues.cardinality() != 2) {
+        grid.acceptHouses { house ->
+            for (cell in house.allCells()) {
+                val possibleValues = cell.possibleValues
+                if (possibleValues.cardinality() != 2) {
+                    continue
+                }
+                for (otherCell in house.allCells(cell.cellIndex + 1)) {
+                    val otherPossibleValues = otherCell.possibleValues
+                    if (otherPossibleValues.cardinality() != 2) {
                         continue
                     }
-                    for (otherCell in house.allCells(cell.cellIndex + 1)) {
-                        val otherPossibleValues = otherCell.possibleValues
-                        if (otherPossibleValues.cardinality() != 2) {
-                            continue
+
+                    // If the two [CellSet]s containing the possible candidate values
+                    // have the same candidates, we have found a naked pair.
+                    if (possibleValues == otherPossibleValues) {
+                        val affectedCells = house.cells.toMutableCellSet()
+
+                        if (findLockedHouses) {
+                            val pairCells = MutableCellSet.of(cell, otherCell)
+
+                            val row = pairCells.getSingleRow(grid)
+                            row?.let { affectedCells.or(it.cells) }
+
+                            val col = pairCells.getSingleColumn(grid)
+                            col?.let { affectedCells.or(it.cells) }
                         }
 
-                        // If the two [CellSet]s containing the possible candidate values
-                        // have the same candidates, we have found a naked pair.
-                        if (possibleValues == otherPossibleValues) {
-                            val affectedCells = house.cells.toMutableCellSet()
-
-                            if (findLockedHouses) {
-                                val pairCells = MutableCellSet.of(cell, otherCell)
-
-                                val row = pairCells.getSingleRow(grid)
-                                row?.let { affectedCells.or(it.cells) }
-
-                                val col = pairCells.getSingleColumn(grid)
-                                col?.let { affectedCells.or(it.cells) }
-                            }
-
-                            affectedCells.clear(cell.cellIndex)
-                            affectedCells.clear(otherCell.cellIndex)
-                            eliminateValuesFromCells(grid, hintAggregator, affectedCells, possibleValues)
-                        }
+                        affectedCells.clear(cell.cellIndex)
+                        affectedCells.clear(otherCell.cellIndex)
+                        eliminateValuesFromCells(grid, hintAggregator, affectedCells, possibleValues)
                     }
                 }
             }
-        })
+        }
     }
 }
 
@@ -125,11 +123,8 @@ abstract class NakedSubsetFinder protected constructor(private val subSetSize: I
     : AbstractHintFinder()
 {
     override fun findHints(grid: Grid, hintAggregator: HintAggregator) {
-        grid.acceptHouses(object : HouseVisitor {
-            override fun visitAnyHouse(house: House) {
-                if (house.isSolved) {
-                    return
-                }
+        grid.acceptHouses { house ->
+            if (!house.isSolved) {
                 for (cell in house.unassignedCells()) {
                     findSubset(grid,
                                hintAggregator,
@@ -140,7 +135,7 @@ abstract class NakedSubsetFinder protected constructor(private val subSetSize: I
                                1)
                 }
             }
-        })
+        }
     }
 
     private fun findSubset(grid:           Grid,

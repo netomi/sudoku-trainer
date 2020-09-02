@@ -71,9 +71,7 @@ enum class PredefinedType(val gridSize: Int)
 
     internal abstract val blockMapping: IntArray
 
-    val blockFunction = object : Grid.BlockFunction {
-        override fun getBlockIndex(cellIndex: Int): Int {
-            return blockMapping[cellIndex]
-        }
+    val blockFunction = Grid.BlockFunction { cellIndex ->
+        blockMapping[cellIndex]
     }
 }

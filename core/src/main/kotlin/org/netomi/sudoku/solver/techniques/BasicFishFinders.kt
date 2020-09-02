@@ -50,11 +50,8 @@ abstract class BasicFishFinder protected constructor(private val size: Int)
     : AbstractHintFinder()
 {
     override fun findHints(grid: Grid, hintAggregator: HintAggregator) {
-        val visitor = object : HouseVisitor {
-            override fun visitAnyHouse(house: House) {
-                if (house.isSolved) {
-                    return
-                }
+        val visitor = HouseVisitor { house ->
+            if (!house.isSolved) {
                 for (value in house.unassignedValues()) {
                     findBaseSet(grid,
                                 hintAggregator,

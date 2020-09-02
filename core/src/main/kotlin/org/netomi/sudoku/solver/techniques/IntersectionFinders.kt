@@ -29,23 +29,21 @@ class LockedCandidatesType1Finder : AbstractHintFinder()
         get() = SolvingTechnique.LOCKED_CANDIDATES_TYPE_1
 
     override fun findHints(grid: Grid, hintAggregator: HintAggregator) {
-        grid.acceptBlocks(object : HouseVisitor {
-            override fun visitAnyHouse(house: House) {
-                for (value in house.unassignedValues()) {
-                    val possiblePositions: CellSet = house.getPotentialPositionsAsSet(value)
-                    if (possiblePositions.cardinality() == 0) {
-                        continue
-                    }
-                    // Check if all possible cells are in the same row.
-                    val row = possiblePositions.getSingleRow(grid)
-                    row?.let { eliminateValueFromCells(grid, hintAggregator, it, house, value) }
-
-                    // Check if all possible cells are in the same column.
-                    val column = possiblePositions.getSingleColumn(grid)
-                    column?.let { eliminateValueFromCells(grid, hintAggregator, it, house, value) }
+        grid.acceptBlocks { house ->
+            for (value in house.unassignedValues()) {
+                val possiblePositions: CellSet = house.getPotentialPositionsAsSet(value)
+                if (possiblePositions.cardinality() == 0) {
+                    continue
                 }
+                // Check if all possible cells are in the same row.
+                val row = possiblePositions.getSingleRow(grid)
+                row?.let { eliminateValueFromCells(grid, hintAggregator, it, house, value) }
+
+                // Check if all possible cells are in the same column.
+                val column = possiblePositions.getSingleColumn(grid)
+                column?.let { eliminateValueFromCells(grid, hintAggregator, it, house, value) }
             }
-        })
+        }
     }
 }
 
@@ -54,17 +52,15 @@ class LockedCandidatesType2Finder : AbstractHintFinder() {
         get() = SolvingTechnique.LOCKED_CANDIDATES_TYPE_2
 
     override fun findHints(grid: Grid, hintAggregator: HintAggregator) {
-        val visitor = object : HouseVisitor {
-            override fun visitAnyHouse(house: House) {
-                for (value in house.unassignedValues()) {
-                    val possiblePositions: CellSet = house.getPotentialPositionsAsSet(value)
-                    if (possiblePositions.cardinality() == 0) {
-                        continue
-                    }
-                    // Check if all possible cells are in the same block.
-                    val block = possiblePositions.getSingleBlock(grid)
-                    block?.let { eliminateValueFromCells(grid, hintAggregator, block, house, value) }
+        val visitor = HouseVisitor { house ->
+            for (value in house.unassignedValues()) {
+                val possiblePositions: CellSet = house.getPotentialPositionsAsSet(value)
+                if (possiblePositions.cardinality() == 0) {
+                    continue
                 }
+                // Check if all possible cells are in the same block.
+                val block = possiblePositions.getSingleBlock(grid)
+                block?.let { eliminateValueFromCells(grid, hintAggregator, block, house, value) }
             }
         }
 
