@@ -176,7 +176,7 @@ abstract class AbstractBitSetImpl<in T : SimpleBitSet, out R>(final override val
 
         private var nextOffset: Int
 
-        internal constructor(fromIndex: Int, toIndex: Int, inverse: Boolean) {
+        constructor(fromIndex: Int, toIndex: Int, inverse: Boolean) {
             this.toIndex = toIndex
             this.inverse = inverse
             nextOffset = nextBit(fromIndex)

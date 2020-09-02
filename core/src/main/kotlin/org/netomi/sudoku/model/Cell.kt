@@ -164,7 +164,7 @@ class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowInde
         owner.invalidateState()
         _excludedValues.clearAll()
         resetPossibleValues()
-        for (house in Arrays.asList(row, column, block)) {
+        for (house in arrayOf(row, column, block)) {
             house.updatePossibleValuesInCell(this)
         }
 

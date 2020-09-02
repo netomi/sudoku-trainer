@@ -24,9 +24,3 @@ fun Grid.toCellSet(cells: Sequence<Cell>): MutableCellSet {
     cells.forEach { cell: Cell -> cellSet.set(cell.cellIndex) }
     return cellSet
 }
-
-fun House.allCellsPlus(vararg otherHouses: House): MutableCellSet {
-    val result = this.cells.toMutableCellSet()
-    otherHouses.forEach { otherHouse -> result.or(otherHouse.cells) }
-    return result
-}

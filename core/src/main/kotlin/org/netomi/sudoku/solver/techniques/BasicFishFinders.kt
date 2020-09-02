@@ -107,7 +107,7 @@ abstract class BasicFishFinder protected constructor(private val size: Int)
         var foundHint = false
         for (nextHouse in grid.regionsAfter(house)) {
             if (!nextHouse.isSolved &&
-                !nextHouse.assignedValues.get(value)) {
+                !nextHouse.assignedValues[value]) {
                 foundHint = foundHint or findBaseSet(grid, hintAggregator, visitedRegions, nextHouse, value, mergedCoverSet, level + 1)
             }
         }
