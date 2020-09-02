@@ -70,13 +70,13 @@ abstract class BasicFishFinder protected constructor(private val size: Int)
         grid.acceptColumns(visitor)
     }
 
-    private fun findBaseSet(grid: Grid,
+    private fun findBaseSet(grid:           Grid,
                             hintAggregator: HintAggregator,
                             visitedRegions: MutableList<House>,
-                            house: House,
-                            value: Int,
-                            coverSet: MutableHouseSet,
-                            level: Int): Boolean {
+                            house:          House,
+                            value:          Int,
+                            coverSet:       MutableHouseSet,
+                            level:          Int): Boolean {
         if (level > size) {
             return false
         }

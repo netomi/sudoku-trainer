@@ -28,9 +28,9 @@ class GridTest {
         val grid = Grid.of(PredefinedType.CLASSIC_9x9)
         val row  = grid.getRow(0)
 
-        assertEquals(grid.gridSize, countItems(row.cells()))
+        assertEquals(grid.gridSize, countItems(row.allCells()))
         grid.getCell(0).value = 1
-        assertEquals(grid.gridSize, countItems(row.cells()))
+        assertEquals(grid.gridSize, countItems(row.allCells()))
         assertEquals(grid.gridSize - 1, countItems(row.unassignedCells()))
         assertEquals(1, countItems(row.unassignedCells(8)))
 
@@ -38,7 +38,7 @@ class GridTest {
             grid.getCell(i).value = i + 1
         }
 
-        assertEquals(grid.gridSize, countItems(row.cells()))
+        assertEquals(grid.gridSize, countItems(row.allCells()))
         assertEquals(0, countItems(row.unassignedCells()))
         assertEquals(0, countItems(row.unassignedCells(8)))
     }

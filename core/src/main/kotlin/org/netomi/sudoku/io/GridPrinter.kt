@@ -44,7 +44,7 @@ class GridPrinter constructor(private val style: STYLE, private val ps: PrintStr
 
     private fun printSimpleGrid(grid: Grid) {
         for (row in grid.rows()) {
-            for (cell in row.cells()) {
+            for (cell in row.allCells()) {
                 ps.print(cell.value)
             }
             ps.println()

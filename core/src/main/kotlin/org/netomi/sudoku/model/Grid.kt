@@ -188,22 +188,23 @@ class Grid internal constructor(val type: Type) {
     // Internal state related methods.
 
     internal fun notifyCellValueChanged(cell: Cell, oldValue: Int, newValue: Int) {
-        stateValid = true
         // If the value did not really change, there is nothing to do.
         if (oldValue == newValue) {
+            stateValid = true
             return
         }
+
         // First: update assigned values in affected houses.
         cell.row   .updateAssignedValues()
         cell.column.updateAssignedValues()
         cell.block .updateAssignedValues()
 
         // Second: update possible values in affected cells.
-        for (affectedCell in (sequenceOf(cell) + cell.peers())) {
+        for (affectedCell in (sequenceOf(cell) + cell.allPeers())) {
             affectedCell.resetPossibleValues()
-            affectedCell.updatePossibleValues(affectedCell.row.assignedValues)
-            affectedCell.updatePossibleValues(affectedCell.column.assignedValues)
-            affectedCell.updatePossibleValues(affectedCell.block.assignedValues)
+            affectedCell.updatePossibleValues(affectedCell.row._assignedValues)
+            affectedCell.updatePossibleValues(affectedCell.column._assignedValues)
+            affectedCell.updatePossibleValues(affectedCell.block._assignedValues)
         }
         // Third: update potential positions for affected cells.
         val peers = cell.peers
@@ -211,17 +212,20 @@ class Grid internal constructor(val type: Type) {
             positions.clear(cell.cellIndex)
             positions.andNot(peers)
         }
-        for (affectedCell in (sequenceOf(cell) + cell.peers())) {
-            for (value in affectedCell.possibleValues.allSetBits()) {
+
+        for (affectedCell in (sequenceOf(cell) + cell.allPeers())) {
+            for (value in affectedCell._possibleValues.allSetBits()) {
                 _potentialPositions[value - 1].set(affectedCell.cellIndex)
             }
         }
+
+        stateValid = true
     }
 
     internal fun notifyPossibleValuesChanged(cell: Cell) {
-        stateValid = true
         _potentialPositions.forEach { potentialPosition -> potentialPosition.clear(cell.cellIndex) }
-        cell.possibleValues.allSetBits().forEach { value -> _potentialPositions[value - 1].set(cell.cellIndex) }
+        cell._possibleValues.allSetBits().forEach { value -> _potentialPositions[value - 1].set(cell.cellIndex) }
+        stateValid = true
     }
 
     internal fun invalidateState() {
@@ -239,9 +243,6 @@ class Grid internal constructor(val type: Type) {
     }
 
     fun updateState() {
-        // we are currently updating the internal state, ensure that we can safely
-        // access any getters.
-        stateValid = true
         // First: reset the possible values in all cells.
         cells().forEach { obj: Cell -> obj.resetPossibleValues() }
 
@@ -255,24 +256,31 @@ class Grid internal constructor(val type: Type) {
         // Fourth: refresh all possible positions for each cell.
         _potentialPositions.forEach { obj: MutableCellSet -> obj.clearAll() }
         for (cell in cells()) {
-            for (value in cell.possibleValues.allSetBits()) {
+            for (value in cell._possibleValues.allSetBits()) {
                 _potentialPositions[value - 1].set(cell.cellIndex)
             }
         }
+
+        stateValid = true
     }
 
-    fun clear() {
+    fun clear(updateGrid: Boolean = true) {
         cells().forEach  { cell: Cell -> cell.clear(false) }
         houses().forEach { obj: House -> obj.clear() }
 
         _potentialPositions.forEach { obj: MutableCellSet -> obj.clearAll() }
 
-        updateState()
+        if (updateGrid) {
+            updateState()
+        }
     }
 
-    fun reset() {
+    fun reset(updateGrid: Boolean = true) {
         cells().forEach { obj: Cell -> obj.reset() }
-        updateState()
+
+        if (updateGrid) {
+            updateState()
+        }
     }
 
     override fun toString(): String {
@@ -348,10 +356,12 @@ class Grid internal constructor(val type: Type) {
     }
 
     companion object {
+        @JvmStatic
         fun of(type: PredefinedType): Grid {
             return Grid(Type(type.gridSize, type.blockFunction))
         }
 
+        @JvmStatic
         fun of(gridSize: Int, blockFunction: BlockFunction): Grid {
             return Grid(Type(gridSize, blockFunction))
         }
@@ -388,7 +398,7 @@ class Grid internal constructor(val type: Type) {
         }
 
         // Initialize peers for each cell.
-        houses().forEach { house: House -> house.cells().forEach { cell: Cell -> cell.addPeers(house.cells) } }
+        houses().forEach { house: House -> house.allCells().forEach { cell: Cell -> cell.addPeers(house.cells) } }
 
         _potentialPositions = ArrayList(gridSize)
         for(idx in 0 until gridSize) {

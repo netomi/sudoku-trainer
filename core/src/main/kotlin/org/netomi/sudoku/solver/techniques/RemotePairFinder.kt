@@ -79,7 +79,7 @@ class RemotePairFinder : AbstractHintFinder() {
             }
         }
 
-        for (nextCell in currentCell.peers()) {
+        for (nextCell in currentCell.allPeers()) {
             if (currentChain.contains(nextCell)) {
                 continue
             }

@@ -27,7 +27,7 @@ import java.util.*
 class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowIndex: Int, val columnIndex: Int, val blockIndex: Int)
 {
     private val _peers: MutableCellSet = MutableCellSet.empty(owner)
-    internal val peers: CellSet
+    val peers: CellSet
         get() = _peers.asCellSet()
 
     private var _value : Int = 0
@@ -53,7 +53,7 @@ class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowInde
      */
     var isGiven: Boolean = false
 
-    private var _possibleValues: MutableValueSet = MutableValueSet.fullySet(owner)
+    internal var _possibleValues: MutableValueSet = MutableValueSet.fullySet(owner)
     val possibleValues: ValueSet
         get() {
             owner.throwIfStateIsInvalid()
@@ -97,7 +97,7 @@ class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowInde
      * Returns a [Sequence] containing all cell that are visible from
      * this cell, i.e. are contained in the same row, column or block.
      */
-    fun peers(): Sequence<Cell> {
+    fun allPeers(): Sequence<Cell> {
         return _peers.allCells(owner)
     }
 
@@ -137,6 +137,7 @@ class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowInde
             _excludedValues.set(value)
         }
         _possibleValues.andNot(_excludedValues)
+
         if (updateGrid) {
             owner.notifyPossibleValuesChanged(this)
         }
@@ -146,10 +147,11 @@ class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowInde
      * Excludes the given values from the set of possible values.
      * @param values the values to exclude
      */
-    fun excludePossibleValues(values: ValueSet, updateGrid: Boolean) {
+    fun excludePossibleValues(values: ValueSet, updateGrid: Boolean = true) {
         owner.invalidateState()
         _excludedValues.or(values)
         _possibleValues.andNot(excludedValues)
+
         if (updateGrid) {
             owner.notifyPossibleValuesChanged(this)
         }
@@ -158,19 +160,20 @@ class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowInde
     /**
      * Clears the set of excluded values for this cell.
      */
-    fun clearExcludedValues(updateGrid: Boolean) {
+    fun clearExcludedValues(updateGrid: Boolean = true) {
         owner.invalidateState()
         _excludedValues.clearAll()
         resetPossibleValues()
         for (house in Arrays.asList(row, column, block)) {
             house.updatePossibleValuesInCell(this)
         }
+
         if (updateGrid) {
             owner.notifyPossibleValuesChanged(this)
         }
     }
 
-    fun resetPossibleValues() {
+    internal fun resetPossibleValues() {
         if (!isAssigned) {
             _possibleValues.setAll()
             _possibleValues.andNot(excludedValues)
@@ -179,7 +182,7 @@ class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowInde
         }
     }
 
-    fun updatePossibleValues(assignedValues: ValueSet) {
+    internal fun updatePossibleValues(assignedValues: ValueSet) {
         _possibleValues.andNot(assignedValues)
     }
 

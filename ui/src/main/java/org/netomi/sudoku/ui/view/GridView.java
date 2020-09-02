@@ -60,7 +60,7 @@ public class GridView extends GridPane {
     }
 
     public void resetGrid() {
-        getModel().clear();
+        getModel().clear(true);
     }
 
     private void updateModel() {

@@ -32,11 +32,11 @@ import java.util.*
 abstract class House internal constructor(private val owner: Grid, val regionIndex: Int)
 {
     private val _cells: MutableCellSet = MutableCellSet.empty(owner)
-    internal val cells: CellSet
+    val cells: CellSet
         get() = _cells.asCellSet()
 
-    protected val _assignedValues: MutableValueSet = MutableValueSet.empty(owner)
-    internal val assignedValues: ValueSet
+    internal val _assignedValues: MutableValueSet = MutableValueSet.empty(owner)
+    val assignedValues: ValueSet
         /**
          * Returns the assigned values of all cells contained in this [House] as [ValueSet].
          */
@@ -93,17 +93,10 @@ abstract class House internal constructor(private val owner: Grid, val regionInd
     }
 
     /**
-     * Returns a [Sequence] containing all cells of this [House].
-     */
-    fun cells(): Sequence<Cell> {
-        return _cells.allCells(owner)
-    }
-
-    /**
      * Returns a [Sequence] containing all cells of this [House],
      * whose cell index is >= startIndex.
      */
-    fun cells(startIndex: Int): Sequence<Cell> {
+    fun allCells(startIndex: Int = 0): Sequence<Cell> {
         return _cells.allCells(owner, startIndex)
     }
 
@@ -180,7 +173,7 @@ abstract class House internal constructor(private val owner: Grid, val regionInd
     }
 
     /**
-     * Returns an `#Iterable` containing all cells of this `#House`
+     * Returns a [Sequence] containing all cells of this `#House`
      * that can potentially be assigned to the given value.
      *
      * @param value the value to check for

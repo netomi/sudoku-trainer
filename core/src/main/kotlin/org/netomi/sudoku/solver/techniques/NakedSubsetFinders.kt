@@ -40,12 +40,12 @@ open class NakedPairFinder protected constructor(private val findLockedHouses: B
     override fun findHints(grid: Grid, hintAggregator: HintAggregator) {
         grid.acceptHouses(object : HouseVisitor {
             override fun visitAnyHouse(house: House) {
-                for (cell in house.cells()) {
+                for (cell in house.allCells()) {
                     val possibleValues = cell.possibleValues
                     if (possibleValues.cardinality() != 2) {
                         continue
                     }
-                    for (otherCell in house.cells(cell.cellIndex + 1)) {
+                    for (otherCell in house.allCells(cell.cellIndex + 1)) {
                         val otherPossibleValues = otherCell.possibleValues
                         if (otherPossibleValues.cardinality() != 2) {
                             continue
