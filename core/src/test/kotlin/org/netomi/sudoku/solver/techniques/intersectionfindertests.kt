@@ -21,12 +21,22 @@ package org.netomi.sudoku.solver.techniques
 
 import org.netomi.sudoku.solver.HintFinder
 
-class XWingHintFinderTest : AbstractHintFinderTest() {
+class LockedCandidatesType1FinderTest : BaseHintFinderTest() {
     override fun createHintFinder(): HintFinder {
-        return XWingHintFinder()
+        return LockedCandidatesType1Finder()
     }
 
     override fun matches(testCase: TechniqueTestCase): Boolean {
-        return testCase.technique.startsWith("0300")
+        return testCase.technique.startsWith("0100")
+    }
+}
+
+class LockedCandidatesType2FinderTest : BaseHintFinderTest() {
+    override fun createHintFinder(): HintFinder {
+        return LockedCandidatesType2Finder()
+    }
+
+    override fun matches(testCase: TechniqueTestCase): Boolean {
+        return testCase.technique.startsWith("0101")
     }
 }

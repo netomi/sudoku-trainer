@@ -35,7 +35,7 @@ import java.io.IOException
 import java.io.InputStreamReader
 import java.util.*
 
-abstract class AbstractHintFinderTest
+abstract class BaseHintFinderTest
 {
     protected abstract fun createHintFinder(): HintFinder
 
@@ -213,7 +213,7 @@ abstract class AbstractHintFinderTest
             if (testCases.isNotEmpty()) {
                 return
             }
-            AbstractHintFinder::class.java.getResourceAsStream("/reglib-1.4.txt").use { `is` ->
+            HintFinder::class.java.getResourceAsStream("/reglib-1.4.txt").use { `is` ->
                 BufferedReader(InputStreamReader(`is`)).use { reader ->
                     var line: String?
                     while (reader.readLine().also { line = it } != null) {

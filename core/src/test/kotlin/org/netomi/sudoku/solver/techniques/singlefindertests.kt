@@ -21,7 +21,27 @@ package org.netomi.sudoku.solver.techniques
 
 import org.netomi.sudoku.solver.HintFinder
 
-class HiddenSingleFinderTest : AbstractHintFinderTest() {
+class FullHouseFinderTest : BaseHintFinderTest() {
+    override fun createHintFinder(): HintFinder {
+        return FullHouseFinder()
+    }
+
+    override fun matches(testCase: TechniqueTestCase): Boolean {
+        return testCase.technique.startsWith("0000")
+    }
+}
+
+class NakedSingleFinderTest : BaseHintFinderTest() {
+    override fun createHintFinder(): HintFinder {
+        return NakedSingleFinder()
+    }
+
+    override fun matches(testCase: TechniqueTestCase): Boolean {
+        return testCase.technique.startsWith("0003")
+    }
+}
+
+class HiddenSingleFinderTest : BaseHintFinderTest() {
     override fun createHintFinder(): HintFinder {
         return HiddenSingleFinder()
     }

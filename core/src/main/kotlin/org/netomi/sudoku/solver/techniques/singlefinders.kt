@@ -20,6 +20,7 @@
 package org.netomi.sudoku.solver.techniques
 
 import org.netomi.sudoku.model.*
+import org.netomi.sudoku.solver.BaseHintFinder
 import org.netomi.sudoku.solver.HintAggregator
 import org.netomi.sudoku.solver.HintFinder
 import org.netomi.sudoku.solver.SolvingTechnique
@@ -28,7 +29,8 @@ import org.netomi.sudoku.solver.SolvingTechnique
  * A [HintFinder] implementation to look for houses which have a
  * single missing digit to place.
  */
-class FullHouseFinder : AbstractHintFinder() {
+class FullHouseFinder : BaseHintFinder
+{
     override val solvingTechnique: SolvingTechnique
         get() = SolvingTechnique.FULL_HOUSE
 
@@ -51,7 +53,8 @@ class FullHouseFinder : AbstractHintFinder() {
  * A [HintFinder] implementation that looks for houses where
  * a certain digit can only be placed in a single cell anymore.
  */
-class HiddenSingleFinder : AbstractHintFinder() {
+class HiddenSingleFinder : BaseHintFinder
+{
     override val solvingTechnique: SolvingTechnique
         get() = SolvingTechnique.HIDDEN_SINGLE
 
@@ -72,7 +75,8 @@ class HiddenSingleFinder : AbstractHintFinder() {
  * A [HintFinder] implementation that checks if digit can only
  * be placed in a single cell within a specific house.
  */
-class NakedSingleFinder : AbstractHintFinder() {
+class NakedSingleFinder : BaseHintFinder
+{
     override val solvingTechnique: SolvingTechnique
         get() = SolvingTechnique.NAKED_SINGLE
 

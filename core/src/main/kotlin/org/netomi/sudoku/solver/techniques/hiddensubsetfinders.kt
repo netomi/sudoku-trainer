@@ -20,6 +20,7 @@
 package org.netomi.sudoku.solver.techniques
 
 import org.netomi.sudoku.model.*
+import org.netomi.sudoku.solver.BaseHintFinder
 import org.netomi.sudoku.solver.HintAggregator
 import org.netomi.sudoku.solver.HintFinder
 import org.netomi.sudoku.solver.SolvingTechnique
@@ -30,7 +31,8 @@ import org.netomi.sudoku.solver.SolvingTechnique
  * cells, forming a hidden pair. Any other candidate in these
  * cells can be removed.
  */
-class HiddenPairFinder : AbstractHintFinder() {
+class HiddenPairFinder : BaseHintFinder
+{
     override val solvingTechnique: SolvingTechnique
         get() = SolvingTechnique.HIDDEN_PAIR
 
@@ -81,7 +83,8 @@ class HiddenQuadrupleFinder : HiddenSubsetFinder(4) {
         get() = SolvingTechnique.HIDDEN_QUADRUPLE
 }
 
-abstract class HiddenSubsetFinder protected constructor(private val subSetSize: Int) : AbstractHintFinder() {
+abstract class HiddenSubsetFinder protected constructor(private val subSetSize: Int) : BaseHintFinder
+{
     override fun findHints(grid: Grid, hintAggregator: HintAggregator) {
         grid.acceptHouses(HouseVisitor { house ->
             if (house.isSolved) {

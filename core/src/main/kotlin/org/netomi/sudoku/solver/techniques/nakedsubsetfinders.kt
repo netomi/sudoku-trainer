@@ -20,6 +20,7 @@
 package org.netomi.sudoku.solver.techniques
 
 import org.netomi.sudoku.model.*
+import org.netomi.sudoku.solver.BaseHintFinder
 import org.netomi.sudoku.solver.HintAggregator
 import org.netomi.sudoku.solver.HintFinder
 import org.netomi.sudoku.solver.SolvingTechnique
@@ -29,8 +30,7 @@ import org.netomi.sudoku.solver.SolvingTechnique
  * of cells has the same two candidates left, forming a naked pair. The
  * same candidates in other cells of the same house can be removed.
  */
-open class NakedPairFinder protected constructor(private val findLockedHouses: Boolean)
-    : AbstractHintFinder()
+open class NakedPairFinder protected constructor(private val findLockedHouses: Boolean) : BaseHintFinder
 {
     constructor() : this(false)
 
@@ -119,8 +119,9 @@ class NakedQuadrupleFinder : NakedSubsetFinder(4)
         get() = SolvingTechnique.NAKED_QUADRUPLE
 }
 
-abstract class NakedSubsetFinder protected constructor(private val subSetSize: Int, private val findLockedHouses: Boolean = false)
-    : AbstractHintFinder()
+abstract class NakedSubsetFinder protected constructor(private val subSetSize: Int,
+                                                       private val findLockedHouses: Boolean = false)
+    : BaseHintFinder
 {
     override fun findHints(grid: Grid, hintAggregator: HintAggregator) {
         grid.acceptHouses { house ->

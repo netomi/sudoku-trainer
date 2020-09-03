@@ -21,12 +21,32 @@ package org.netomi.sudoku.solver.techniques
 
 import org.netomi.sudoku.solver.HintFinder
 
-class NakedQuadrupleFinderTest : AbstractHintFinderTest() {
+class XWingHintFinderTest : BaseHintFinderTest() {
     override fun createHintFinder(): HintFinder {
-        return NakedQuadrupleFinder()
+        return XWingHintFinder()
     }
 
     override fun matches(testCase: TechniqueTestCase): Boolean {
-        return testCase.technique.startsWith("0202")
+        return testCase.technique.startsWith("0300")
+    }
+}
+
+class SwordFishFinderTest : BaseHintFinderTest() {
+    override fun createHintFinder(): HintFinder {
+        return SwordFishFinder()
+    }
+
+    override fun matches(testCase: TechniqueTestCase): Boolean {
+        return testCase.technique.startsWith("0301")
+    }
+}
+
+class JellyFishFinderTest : BaseHintFinderTest() {
+    override fun createHintFinder(): HintFinder {
+        return JellyFishFinder()
+    }
+
+    override fun matches(testCase: TechniqueTestCase): Boolean {
+        return testCase.technique.startsWith("0302")
     }
 }

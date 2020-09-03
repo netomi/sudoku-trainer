@@ -20,6 +20,7 @@
 package org.netomi.sudoku.solver.techniques
 
 import org.netomi.sudoku.model.*
+import org.netomi.sudoku.solver.BaseHintFinder
 import org.netomi.sudoku.solver.HintAggregator
 import org.netomi.sudoku.solver.HintFinder
 import org.netomi.sudoku.solver.SolvingTechnique
@@ -46,8 +47,7 @@ class JellyFishFinder : BasicFishFinder(4) {
  * forming a hidden subset. All other candidates in these cells
  * can be removed.
  */
-abstract class BasicFishFinder protected constructor(private val size: Int)
-    : AbstractHintFinder()
+abstract class BasicFishFinder protected constructor(private val size: Int) : BaseHintFinder
 {
     override fun findHints(grid: Grid, hintAggregator: HintAggregator) {
         val visitor = HouseVisitor { house ->

@@ -20,10 +20,11 @@
 package org.netomi.sudoku.solver.techniques
 
 import org.netomi.sudoku.model.*
+import org.netomi.sudoku.solver.BaseHintFinder
 import org.netomi.sudoku.solver.HintAggregator
 import org.netomi.sudoku.solver.SolvingTechnique
 
-class LockedCandidatesType1Finder : AbstractHintFinder()
+class LockedCandidatesType1Finder : BaseHintFinder
 {
     override val solvingTechnique: SolvingTechnique
         get() = SolvingTechnique.LOCKED_CANDIDATES_TYPE_1
@@ -47,7 +48,8 @@ class LockedCandidatesType1Finder : AbstractHintFinder()
     }
 }
 
-class LockedCandidatesType2Finder : AbstractHintFinder() {
+class LockedCandidatesType2Finder : BaseHintFinder
+{
     override val solvingTechnique: SolvingTechnique
         get() = SolvingTechnique.LOCKED_CANDIDATES_TYPE_2
 

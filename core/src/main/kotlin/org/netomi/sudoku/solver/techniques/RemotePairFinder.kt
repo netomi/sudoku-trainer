@@ -20,6 +20,7 @@
 package org.netomi.sudoku.solver.techniques
 
 import org.netomi.sudoku.model.*
+import org.netomi.sudoku.solver.BaseHintFinder
 import org.netomi.sudoku.solver.HintAggregator
 import org.netomi.sudoku.solver.HintFinder
 import org.netomi.sudoku.solver.SolvingTechnique
@@ -28,7 +29,7 @@ import java.util.*
 /**
  * A [HintFinder] implementation ...
  */
-class RemotePairFinder : AbstractHintFinder() {
+class RemotePairFinder : BaseHintFinder {
     override val solvingTechnique: SolvingTechnique
         get() = SolvingTechnique.REMOTE_PAIR
 

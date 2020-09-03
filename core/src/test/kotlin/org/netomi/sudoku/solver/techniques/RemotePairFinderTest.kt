@@ -21,7 +21,7 @@ package org.netomi.sudoku.solver.techniques
 
 import org.netomi.sudoku.solver.HintFinder
 
-class RemotePairFinderTest : AbstractHintFinderTest() {
+class RemotePairFinderTest : BaseHintFinderTest() {
     override fun createHintFinder(): HintFinder {
         return RemotePairFinder()
     }
