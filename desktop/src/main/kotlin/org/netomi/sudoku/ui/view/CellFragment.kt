@@ -48,8 +48,8 @@ import java.util.function.Consumer
  */
 class CellFragment(private val cell: Cell) : Fragment()
 {
-    private val value: IntegerProperty = SimpleIntegerProperty(0)
-    private val possibleValues = FXCollections.observableIntegerArray()
+    private val valueProperty: IntegerProperty = SimpleIntegerProperty(0)
+    private val possibleValuesProperty         = FXCollections.observableIntegerArray()
 
     val dirtyProperty: BooleanProperty = SimpleBooleanProperty(false)
 
@@ -84,28 +84,24 @@ class CellFragment(private val cell: Cell) : Fragment()
 
         if (displayedHint != null) {
             if (displayedHint is DirectHint) {
-                val directHint = displayedHint
-                if (directHint.cellIndex == cell.cellIndex) {
-                    val value = directHint.value
+                if (displayedHint.cellIndex == cell.cellIndex) {
+                    val value = displayedHint.value
                     possibleValuesPane.children[value - 1].styleClass.add("cell-direct-hint")
                 }
             } else if (displayedHint is IndirectHint) {
-                val indirectHint = displayedHint
-                var i = 0
-                val affectedCells = indirectHint.cellIndices
-                for (cellIndex in affectedCells.allSetBits()) {
+                val affectedCells = displayedHint.cellIndices
+                for ((i, cellIndex) in affectedCells.allSetBits().withIndex()) {
                     if (cellIndex == cell.cellIndex) {
-                        val excludedValues = indirectHint.excludedValues[i]
+                        val excludedValues = displayedHint.excludedValues[i]
                         for (value in excludedValues.allSetBits()) {
                             possibleValuesPane.children[value - 1].styleClass.add("cell-indirect-hint")
                         }
                     }
-                    i++
                 }
             }
         }
-        value.set(cell.value)
-        possibleValues.setAll(*cell.possibleValueSet.toArray())
+        valueProperty.set(cell.value)
+        possibleValuesProperty.setAll(*cell.possibleValueSet.toArray())
         dirtyProperty.set(false)
     }
 
@@ -118,14 +114,14 @@ class CellFragment(private val cell: Cell) : Fragment()
                 }
                 if (event.code == KeyCode.DELETE ||
                     event.code == KeyCode.BACK_SPACE) {
-                    cell.value  = 0
-                    value.value = 0
+                    cell.value = 0
+                    valueProperty.value = 0
                     dirtyProperty.set(true)
                 } else {
                     try {
                         val newValue = event.text.toInt()
-                        cell.value  = newValue
-                        value.value = newValue
+                        cell.value = newValue
+                        valueProperty.value = newValue
                         dirtyProperty.set(true)
                     } catch (ex: NumberFormatException) {}
                 }
@@ -209,7 +205,6 @@ class CellFragment(private val cell: Cell) : Fragment()
                     val row = RowConstraints(10.0, 20.0, Double.MAX_VALUE)
                     row.vgrow = Priority.ALWAYS
                     row.valignment = VPos.CENTER
-
                     rowConstraints.add(row)
 
                     val col = ColumnConstraints(10.0, 20.0, Double.MAX_VALUE)
@@ -219,13 +214,12 @@ class CellFragment(private val cell: Cell) : Fragment()
                 }
             }
 
-            var tmpValue = 1
+            var possibleValue = 1
             for (i in 0..2) {
                 for (j in 0..2) {
-                    val possibleValueLabel = label((tmpValue++).toString()) {
+                    val possibleValueLabel = label((possibleValue++).toString()) {
                         addClass(Styles.cellPossibleValue)
                     }
-
                     possibleValuesPane.add(possibleValueLabel, j, i)
                 }
             }
@@ -236,19 +230,18 @@ class CellFragment(private val cell: Cell) : Fragment()
                 } else {
                     addClass(Styles.cellAssignedValue)
                 }
-
                 isVisible = false
             }
         }
 
-        assignedValueLabel.textProperty().bind(Bindings.createStringBinding({ value.value.toString() }, value))
+        assignedValueLabel.textProperty().bind(Bindings.createStringBinding({ valueProperty.value.toString() }, valueProperty))
 
-        value.addListener { _, _, newValue: Number ->
+        valueProperty.addListener { _, _, newValue: Number ->
             possibleValuesPane.isVisible = newValue.toInt() == 0
             assignedValueLabel.isVisible = newValue.toInt() != 0
         }
 
-        possibleValues.addListener { observableArray: ObservableIntegerArray, _, from: Int, to: Int ->
+        possibleValuesProperty.addListener { observableArray: ObservableIntegerArray, _, from: Int, to: Int ->
             val children = possibleValuesPane.children
             for (node in children) {
                 node.isVisible = false
