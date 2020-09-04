@@ -29,13 +29,12 @@ import java.util.*
  *  - column
  *  - block
  */
-abstract class House internal constructor(private val owner: Grid, val regionIndex: Int)
+abstract class House internal constructor(internal val owner: Grid, val regionIndex: Int, val houseIndex: Int)
 {
-    private val _cellSet: MutableCellSet = MutableCellSet.empty(owner)
     val cellSet: CellSet
-        get() = _cellSet.asCellSet()
+        get() = owner.getCellSet(houseIndex)
 
-    internal val _assignedValueSet: MutableValueSet = MutableValueSet.empty(owner)
+    internal var _assignedValueSet: MutableValueSet = MutableValueSet.empty(owner)
     val assignedValueSet: ValueSet
         /**
          * Returns the assigned values of all cells contained in this [House] as [ValueSet].
@@ -54,14 +53,7 @@ abstract class House internal constructor(private val owner: Grid, val regionInd
      * Returns the number of cells contained in this [House].
      */
     val size: Int
-        get() = _cellSet.cardinality()
-
-    /**
-     * Adds the given [Cell] to this [House].
-     */
-    internal fun addCell(cell: Cell) {
-        _cellSet.set(cell.cellIndex)
-    }
+        get() = cellSet.cardinality()
 
     /**
      * Checks whether the given cell, identified by its cell index,
@@ -70,7 +62,7 @@ abstract class House internal constructor(private val owner: Grid, val regionInd
      * @param cellIndex the index of the cell to check
      */
     fun containsCell(cellIndex: Int): Boolean {
-        return _cellSet[cellIndex]
+        return cellSet[cellIndex]
     }
 
     /**
@@ -97,7 +89,7 @@ abstract class House internal constructor(private val owner: Grid, val regionInd
      * whose cell index is >= startIndex.
      */
     fun cells(startIndex: Int = 0): Sequence<Cell> {
-        return _cellSet.allCells(owner, startIndex)
+        return cellSet.allCells(owner, startIndex)
     }
 
     /**
@@ -105,7 +97,7 @@ abstract class House internal constructor(private val owner: Grid, val regionInd
      * whose cell index is >= startIndex.
      */
     fun assignedCells(startIndex: Int = 0): Sequence<Cell> {
-        return _cellSet.filteredCells(owner, { obj: Cell -> obj.isAssigned }, startIndex)
+        return cellSet.filteredCells(owner, { obj: Cell -> obj.isAssigned }, startIndex)
     }
 
     /**
@@ -113,7 +105,7 @@ abstract class House internal constructor(private val owner: Grid, val regionInd
      * whose cell index is >= startIndex.
      */
     fun unassignedCells(startIndex: Int = 0): Sequence<Cell> {
-        return _cellSet.filteredCells(owner, { cell -> !cell.isAssigned }, startIndex)
+        return cellSet.filteredCells(owner, { cell -> !cell.isAssigned }, startIndex)
     }
 
     /**
@@ -123,7 +115,7 @@ abstract class House internal constructor(private val owner: Grid, val regionInd
     fun cellsExcluding(vararg excludedHouses: House): Sequence<Cell> {
         val ownCells = cellSet.toMutableCellSet()
         for (house in excludedHouses) {
-            ownCells.andNot(house._cellSet)
+            ownCells.andNot(house.cellSet)
         }
         return ownCells.allCells(owner)
     }
@@ -186,7 +178,7 @@ abstract class House internal constructor(private val owner: Grid, val regionInd
         owner.throwIfStateIsInvalid()
         val possiblePositions = owner.getPotentialPositions(value)
         val result = possiblePositions.toMutableCellSet()
-        result.and(_cellSet)
+        result.and(cellSet)
         return result
     }
 
@@ -208,6 +200,8 @@ abstract class House internal constructor(private val owner: Grid, val regionInd
     internal fun clear() {
         _assignedValueSet.clearAll()
     }
+
+    internal abstract fun copy(grid: Grid): House
 }
 
 /**
@@ -218,7 +212,7 @@ enum class HouseType {
     ROW, COLUMN, BLOCK
 }
 
-class Row internal constructor(owner: Grid, rowIndex: Int) : House(owner, rowIndex)
+class Row internal constructor(owner: Grid, rowIndex: Int, houseIndex: Int) : House(owner, rowIndex, houseIndex)
 {
     override val type: HouseType
         get() = HouseType.ROW
@@ -226,12 +220,20 @@ class Row internal constructor(owner: Grid, rowIndex: Int) : House(owner, rowInd
     val rowNumber: Int
         get() = regionIndex + 1
 
+    private constructor(grid: Grid, other: Row) : this(grid, other.regionIndex, other.houseIndex) {
+        _assignedValueSet = other._assignedValueSet.copy()
+    }
+
+    override fun copy(target: Grid): Row {
+        return Row(target, this)
+    }
+
     override fun toString(): String {
         return "r%d = %s".format(rowNumber, _assignedValueSet)
     }
 }
 
-class Column internal constructor(owner: Grid, columnIndex: Int) : House(owner, columnIndex)
+class Column internal constructor(owner: Grid, columnIndex: Int, houseIndex: Int) : House(owner, columnIndex, houseIndex)
 {
     override val type: HouseType
         get() = HouseType.COLUMN
@@ -239,18 +241,34 @@ class Column internal constructor(owner: Grid, columnIndex: Int) : House(owner, 
     val columnNumber: Int
         get() = regionIndex + 1
 
+    private constructor(grid: Grid, other: Column) : this(grid, other.regionIndex, other.houseIndex) {
+        _assignedValueSet = other._assignedValueSet.copy()
+    }
+
+    override fun copy(target: Grid): Column {
+        return Column(target, this)
+    }
+
     override fun toString(): String {
         return "c%d = %s".format(columnNumber, _assignedValueSet)
     }
 }
 
-class Block internal constructor(owner: Grid, blockIndex: Int) : House(owner, blockIndex)
+class Block internal constructor(owner: Grid, blockIndex: Int, houseIndex: Int) : House(owner, blockIndex, houseIndex)
 {
     override val type: HouseType
         get() = HouseType.BLOCK
 
     val blockNumber: Int
         get() = regionIndex + 1
+
+    private constructor(grid: Grid, other: Block) : this(grid, other.regionIndex, other.houseIndex) {
+        _assignedValueSet = other._assignedValueSet.copy()
+    }
+
+    override fun copy(target: Grid): Block {
+        return Block(target, this)
+    }
 
     override fun toString(): String {
         return "b%d = %s".format(blockNumber, _assignedValueSet)

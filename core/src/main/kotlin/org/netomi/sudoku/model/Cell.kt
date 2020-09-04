@@ -26,10 +26,6 @@ import java.util.*
  */
 class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowIndex: Int, val columnIndex: Int, val blockIndex: Int)
 {
-    private val _peerSet: MutableCellSet = MutableCellSet.empty(owner)
-    val peerSet: CellSet
-        get() = _peerSet.asCellSet()
-
     private var _value : Int = 0
     var value: Int
         get() = _value
@@ -48,6 +44,9 @@ class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowInde
             setValue(value, true)
         }
 
+    val peerSet: CellSet
+        get() = owner.getPeerSet(cellIndex)
+
     /**
      * Indicates whether the cell has a fixed value.
      */
@@ -60,7 +59,7 @@ class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowInde
             return _possibleValueSet.asValueSet()
         }
 
-    private val _excludedValueSet: MutableValueSet = MutableValueSet.empty(owner)
+    private var _excludedValueSet: MutableValueSet = MutableValueSet.empty(owner)
     val excludedValueSet : ValueSet
         get() = _excludedValueSet.asValueSet()
 
@@ -88,9 +87,17 @@ class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowInde
     val isAssigned: Boolean
         get() = value > 0
 
-    internal fun addPeers(cells: CellSet) {
-        _peerSet.or(cells)
-        _peerSet.clear(cellIndex)
+    private constructor(grid: Grid, otherCell: Cell)
+            :this(grid,
+                  otherCell.cellIndex,
+                  otherCell.rowIndex,
+                  otherCell.columnIndex,
+                  otherCell.blockIndex)
+    {
+        isGiven = otherCell.isGiven
+        _value  = otherCell._value
+        _possibleValueSet = otherCell._possibleValueSet.copy()
+        _excludedValueSet = otherCell._excludedValueSet.copy()
     }
 
     /**
@@ -98,7 +105,7 @@ class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowInde
      * this cell, i.e. are contained in the same row, column or block.
      */
     fun peers(): Sequence<Cell> {
-        return _peerSet.allCells(owner)
+        return peerSet.allCells(owner)
     }
 
     /**
@@ -213,6 +220,10 @@ class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowInde
         } else if (updateGrid) {
             owner.notifyPossibleValuesChanged(this)
         }
+    }
+
+    internal fun copy(target: Grid): Cell {
+        return Cell(target, this)
     }
 
     // Visitor methods.

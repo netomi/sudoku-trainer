@@ -63,38 +63,14 @@ object LocalTest {
 //String input = ".....6....59.....82....8....45........3........6..3.54...325..6..................";
 //String input = "627134598..1928763938675.2.3764........763........2637.63..794.7...4638..843...76";
 //String input = "300000004002060100010908020005000600020000010009000800080304060004010900500000007";
+
         val grid: Grid = Grid.of(PredefinedType.CLASSIC_9x9)
         grid.accept(GridValueLoader(input))
         grid.accept(GridPrinter(GridPrinter.STYLE.SIMPLE))
         println()
-        val cell: Cell = grid.getCell(0)
-        System.out.println(cell)
-        cell.excludePossibleValues(false, 5)
-        System.out.println(cell)
-        cell.clearExcludedValues(false)
-        System.out.println(cell)
-        //        HintSolver hintSolver = new HintSolver();
-//
-//        long start = System.nanoTime();
-//
-//        HintAggregator hints = hintSolver.findHints(grid);
-//
-//        long end = System.nanoTime();
-//
-//        hints.applyHints(grid);
-//        grid.accept(new GridPrinter(GridPrinter.STYLE.SIMPLE));
-//
-//        System.out.println(hints);
-//        System.out.println("valid = " + grid.isValid());
-//        System.out.println("Solving sudoku logically took " + (end - start) / 1e6 + "ms");
-//
-//        BruteForceSolver solver = new BruteForceSolver();
-//
-//        start = System.nanoTime();
-//        Grid resultGrid = solver.solve(grid, true);
-//        end = System.nanoTime();
-//        System.out.println("Solving sudoku with brute-force took " + (end - start) / 1e6 + "ms");
-//        resultGrid.accept(new GridPrinter(GridPrinter.STYLE.SIMPLE));
-//        System.out.println("grid valid = " + resultGrid.isValid());
+
+        val grid2 = grid.copy()
+
+        println(grid2)
     }
 }
