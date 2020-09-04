@@ -23,27 +23,14 @@ import org.netomi.sudoku.model.Grid
 import org.netomi.sudoku.solver.techniques.*
 import java.util.*
 
-class HintSolver : GridSolver {
+class HintSolver : GridSolver
+{
     private val finderList: MutableList<HintFinder> = ArrayList()
 
     constructor() {
-        finderList.add(FullHouseFinder())
-        finderList.add(NakedSingleFinder())
-        finderList.add(HiddenSingleFinder())
-        finderList.add(LockedCandidatesType1Finder())
-        finderList.add(LockedCandidatesType2Finder())
-        finderList.add(HiddenPairFinder())
-        finderList.add(HiddenTripleFinder())
-        finderList.add(HiddenQuadrupleFinder())
-        finderList.add(NakedPairFinder())
-        finderList.add(NakedTripleFinder())
-        finderList.add(NakedQuadrupleFinder())
-        finderList.add(LockedPairFinder())
-        finderList.add(LockedTripleFinder())
-        finderList.add(XWingHintFinder())
-        finderList.add(SwordFishFinder())
-        finderList.add(JellyFishFinder())
-        finderList.add(RemotePairFinder())
+        for (technique in SolvingTechnique.values()) {
+            finderList.add(technique.supplier.get())
+        }
     }
 
     constructor(finder: HintFinder) {
@@ -55,79 +42,87 @@ class HintSolver : GridSolver {
     }
 
     override fun solve(grid: Grid): Grid {
-        val searchGrid: Grid = grid.copy()
+        val searchGrid = grid.copy()
+
         while (!searchGrid.isSolved) {
-            val hintAggregator: HintAggregator = SingleHintAggregator()
+            val hintAggregator = SingleHintAggregator()
+
             try {
                 for (hintFinder in finderList) {
                     hintFinder.findHints(searchGrid, hintAggregator)
                 }
-            } catch (ex: RuntimeException) {
+            } catch (ex: HintAggregatorExhaustedException) {
+                // do nothing
+            } catch (ex: java.lang.RuntimeException) {
                 ex.printStackTrace()
             }
+
             if (hintAggregator.size() == 0) {
                 break
             }
+
             hintAggregator.applyHints(searchGrid)
         }
         return searchGrid
     }
 
     fun findAllHintsSingleStep(grid: Grid): HintAggregator {
-        val searchGrid: Grid = grid.copy()
+        val searchGrid     = grid.copy()
         val hintAggregator = HintAggregator()
+
         try {
             for (hintFinder in finderList) {
                 hintFinder.findHints(searchGrid, hintAggregator)
             }
+        } catch (ex: HintAggregatorExhaustedException) {
+            // do nothing
         } catch (ex: RuntimeException) {
             ex.printStackTrace()
         }
+
         return hintAggregator
     }
 
-    fun findHint(grid: Grid): HintAggregator {
-        val searchGrid: Grid = grid.copy()
-        val hintAggregator: HintAggregator = SingleHintAggregator()
-        try {
-            for (hintFinder in finderList) {
-                hintFinder.findHints(searchGrid, hintAggregator)
-            }
-        } catch (ex: RuntimeException) {
-            ex.printStackTrace()
-        }
-        return hintAggregator
-    }
+    fun findAllHints(grid: Grid): HintAggregator {
+        val searchGrid = grid.copy()
+        val allHints   = HintAggregator()
 
-    fun findDirectHint(grid: Grid): HintAggregator {
-        val hintAggregator: HintAggregator = SingleHintAggregator()
-        try {
-            for (hintFinder in finderList) {
-                hintFinder.findHints(grid, hintAggregator)
-            }
-        } catch (ex: RuntimeException) {
-            ex.printStackTrace()
-        }
-        return hintAggregator
-    }
-
-    fun findHints(grid: Grid): HintAggregator {
-        val searchGrid: Grid = grid.copy()
-        val allHints = HintAggregator()
-        while (!searchGrid.isSolved) { //searchGrid.updateState();
-            val hintAggregator: HintAggregator = SingleHintAggregator()
+        while (!searchGrid.isSolved) {
+            val hintAggregator = SingleHintAggregator()
             try {
                 for (hintFinder in finderList) {
                     hintFinder.findHints(searchGrid, hintAggregator)
                 }
+            } catch (ex: HintAggregatorExhaustedException) {
+                // do nothing
             } catch (ex: RuntimeException) {
+                ex.printStackTrace()
             }
+
             if (hintAggregator.hints.isEmpty()) {
                 break
             }
+
             hintAggregator.applyHints(searchGrid)
             allHints.hints.addAll(hintAggregator.hints)
         }
+
         return allHints
+    }
+
+    fun findNextHint(grid: Grid): HintAggregator {
+        val hintAggregator = SingleHintAggregator()
+
+        try {
+            for (hintFinder in finderList) {
+                hintFinder.findHints(grid, hintAggregator)
+            }
+        } catch (ex: HintAggregatorExhaustedException) {
+            // do nothing
+        } catch (ex: RuntimeException) {
+            ex.printStackTrace()
+        }
+
+        return hintAggregator
     }
 }

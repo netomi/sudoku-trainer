@@ -22,6 +22,6 @@ package org.netomi.sudoku.solver
 class SingleHintAggregator : HintAggregator() {
     override fun addHint(hint: Hint) {
         super.addHint(hint)
-        throw RuntimeException()
+        throw HintAggregatorExhaustedException()
     }
 }

@@ -55,7 +55,7 @@ class BruteForceSolver : GridSolver {
             return true
         }
 
-        val hints = hintSolver.findDirectHint(grid)
+        val hints = hintSolver.findNextHint(grid)
         if (hints.hints.isNotEmpty()) {
             val hint = hints.hints.iterator().next() as DirectHint
             val cellIndex = hint.cellIndex

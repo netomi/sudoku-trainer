@@ -19,35 +19,39 @@
  */
 package org.netomi.sudoku.solver
 
-enum class SolvingTechnique(val techniqueName: String) {
+import org.netomi.sudoku.solver.techniques.*
+import java.util.function.Supplier
+
+enum class SolvingTechnique(val techniqueName: String, val supplier: Supplier<HintFinder>)
+{
     // Singles.
-    FULL_HOUSE("Full House"),
-    HIDDEN_SINGLE("Hidden Single"),
-    NAKED_SINGLE("Naked Single"),
+    FULL_HOUSE("Full House", ::FullHouseFinder),
+    HIDDEN_SINGLE("Hidden Single", ::HiddenSingleFinder),
+    NAKED_SINGLE("Naked Single", ::NakedSingleFinder),
 
     // Intersections.
-    LOCKED_CANDIDATES_TYPE_1("Locked Candidates Type 1 (Pointing)"),
-    LOCKED_CANDIDATES_TYPE_2("Locked Candidates Type 2 (Claiming)"),
+    LOCKED_CANDIDATES_TYPE_1("Locked Candidates Type 1 (Pointing)", ::LockedCandidatesType1Finder),
+    LOCKED_CANDIDATES_TYPE_2("Locked Candidates Type 2 (Claiming)", ::LockedCandidatesType2Finder),
 
     // Hidden subsets.
-    HIDDEN_PAIR("Hidden Pair"),
-    HIDDEN_TRIPLE("Hidden Triple"),
-    HIDDEN_QUADRUPLE("Hidden Quadruple"),
+    HIDDEN_PAIR("Hidden Pair", ::HiddenPairFinder),
+    HIDDEN_TRIPLE("Hidden Triple", ::HiddenTripleFinder),
+    HIDDEN_QUADRUPLE("Hidden Quadruple", ::HiddenQuadrupleFinder),
 
     // Naked subsets.
-    NAKED_PAIR("Naked Pair"),
-    NAKED_TRIPLE("Naked Triple"),
-    NAKED_QUADRUPLE("Naked Quadruple"),
+    NAKED_PAIR("Naked Pair", ::NakedPairFinder),
+    NAKED_TRIPLE("Naked Triple", ::NakedTripleFinder),
+    NAKED_QUADRUPLE("Naked Quadruple", ::NakedQuadrupleFinder),
 
     // Locked subsets.
-    LOCKED_PAIR("Locked Pair"),
-    LOCKED_TRIPLE("Locked Triple"),
+    LOCKED_PAIR("Locked Pair", ::LockedPairFinder),
+    LOCKED_TRIPLE("Locked Triple", ::LockedTripleFinder),
 
     // Basic fish.
-    X_WING("X-Wing"),
-    SWORDFISH("Swordfish"),
-    JELLYFISH("Jellyfish"),
+    X_WING("X-Wing", ::XWingHintFinder),
+    SWORDFISH("Swordfish", ::SwordFishFinder),
+    JELLYFISH("Jellyfish", ::JellyFishFinder),
 
     // chains.
-    REMOTE_PAIR("Remote Pair");
+    REMOTE_PAIR("Remote Pair", ::RemotePairFinder);
 }

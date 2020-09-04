@@ -185,7 +185,7 @@ public class MainController implements Initializable {
 
     public void findHints(ActionEvent actionEvent) {
         HintSolver hintSolver = new HintSolver();
-        HintAggregator hints = hintSolver.findHints(modelService.getModel());
+        HintAggregator hints = hintSolver.findAllHints(modelService.getModel());
         hintList.setAll(hints.getHints());
     }
 
