@@ -25,10 +25,13 @@ import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.layout.*;
 import org.netomi.sudoku.model.Cell;
+import org.netomi.sudoku.model.Conflict;
+import org.netomi.sudoku.model.ConflictDetector;
 import org.netomi.sudoku.model.Grid;
 import org.netomi.sudoku.solver.Hint;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * The main grid view to visualize the state of a sudoku grid.
@@ -98,7 +101,7 @@ public class GridView extends GridPane {
 
     public void refreshView() {
         System.out.println("refresh");
-        Collection<Grid.Conflict> conflicts = getModel().getConflicts();
+        Conflict[] conflicts = getModel().accept(new ConflictDetector());
 
         for (Node child : getChildren()) {
             if (child instanceof CellView) {

@@ -35,7 +35,7 @@ import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import javafx.scene.layout.*
 import org.netomi.sudoku.model.Cell
-import org.netomi.sudoku.model.Grid.Conflict
+import org.netomi.sudoku.model.Conflict
 import org.netomi.sudoku.solver.DirectHint
 import org.netomi.sudoku.solver.Hint
 import org.netomi.sudoku.solver.IndirectHint
@@ -63,7 +63,7 @@ class CellFragment(private val cell: Cell) : Fragment()
 
     override val root = stackpane {}
 
-    fun refreshView(conflicts: Collection<Conflict>, displayedHint: Hint?) {
+    fun refreshView(conflicts: Array<Conflict>, displayedHint: Hint?) {
         var foundConflict = false
         for (conflict in conflicts) {
             if (conflict.contains(cell)) {
@@ -71,14 +71,17 @@ class CellFragment(private val cell: Cell) : Fragment()
                 break
             }
         }
+
         if (foundConflict) {
             assignedValueLabel.styleClass.remove("cell-value-conflict")
             assignedValueLabel.styleClass.add("cell-value-conflict")
         } else {
             assignedValueLabel.styleClass.remove("cell-value-conflict")
         }
+
         possibleValuesPane.children.forEach(Consumer { child: Node -> child.styleClass.remove("cell-direct-hint") })
         possibleValuesPane.children.forEach(Consumer { child: Node -> child.styleClass.remove("cell-indirect-hint") })
+
         if (displayedHint != null) {
             if (displayedHint is DirectHint) {
                 val directHint = displayedHint
@@ -113,7 +116,8 @@ class CellFragment(private val cell: Cell) : Fragment()
                 if (cell.isGiven) {
                     return@setOnKeyPressed
                 }
-                if (event.code == KeyCode.DELETE) {
+                if (event.code == KeyCode.DELETE ||
+                    event.code == KeyCode.BACK_SPACE) {
                     cell.value  = 0
                     value.value = 0
                     dirtyProperty.set(true)
@@ -237,7 +241,6 @@ class CellFragment(private val cell: Cell) : Fragment()
             }
         }
 
-        //isFocusTraversable = true
         assignedValueLabel.textProperty().bind(Bindings.createStringBinding({ value.value.toString() }, value))
 
         value.addListener { _, _, newValue: Number ->

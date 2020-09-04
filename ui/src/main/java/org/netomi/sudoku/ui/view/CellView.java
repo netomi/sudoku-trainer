@@ -36,8 +36,7 @@ import org.netomi.sudoku.solver.DirectHint;
 import org.netomi.sudoku.solver.Hint;
 import org.netomi.sudoku.solver.IndirectHint;
 
-import java.util.BitSet;
-import java.util.Collection;
+import java.util.List;
 
 /**
  * The view to display the state of an individual cell within a
@@ -223,9 +222,9 @@ public class CellView extends StackPane {
         return dirty;
     }
 
-    public void refreshView(Collection<Grid.Conflict> conflicts, Hint displayedHint) {
+    public void refreshView(Conflict[] conflicts, Hint displayedHint) {
         boolean foundConflict = false;
-        for (Grid.Conflict conflict : conflicts) {
+        for (Conflict conflict : conflicts) {
             if (conflict.contains(cell)) {
                 foundConflict = true;
                 break;

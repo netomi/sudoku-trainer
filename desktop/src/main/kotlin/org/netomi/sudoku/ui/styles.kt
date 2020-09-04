@@ -31,6 +31,7 @@ class Styles : Stylesheet() {
         val cellGivenValue    by cssclass()
         val cellPossibleValue by cssclass()
         val cellFocus         by cssclass()
+        val cellValueConflict by cssclass()
     }
 
     init {
@@ -66,10 +67,11 @@ class Styles : Stylesheet() {
             prefWidth = 2.em
             padding   = box(0.px, 0.px, 0.px, 5.px)
         }
-//                .cell-value-conflict {
-//            -fx-text-fill: red;
-//        }
-//
+
+        cellValueConflict {
+            textFill = Color.RED
+        }
+
         cellFocus {
             backgroundColor += Color.YELLOW
         }

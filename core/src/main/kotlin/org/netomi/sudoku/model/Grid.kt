@@ -136,27 +136,6 @@ class Grid internal constructor(val type: Type) {
             return houses().all { house -> house.isValid }
         }
 
-    val conflicts: Collection<Conflict>
-        get() {
-            val foundConflicts: MutableSet<CellSet> = HashSet()
-            val conflicts: MutableCollection<Conflict> = ArrayList()
-            for (house in houses()) {
-                for (cell in house.assignedCells()) {
-                    val value = cell.value
-                    val conflictPeers = cell.peerSet.filteredCells(this, { c -> c.isAssigned && c.value == value })
-                    val conflictCells = MutableCellSet.of(this, conflictPeers)
-                    if (conflictCells.cardinality() > 0) {
-                        conflictCells.set(cell.cellIndex)
-                        if (!foundConflicts.contains(conflictCells)) {
-                            foundConflicts.add(conflictCells)
-                            conflicts.add(Conflict(conflictCells.toCellList(this)))
-                        }
-                    }
-                }
-            }
-            return conflicts
-        }
-
     // Visitor methods.
 
     fun <T> accept(visitor: GridVisitor<T>): T {
@@ -322,36 +301,6 @@ class Grid internal constructor(val type: Type) {
 
         override fun toString(): String {
             return "%dx%d".format(gridSize, gridSize)
-        }
-    }
-
-    class Conflict(cells: List<Cell>?) {
-        private val cellsInConflict: List<Cell>
-
-        fun getCellsInConflict(): Iterable<Cell> {
-            return cellsInConflict
-        }
-
-        operator fun contains(otherCell: Cell?): Boolean {
-            return cellsInConflict.contains(otherCell)
-        }
-
-        override fun toString(): String {
-            val sb = StringBuilder()
-            val firstCell = cellsInConflict[0]
-            sb.append(firstCell.name)
-            for (idx in 1 until cellsInConflict.size) {
-                sb.append(" = ")
-                sb.append(cellsInConflict[idx].name)
-            }
-            sb.append(" = ")
-            sb.append(firstCell.value)
-            return sb.toString()
-        }
-
-        init {
-            require(!(cells == null || cells.size < 2)) { "cells must not be null or contain less than 2 elements" }
-            cellsInConflict = cells
         }
     }
 

@@ -22,7 +22,7 @@ package org.netomi.sudoku.model
 /**
  * An interface used to visit a [Grid].
  */
-fun interface GridVisitor<T>
+fun interface GridVisitor<out T>
 {
     fun visitGrid(grid: Grid): T
 }

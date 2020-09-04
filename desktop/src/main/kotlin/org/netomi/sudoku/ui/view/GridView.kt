@@ -24,6 +24,7 @@ import javafx.beans.property.SimpleObjectProperty
 import javafx.scene.layout.ColumnConstraints
 import javafx.scene.layout.Priority
 import javafx.scene.layout.RowConstraints
+import org.netomi.sudoku.model.ConflictDetector
 import org.netomi.sudoku.model.Grid
 import org.netomi.sudoku.solver.Hint
 import org.netomi.sudoku.ui.Styles
@@ -88,7 +89,8 @@ class GridView : View()
     }
 
     fun refreshView() {
-        val conflicts = model.conflicts
+        val conflicts = if (model.isValid) emptyArray() else model.accept(ConflictDetector())
+
         for (child in cellFragmentList) {
             child.refreshView(conflicts, hintProperty.value)
         }
