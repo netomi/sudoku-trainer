@@ -26,8 +26,8 @@ enum class SolvingTechnique(val techniqueName: String, val supplier: Supplier<Hi
 {
     // Singles.
     FULL_HOUSE("Full House", ::FullHouseFinder),
-    HIDDEN_SINGLE("Hidden Single", ::HiddenSingleFinder),
     NAKED_SINGLE("Naked Single", ::NakedSingleFinder),
+    HIDDEN_SINGLE("Hidden Single", ::HiddenSingleFinder),
 
     // Intersections.
     LOCKED_CANDIDATES_TYPE_1("Locked Candidates Type 1 (Pointing)", ::LockedCandidatesType1Finder),

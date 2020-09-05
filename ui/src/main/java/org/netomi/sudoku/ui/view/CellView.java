@@ -32,11 +32,10 @@ import javafx.scene.control.Label;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
 import org.netomi.sudoku.model.*;
-import org.netomi.sudoku.solver.DirectHint;
+import org.netomi.sudoku.solver.AssignmentHint;
+import org.netomi.sudoku.solver.EliminationHint;
 import org.netomi.sudoku.solver.Hint;
-import org.netomi.sudoku.solver.IndirectHint;
-
-import java.util.List;
+import org.netomi.sudoku.solver.HintVisitor;
 
 /**
  * The view to display the state of an individual cell within a
@@ -240,27 +239,45 @@ public class CellView extends StackPane {
 
         possibleValuesPane.getChildren().forEach((child) -> child.getStyleClass().remove("cell-direct-hint"));
         possibleValuesPane.getChildren().forEach((child) -> child.getStyleClass().remove("cell-indirect-hint"));
+
         if (displayedHint != null) {
-            if (displayedHint instanceof DirectHint) {
-                DirectHint directHint = (DirectHint) displayedHint;
-                if (directHint.getCellIndex() == cell.getCellIndex()) {
-                    int value = directHint.getValue();
-                    possibleValuesPane.getChildren().get(value - 1).getStyleClass().add("cell-direct-hint");
-                }
-            } else if (displayedHint instanceof IndirectHint) {
-                IndirectHint indirectHint = (IndirectHint) displayedHint;
-                int i = 0;
-                CellSet affectedCells = indirectHint.getCellIndices();
-                for (int cellIndex : affectedCells.allSetBits()) {
-                    if (cellIndex == cell.getCellIndex()) {
-                        ValueSet excludedValues = indirectHint.getExcludedValues()[i];
-                        for (int value : excludedValues.allSetBits()) {
-                            possibleValuesPane.getChildren().get(value - 1).getStyleClass().add("cell-indirect-hint");
-                        }
+            displayedHint.accept(new HintVisitor()
+            {
+                @Override
+                public void visitAnyHint(Hint hint) {}
+
+                @Override
+                public void visitAssignmentHint(AssignmentHint hint) {
+                    if (hint.getCellIndex() == cell.getCellIndex()) {
+                        int value = hint.getValue();
+                        possibleValuesPane.getChildren().get(value - 1).getStyleClass().add("cell-direct-hint");
                     }
-                    i++;
                 }
-            }
+
+                @Override
+                public void visitEliminationHint(EliminationHint hint) {
+                    int i = 0;
+                    for (int cellIndex : hint.getAffectedCells().allSetBits()) {
+                        if (cellIndex == cell.getCellIndex()) {
+                            ValueSet excludedValues = hint.getExcludedValues()[i];
+                            for (int value : excludedValues.allSetBits()) {
+                                possibleValuesPane.getChildren().get(value - 1).getStyleClass().add("cell-indirect-hint");
+                            }
+                        }
+                        i++;
+                    }
+
+                    ValueSet matchingValues = hint.getMatchingValues();
+                    for (int cellIndex : hint.getMatchingCells().allSetBits()) {
+                        if (cellIndex == cell.getCellIndex()) {
+                            for (int value : matchingValues.allSetBits()) {
+                                possibleValuesPane.getChildren().get(value - 1).getStyleClass().add("cell-direct-hint");
+                            }
+                        }
+                        i++;
+                    }
+                }
+            });
         }
 
         value.set(cell.getValue());

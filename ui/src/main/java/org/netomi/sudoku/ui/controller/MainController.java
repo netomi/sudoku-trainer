@@ -193,7 +193,8 @@ public class MainController implements Initializable {
         //Grid grid = Grid.of(PredefinedType.JIGSAW_1);
         Grid grid = Grid.of(PredefinedType.CLASSIC_9x9);
         //String input = "3.......4..2.6.1...1.9.8.2...5...6...2.....1...9...8...8.3.4.6...4.1.9..5.......7"; // jigsaw
-        String input = "4.....8.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......"; // 9x9
+        //String input = "4.....8.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......"; // 9x9
+        String input = "000000012400090000000000050070200000600000400000108000018000000000030700502000000";
         //String input = "000000010400000000020000000000050407008000300001090000300400200050100000000806000"; // 9x9
         grid.accept(new GridValueLoader(input));
 

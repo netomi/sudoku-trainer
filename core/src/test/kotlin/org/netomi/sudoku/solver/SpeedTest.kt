@@ -10,15 +10,16 @@ import java.io.InputStreamReader
 object SpeedTest {
     private fun solveGrid(grid: Grid, solver: GridSolver): Grid {
         val solvedGrid: Grid = solver.solve(grid)
-        return if (!solvedGrid.isSolved) {
-            val bfSolver = BruteForceSolver()
-            bfSolver.solve(solvedGrid)
-        } else {
-            solvedGrid
-        }
+//        return if (!solvedGrid.isSolved) {
+//            val bfSolver = BruteForceSolver()
+//            bfSolver.solve(solvedGrid)
+//        } else {
+            return solvedGrid
+//        }
     }
 
     @Throws(IOException::class)
+    @JvmStatic
     fun main(args: Array<String>) {
         //GridSolver solver = new BruteForceSolver();
         val solver: GridSolver = HintSolver()
@@ -33,7 +34,11 @@ object SpeedTest {
             val start = System.nanoTime()
             val grid2: Grid = solveGrid(grid, solver)
             val end = System.nanoTime()
-            println("Solved sudoku in " + (end - start) / 1e6 + " ms " + (i + 1) + " valid = " + grid2.isValid + " solved = " + grid2.isSolved)
+
+            if (!grid2.isSolved) {
+                println(input)
+                println("Solved sudoku in " + (end - start) / 1e6 + " ms " + (i + 1) + " valid = " + grid2.isValid + " solved = " + grid2.isSolved)
+            }
         }
     }
 }

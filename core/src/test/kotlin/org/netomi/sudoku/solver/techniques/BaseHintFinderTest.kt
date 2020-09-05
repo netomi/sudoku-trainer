@@ -26,10 +26,10 @@ import org.junit.jupiter.api.fail
 import org.netomi.sudoku.io.GridValueLoader
 import org.netomi.sudoku.model.Grid
 import org.netomi.sudoku.model.PredefinedType
-import org.netomi.sudoku.solver.DirectHint
+import org.netomi.sudoku.solver.AssignmentHint
+import org.netomi.sudoku.solver.EliminationHint
 import org.netomi.sudoku.solver.HintFinder
 import org.netomi.sudoku.solver.HintSolver
-import org.netomi.sudoku.solver.IndirectHint
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
@@ -63,7 +63,7 @@ abstract class BaseHintFinderTest
                     // Some heuristic to detect if a HintFinder would suddenly find too many hints.
                     assertTrue(hints.size() <= 10, "found " + hints.size() + " hints")
                     for (hint in hints) {
-                        val result = (hint as DirectHint).asString()
+                        val result = (hint as AssignmentHint).asString()
                         if (result == testCase.placement!!.asPlacement()) {
                             foundExpectedResult = true
                             break
@@ -75,10 +75,10 @@ abstract class BaseHintFinderTest
                     for (hint in hints) {
                         val candidateSet: MutableSet<Candidate> = HashSet()
                         candidateSet.addAll(testCase.getEliminations())
-                        val indirectHint = hint as IndirectHint
+                        val eliminationHint = hint as EliminationHint
                         var index = 0
-                        for (cell in indirectHint.cellIndices.allCells(grid)) {
-                            for (excludedValue in indirectHint.excludedValues[index].allSetBits()) {
+                        for (cell in eliminationHint.affectedCells.allCells(grid)) {
+                            for (excludedValue in eliminationHint.excludedValues[index].allSetBits()) {
                                 val candidate = Candidate(cell.row.rowNumber,
                                                           cell.column.columnNumber,
                                                           excludedValue)

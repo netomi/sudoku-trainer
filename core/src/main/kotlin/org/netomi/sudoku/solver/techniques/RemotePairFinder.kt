@@ -57,7 +57,7 @@ class RemotePairFinder : BaseHintFinder {
             return
         }
 
-        if (length > 3 && length % 2 == 0) {
+        if (length > 3) {
             val affectedCells = currentCell.peerSet.toMutableCellSet()
             affectedCells.andNot(currentChain.cells)
 
@@ -72,8 +72,9 @@ class RemotePairFinder : BaseHintFinder {
                 }
             }
 
-            if (eliminateValuesFromCells(grid, hintAggregator, affectedCells, possibleValues)) {
-                visitedChains.add(currentChain.cells.copy())
+            val matchingCells = currentChain.cells.copy()
+            if (eliminateValuesFromCells(grid, hintAggregator, matchingCells, possibleValues, affectedCells, possibleValues)) {
+                visitedChains.add(matchingCells)
             }
         }
 

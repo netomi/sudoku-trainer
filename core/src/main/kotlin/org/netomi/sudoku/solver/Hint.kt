@@ -22,9 +22,12 @@ package org.netomi.sudoku.solver
 import org.netomi.sudoku.model.Grid
 import java.util.*
 
-abstract class Hint protected constructor(val gridType: Grid.Type, val solvingTechnique: SolvingTechnique) {
-
+abstract class Hint protected constructor(val gridType:         Grid.Type,
+                                          val solvingTechnique: SolvingTechnique)
+{
     abstract fun apply(targetGrid: Grid, updateGrid: Boolean)
+
+    abstract fun accept(visitor: HintVisitor)
 
     override fun hashCode(): Int {
         return Objects.hash(gridType, solvingTechnique)
@@ -36,5 +39,18 @@ abstract class Hint protected constructor(val gridType: Grid.Type, val solvingTe
         val hint = o as Hint
         return gridType         == hint.gridType &&
                solvingTechnique == hint.solvingTechnique
+    }
+}
+
+fun interface HintVisitor
+{
+    fun visitAnyHint(hint: Hint)
+
+    fun visitAssignmentHint(hint: AssignmentHint) {
+        visitAnyHint(hint)
+    }
+
+    fun visitEliminationHint(hint: EliminationHint) {
+        visitAnyHint(hint)
     }
 }

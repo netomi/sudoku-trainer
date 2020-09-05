@@ -36,9 +36,10 @@ import javafx.scene.input.KeyEvent
 import javafx.scene.layout.*
 import org.netomi.sudoku.model.Cell
 import org.netomi.sudoku.model.Conflict
-import org.netomi.sudoku.solver.DirectHint
+import org.netomi.sudoku.solver.AssignmentHint
+import org.netomi.sudoku.solver.EliminationHint
 import org.netomi.sudoku.solver.Hint
-import org.netomi.sudoku.solver.IndirectHint
+import org.netomi.sudoku.solver.HintVisitor
 import org.netomi.sudoku.ui.Styles
 import tornadofx.*
 import java.util.function.Consumer
@@ -82,24 +83,27 @@ class CellFragment(private val cell: Cell) : Fragment()
         possibleValuesPane.children.forEach(Consumer { child: Node -> child.styleClass.remove("cell-direct-hint") })
         possibleValuesPane.children.forEach(Consumer { child: Node -> child.styleClass.remove("cell-indirect-hint") })
 
-        if (displayedHint != null) {
-            if (displayedHint is DirectHint) {
-                if (displayedHint.cellIndex == cell.cellIndex) {
-                    val value = displayedHint.value
-                    possibleValuesPane.children[value - 1].styleClass.add("cell-direct-hint")
+        displayedHint?.accept(object : HintVisitor {
+            override fun visitAnyHint(hint: Hint) {}
+
+            override fun visitAssignmentHint(hint: AssignmentHint) {
+                if (hint.cellIndex == cell.cellIndex) {
+                    possibleValuesPane.children[hint.value - 1].styleClass.add("cell-direct-hint")
                 }
-            } else if (displayedHint is IndirectHint) {
-                val affectedCells = displayedHint.cellIndices
-                for ((i, cellIndex) in affectedCells.allSetBits().withIndex()) {
+            }
+
+            override fun visitEliminationHint(hint: EliminationHint) {
+                for ((i, cellIndex) in hint.affectedCells.allSetBits().withIndex()) {
                     if (cellIndex == cell.cellIndex) {
-                        val excludedValues = displayedHint.excludedValues[i]
+                        val excludedValues = hint.excludedValues[i]
                         for (value in excludedValues.allSetBits()) {
                             possibleValuesPane.children[value - 1].styleClass.add("cell-indirect-hint")
                         }
                     }
                 }
             }
-        }
+        })
+
         valueProperty.set(cell.value)
         possibleValuesProperty.setAll(*cell.possibleValueSet.toArray())
         dirtyProperty.set(false)

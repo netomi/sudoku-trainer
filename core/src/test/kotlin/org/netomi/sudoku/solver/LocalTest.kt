@@ -28,7 +28,8 @@ import org.netomi.sudoku.model.PredefinedType
 object LocalTest {
     @JvmStatic
     fun main(args: Array<String>) {
-        val input = "000000010400000000020000000000050407008000300001090000300400200050100000000806000"
+        //val input = "000000010400000000020000000000050407008000300001090000300400200050100000000806000"
+        val input = "000000012400090000000000050070200000600000400000108000018000000000030700502000000"
         // unsolvable
 //String input = "..9.7...5..21..9..1...28....7...5..1..851.....5....3.......3..68........21.....87";
 //String input = "..9.287..8.6..4..5..3.....46.........2.71345.........23.....5..9..4..8.7..125.3..";
@@ -69,8 +70,8 @@ object LocalTest {
         grid.accept(GridPrinter(GridPrinter.STYLE.SIMPLE))
         println()
 
-        val grid2 = grid.copy()
+        val hints = HintSolver().findAllHints(grid)
 
-        println(grid2)
+        println(hints)
     }
 }
