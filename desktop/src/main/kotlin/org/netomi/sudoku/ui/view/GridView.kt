@@ -24,6 +24,7 @@ import javafx.beans.property.SimpleObjectProperty
 import javafx.scene.layout.ColumnConstraints
 import javafx.scene.layout.Priority
 import javafx.scene.layout.RowConstraints
+import org.netomi.sudoku.model.Conflict
 import org.netomi.sudoku.model.ConflictDetector
 import org.netomi.sudoku.model.Grid
 import org.netomi.sudoku.ui.Styles
@@ -37,11 +38,10 @@ class GridView : View()
 {
     private val gridController: GridController by inject()
 
-    val modelProperty: ObjectProperty<Grid> = SimpleObjectProperty()
-
+    private val modelProperty: ObjectProperty<Grid> = SimpleObjectProperty()
     private val cellFragmentList: ArrayList<CellFragment> = ArrayList()
 
-    private val model: Grid
+    private val model: Grid?
         get() = modelProperty.get()
 
     override val root = gridpane {
@@ -50,42 +50,52 @@ class GridView : View()
     }
 
     private fun rebuildViewFromModel() {
-        root.let {
-            it.children.clear()
-            it.rowConstraints.clear()
-            it.columnConstraints.clear()
+        root.children.clear()
+        root.rowConstraints.clear()
+        root.columnConstraints.clear()
+        cellFragmentList.clear()
 
-            cellFragmentList.clear()
-
-            for (cell in model.cells()) {
+        model?.let {
+            for (cell in it.cells()) {
                 val cellFragment = CellFragment(cell)
-                cellFragment.dirtyProperty.addListener { _, _, newValue -> if (newValue) refreshView() }
                 cellFragmentList.add(cellFragment)
-                it.add(cellFragment).apply { cellFragment.root.gridpaneConstraints { columnRowIndex(cell.columnIndex, cell.rowIndex) } }
+                root.add(cellFragment).apply {
+                    cellFragment.root.gridpaneConstraints {
+                        columnRowIndex(cell.columnIndex, cell.rowIndex)
+                    }
+                }
             }
 
-            for (i in 0 until model.gridSize) {
+            for (i in 0 until it.gridSize) {
                 val row = RowConstraints(3.0, 100.0, Double.MAX_VALUE)
                 row.vgrow = Priority.ALWAYS
-                it.rowConstraints.add(row)
+                root.rowConstraints.add(row)
             }
 
-            for (i in 0 until model.gridSize) {
+            for (i in 0 until model!!.gridSize) {
                 val col = ColumnConstraints(3.0, 100.0, Double.MAX_VALUE)
                 col.hgrow = Priority.ALWAYS
-                it.columnConstraints.add(col)
+                root.columnConstraints.add(col)
             }
 
+            it.onUpdate { refreshView() }
             refreshView()
         }
     }
 
     fun resetGrid() {
-        model.clear(true)
+        model?.clear(true)
     }
 
     fun refreshView() {
-        val conflicts = if (model.isValid) emptyArray() else model.accept(ConflictDetector())
+        var conflicts = emptyArray<Conflict>()
+
+        model?.let {
+            conflicts = when (it.isValid) {
+                true ->  emptyArray()
+                false -> it.accept(ConflictDetector())
+            }
+        }
 
         for (child in cellFragmentList) {
             child.refreshView(conflicts, gridController.hintProperty.get())

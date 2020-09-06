@@ -20,6 +20,7 @@
 package org.netomi.sudoku.model
 
 import java.util.*
+import kotlin.properties.Delegates
 import kotlin.streams.asSequence
 
 class Grid
@@ -43,7 +44,14 @@ class Grid
 
     private val potentialPositions: Array<MutableCellSet>
 
-    private var stateValid: Boolean
+    private var stateValid: Boolean by Delegates.observable(false) { _, _, newValue ->
+        if (newValue) _onUpdate.invoke()
+    }
+
+    private var _onUpdate: () -> Unit = {}
+    fun onUpdate(target: () -> Unit) {
+        _onUpdate = target
+    }
 
     internal constructor(type: Type) {
         this.type = type
