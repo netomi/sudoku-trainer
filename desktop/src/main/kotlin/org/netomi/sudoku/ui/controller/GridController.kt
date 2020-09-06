@@ -23,6 +23,7 @@ package org.netomi.sudoku.ui.controller
 import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.FXCollections
+import javafx.collections.ObservableList
 import javafx.event.ActionEvent
 import org.netomi.sudoku.io.GridValueLoader
 import org.netomi.sudoku.model.Grid
@@ -35,9 +36,14 @@ import tornadofx.Controller
 class GridController : Controller()
 {
     val modelProperty: ObjectProperty<Grid> = SimpleObjectProperty()
-    val hintProperty:  ObjectProperty<Hint> = SimpleObjectProperty()
+    private val grid: Grid
+        get() = modelProperty.get()
 
-    val hintList = FXCollections.observableArrayList<Hint>()
+    val hintProperty:  ObjectProperty<Hint> = SimpleObjectProperty()
+    private val hint: Hint?
+        get() = hintProperty.get()
+
+    val hintList: ObservableList<Hint>      = FXCollections.observableArrayList()
 
     fun loadModel() {
         //Grid grid = Grid.of(PredefinedType.JIGSAW_1);
@@ -54,6 +60,18 @@ class GridController : Controller()
         val hintSolver = HintSolver()
         val hints = hintSolver.findAllHints(modelProperty.get())
         hintList.setAll(hints.hints)
+    }
+
+    fun applyHint(hint: Hint) {
+        hint.apply(grid, true)
+    }
+
+    fun applyHints(from: Int, to: Int) {
+        for (i in from..to) {
+            val hint = hintList[i]
+            hint.apply(grid, false)
+        }
+        grid.updateState()
     }
 
 }

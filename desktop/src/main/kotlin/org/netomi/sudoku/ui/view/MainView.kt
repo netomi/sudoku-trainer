@@ -79,38 +79,25 @@ class MainView : View("Sudoku Trainer") {
                                 action { gridController.findHints() }
                             }
 
-                            anchorpane {
+                            hintListView = listview {
+                                addClass(Styles.listCell)
+
+                                minWidth = 250.0
                                 useMaxSize = true
                                 vgrow = Priority.ALWAYS
-                                hintListView = listview {
-                                    addClass(Styles.listCell)
 
-                                    anchorpaneConstraints {
-                                        topAnchor = 0.0
-                                        bottomAnchor = 0.0
-                                        leftAnchor = 0.0
-                                        rightAnchor = 0.0
-                                    }
-
-                                    minWidth = 250.0
-
-                                    contextmenu {
-                                        item("Apply").action {
-                                            selectedItem?.apply {
-                                                this.apply(gridController.modelProperty.get(), true)
-                                                gridView.refreshView()
-                                            }
+                                contextmenu {
+                                    item("Apply").action {
+                                        selectedItem?.apply {
+                                            gridController.applyHint(this)
+                                            gridView.refreshView()
                                         }
-                                        item("Apply upto").action {
-                                            selectedItem?.apply {
-                                                val index = this@listview.selectionModel.selectedIndex
-                                                for (i in 0..index) {
-                                                    val hint = gridController.hintList[i]
-                                                    hint.apply(gridController.modelProperty.get(), false)
-                                                }
-                                                gridController.modelProperty.get().updateState()
-                                                gridView.refreshView()
-                                            }
+                                    }
+                                    item("Apply upto").action {
+                                        selectedItem?.apply {
+                                            val index = this@listview.selectionModel.selectedIndex
+                                            gridController.applyHints(0, index)
+                                            gridView.refreshView()
                                         }
                                     }
                                 }
@@ -133,7 +120,8 @@ class MainView : View("Sudoku Trainer") {
                 fontSize.bind(newScene.widthProperty().add(newScene.heightProperty())
                         .divide(1400 + 900)
                         .multiply(100))
-                gridView.root.styleProperty().bind(Bindings.concat("-fx-font-size: ", fontSize.asString("%.0f")).concat("%;"))
+                gridView.root.styleProperty()
+                             .bind(Bindings.concat("-fx-font-size: ", fontSize.asString("%.0f")).concat("%;"))
             }
         })
     }
@@ -145,6 +133,8 @@ class MainView : View("Sudoku Trainer") {
             gridController.hintProperty.set(newValue)
             gridView.refreshView()
         }
+
+        hintListView.focusedProperty().onChange { focused -> if (!focused) hintListView.selectionModel.clearSelection() }
 
         initializeFontSizeManager()
     }

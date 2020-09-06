@@ -60,11 +60,6 @@ class CellFragment(private val cell: Cell) : Fragment()
     private val possibleValuesPane: GridPane
     private val assignedValueLabel: Label
 
-    val row: Int
-        get() = cell.rowIndex
-    val column: Int
-        get() = cell.columnIndex
-
     override val root = stackpane {}
 
     fun refreshView(conflicts: Array<Conflict>, displayedHint: Hint?) {
@@ -218,13 +213,15 @@ class CellFragment(private val cell: Cell) : Fragment()
             possibleValuesPane = gridpane {
                 for (i in 0..2) {
                     val row = RowConstraints(10.0, 20.0, Double.MAX_VALUE)
-                    row.vgrow = Priority.ALWAYS
-                    row.valignment = VPos.CENTER
+                    row.vgrow         = Priority.ALWAYS
+                    row.valignment    = VPos.CENTER
+                    row.percentHeight = 33.0
                     rowConstraints.add(row)
 
                     val col = ColumnConstraints(10.0, 20.0, Double.MAX_VALUE)
-                    col.hgrow = Priority.ALWAYS
-                    col.halignment = HPos.CENTER
+                    col.hgrow        = Priority.ALWAYS
+                    col.halignment   = HPos.CENTER
+                    col.percentWidth = 33.0
                     columnConstraints.add(col)
                 }
             }
@@ -233,6 +230,8 @@ class CellFragment(private val cell: Cell) : Fragment()
             for (i in 0..2) {
                 for (j in 0..2) {
                     val possibleValueLabel = label((possibleValue++).toString()) {
+                        useMaxHeight = true
+                        maxWidth     = 36.0
                         addClass(Styles.cellPossibleValue)
                     }
                     possibleValuesPane.add(possibleValueLabel, j, i)

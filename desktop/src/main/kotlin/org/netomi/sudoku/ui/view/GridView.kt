@@ -26,7 +26,6 @@ import javafx.scene.layout.Priority
 import javafx.scene.layout.RowConstraints
 import org.netomi.sudoku.model.ConflictDetector
 import org.netomi.sudoku.model.Grid
-import org.netomi.sudoku.solver.Hint
 import org.netomi.sudoku.ui.Styles
 import org.netomi.sudoku.ui.controller.GridController
 import tornadofx.*

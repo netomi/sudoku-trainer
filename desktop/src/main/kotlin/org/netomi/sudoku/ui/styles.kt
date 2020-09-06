@@ -19,7 +19,12 @@
  */
 package org.netomi.sudoku.ui
 
+import javafx.geometry.HPos
+import javafx.geometry.Pos
+import javafx.scene.control.ContentDisplay
+import javafx.scene.layout.BackgroundSize
 import javafx.scene.paint.Color
+import javafx.scene.text.TextAlignment
 import tornadofx.*
 
 class Styles : Stylesheet() {
@@ -68,8 +73,7 @@ class Styles : Stylesheet() {
         cellPossibleValue {
             textFill  = Color.GRAY
             fontSize  = 1.5.em
-            prefWidth = 2.em
-            padding   = box(0.px, 0.px, 0.px, 5.px)
+            alignment = Pos.CENTER
         }
 
         cellValueConflict {
@@ -81,12 +85,12 @@ class Styles : Stylesheet() {
         }
 
         cellAssigmentHint {
-            backgroundRadius += box(15.px)
+            backgroundRadius += box(2.em)
             backgroundColor  += Color.LIGHTGREEN
         }
 
         cellEliminationHint {
-            backgroundRadius += box(15.px)
+            backgroundRadius += box(2.em)
             backgroundColor  += Color.LIGHTCORAL
         }
 
