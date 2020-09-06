@@ -29,6 +29,9 @@ class AssignmentHint(type:             Grid.Type,
                      val cellIndex:    Int,
                      val value:        Int) : Hint(type, solvingTechnique)
 {
+    override val description: String
+        get() = "%s=%d".format(gridType.getCellName(cellIndex), value)
+
     override fun apply(targetGrid: Grid, updateGrid: Boolean) {
         targetGrid.getCell(cellIndex).setValue(value, updateGrid)
     }
@@ -50,14 +53,6 @@ class AssignmentHint(type:             Grid.Type,
         return super.equals(o) &&
                cellIndex == that.cellIndex &&
                value     == that.value
-    }
-
-    fun asString(): String {
-        return "%s=%d".format(gridType.getCellName(cellIndex), value)
-    }
-
-    override fun toString(): String {
-        return "%s: %s=%d".format(solvingTechnique.techniqueName, gridType.getCellName(cellIndex), value)
     }
 }
 
@@ -81,6 +76,22 @@ class EliminationHint(type:               Grid.Type,
                  matchingValues,
                  affectedCells,
                  expand(excludedValues, affectedCells.cardinality()))
+
+    override val description: String
+        get() {
+            val values = matchingValues.allSetBits().joinToString ("/") { it.toString() }
+            val cells  = matchingCells.allSetBits().joinToString { gridType.getCellName(it) }
+
+            val eliminations = StringBuilder()
+            for ((index, cellIndex) in affectedCells.allSetBits().withIndex()) {
+                eliminations.append(gridType.getCellName(cellIndex))
+                eliminations.append("<>")
+                eliminations.append(excludedValues[index].toCollection())
+                eliminations.append(", ")
+            }
+            eliminations.delete(eliminations.length - 2, eliminations.length)
+            return "%s in %s => %s".format(values, cells, eliminations)
+        }
 
     override fun apply(targetGrid: Grid, updateGrid: Boolean) {
         for ((index, cell) in affectedCells.allCells(targetGrid).withIndex()) {
@@ -106,21 +117,6 @@ class EliminationHint(type:               Grid.Type,
         return super.equals(o) &&
                affectedCells == that.affectedCells &&
                excludedValues.contentEquals(that.excludedValues)
-    }
-
-    override fun toString(): String {
-        val values = matchingValues.allSetBits().joinToString ("/") { it.toString() }
-        val cells  = matchingCells.allSetBits().joinToString { gridType.getCellName(it) }
-
-        val eliminations = StringBuilder()
-        for ((index, cellIndex) in affectedCells.allSetBits().withIndex()) {
-            eliminations.append(gridType.getCellName(cellIndex))
-            eliminations.append("<>")
-            eliminations.append(excludedValues[index].toCollection())
-            eliminations.append(", ")
-        }
-        eliminations.delete(eliminations.length - 2, eliminations.length)
-        return "%s: %s in %s => %s".format(solvingTechnique.techniqueName, values, cells, eliminations)
     }
 
     @Suppress("UNCHECKED_CAST")

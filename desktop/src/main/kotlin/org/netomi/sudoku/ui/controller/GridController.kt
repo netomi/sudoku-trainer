@@ -22,15 +22,22 @@ package org.netomi.sudoku.ui.controller
 
 import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleObjectProperty
+import javafx.collections.FXCollections
+import javafx.event.ActionEvent
 import org.netomi.sudoku.io.GridValueLoader
 import org.netomi.sudoku.model.Grid
 import org.netomi.sudoku.model.Grid.Companion.of
 import org.netomi.sudoku.model.PredefinedType
+import org.netomi.sudoku.solver.Hint
+import org.netomi.sudoku.solver.HintSolver
 import tornadofx.Controller
 
 class GridController : Controller()
 {
     val modelProperty: ObjectProperty<Grid> = SimpleObjectProperty()
+    val hintProperty:  ObjectProperty<Hint> = SimpleObjectProperty()
+
+    val hintList = FXCollections.observableArrayList<Hint>()
 
     fun loadModel() {
         //Grid grid = Grid.of(PredefinedType.JIGSAW_1);
@@ -42,4 +49,11 @@ class GridController : Controller()
 
         modelProperty.set(grid)
     }
+
+    fun findHints() {
+        val hintSolver = HintSolver()
+        val hints = hintSolver.findAllHints(modelProperty.get())
+        hintList.setAll(hints.hints)
+    }
+
 }

@@ -29,10 +29,7 @@ import org.netomi.sudoku.model.Grid
 import org.netomi.sudoku.solver.Hint
 import org.netomi.sudoku.ui.Styles
 import org.netomi.sudoku.ui.controller.GridController
-import tornadofx.View
-import tornadofx.addClass
-import tornadofx.gridpane
-import tornadofx.gridpaneConstraints
+import tornadofx.*
 
 /**
  * The main grid view to visualize the state of a sudoku grid.
@@ -42,7 +39,6 @@ class GridView : View()
     private val gridController: GridController by inject()
 
     val modelProperty: ObjectProperty<Grid> = SimpleObjectProperty()
-    val hintProperty:  ObjectProperty<Hint> = SimpleObjectProperty()
 
     private val cellFragmentList: ArrayList<CellFragment> = ArrayList()
 
@@ -50,11 +46,12 @@ class GridView : View()
         get() = modelProperty.get()
 
     override val root = gridpane {
+        useMaxSize = true
         addClass(Styles.grid)
     }
 
     private fun rebuildViewFromModel() {
-        root?.let {
+        root.let {
             it.children.clear()
             it.rowConstraints.clear()
             it.columnConstraints.clear()
@@ -92,7 +89,7 @@ class GridView : View()
         val conflicts = if (model.isValid) emptyArray() else model.accept(ConflictDetector())
 
         for (child in cellFragmentList) {
-            child.refreshView(conflicts, hintProperty.value)
+            child.refreshView(conflicts, gridController.hintProperty.get())
         }
     }
 

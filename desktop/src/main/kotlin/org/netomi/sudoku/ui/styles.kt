@@ -27,11 +27,15 @@ class Styles : Stylesheet() {
         val grid by cssclass()
         val cell by cssclass()
 
-        val cellAssignedValue by cssclass()
-        val cellGivenValue    by cssclass()
-        val cellPossibleValue by cssclass()
-        val cellFocus         by cssclass()
-        val cellValueConflict by cssclass()
+        val cellAssignedValue   by cssclass()
+        val cellGivenValue      by cssclass()
+        val cellPossibleValue   by cssclass()
+        val cellFocus           by cssclass()
+        val cellValueConflict   by cssclass()
+        val cellAssigmentHint   by cssclass()
+        val cellEliminationHint by cssclass()
+
+        val listCell by cssclass()
     }
 
     init {
@@ -76,14 +80,21 @@ class Styles : Stylesheet() {
             backgroundColor += Color.YELLOW
         }
 
-//                .cell-direct-hint {
-//            -fx-background-radius: 15 15 15 15;
-//            -fx-background-color: lightgreen;
-//        }
-//
-//                .cell-indirect-hint {
-//            -fx-background-radius: 15 15 15 15;
-//            -fx-background-color: lightcoral;
-//        }
+        cellAssigmentHint {
+            backgroundRadius += box(15.px)
+            backgroundColor  += Color.LIGHTGREEN
+        }
+
+        cellEliminationHint {
+            backgroundRadius += box(15.px)
+            backgroundColor  += Color.LIGHTCORAL
+        }
+
+        listCell {
+            and(empty) {
+                backgroundColor += Color.WHITE
+                borderColor     += box(Color.WHITE)
+            }
+        }
     }
 }

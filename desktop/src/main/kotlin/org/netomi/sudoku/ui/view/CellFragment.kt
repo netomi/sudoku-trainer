@@ -33,7 +33,10 @@ import javafx.scene.Node
 import javafx.scene.control.Label
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
-import javafx.scene.layout.*
+import javafx.scene.layout.ColumnConstraints
+import javafx.scene.layout.GridPane
+import javafx.scene.layout.Priority
+import javafx.scene.layout.RowConstraints
 import org.netomi.sudoku.model.Cell
 import org.netomi.sudoku.model.Conflict
 import org.netomi.sudoku.solver.AssignmentHint
@@ -74,30 +77,38 @@ class CellFragment(private val cell: Cell) : Fragment()
         }
 
         if (foundConflict) {
-            assignedValueLabel.styleClass.remove("cell-value-conflict")
-            assignedValueLabel.styleClass.add("cell-value-conflict")
+            assignedValueLabel.removeClass(Styles.cellValueConflict)
+            assignedValueLabel.addClass(Styles.cellValueConflict)
         } else {
-            assignedValueLabel.styleClass.remove("cell-value-conflict")
+            assignedValueLabel.removeClass(Styles.cellValueConflict)
         }
 
-        possibleValuesPane.children.forEach(Consumer { child: Node -> child.styleClass.remove("cell-direct-hint") })
-        possibleValuesPane.children.forEach(Consumer { child: Node -> child.styleClass.remove("cell-indirect-hint") })
+        possibleValuesPane.children.forEach(Consumer { child: Node -> child.removeClass(Styles.cellAssigmentHint) })
+        possibleValuesPane.children.forEach(Consumer { child: Node -> child.removeClass(Styles.cellEliminationHint) })
 
         displayedHint?.accept(object : HintVisitor {
             override fun visitAnyHint(hint: Hint) {}
 
             override fun visitAssignmentHint(hint: AssignmentHint) {
                 if (hint.cellIndex == cell.cellIndex) {
-                    possibleValuesPane.children[hint.value - 1].styleClass.add("cell-direct-hint")
+                    possibleValuesPane.children[hint.value - 1].addClass(Styles.cellAssigmentHint)
                 }
             }
 
             override fun visitEliminationHint(hint: EliminationHint) {
+                for (cellIndex in hint.matchingCells.allSetBits()) {
+                    if (cellIndex == cell.cellIndex) {
+                        for (value in hint.matchingValues.allSetBits()) {
+                            possibleValuesPane.children[value - 1].addClass(Styles.cellAssigmentHint)
+                        }
+                    }
+                }
+
                 for ((i, cellIndex) in hint.affectedCells.allSetBits().withIndex()) {
                     if (cellIndex == cell.cellIndex) {
                         val excludedValues = hint.excludedValues[i]
                         for (value in excludedValues.allSetBits()) {
-                            possibleValuesPane.children[value - 1].styleClass.add("cell-indirect-hint")
+                            possibleValuesPane.children[value - 1].addClass(Styles.cellEliminationHint)
                         }
                     }
                 }
@@ -202,7 +213,7 @@ class CellFragment(private val cell: Cell) : Fragment()
             style += getBorderStyle(cell)
 
             setMinSize(30.0, 30.0)
-            setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE)
+            useMaxSize = true
 
             possibleValuesPane = gridpane {
                 for (i in 0..2) {

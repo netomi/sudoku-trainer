@@ -63,7 +63,7 @@ abstract class BaseHintFinderTest
                     // Some heuristic to detect if a HintFinder would suddenly find too many hints.
                     assertTrue(hints.size() <= 10, "found " + hints.size() + " hints")
                     for (hint in hints) {
-                        val result = (hint as AssignmentHint).asString()
+                        val result = (hint as AssignmentHint).description
                         if (result == testCase.placement!!.asPlacement()) {
                             foundExpectedResult = true
                             break

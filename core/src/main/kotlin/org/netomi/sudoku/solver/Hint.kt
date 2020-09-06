@@ -25,6 +25,8 @@ import java.util.*
 abstract class Hint protected constructor(val gridType:         Grid.Type,
                                           val solvingTechnique: SolvingTechnique)
 {
+    abstract val description: String
+
     abstract fun apply(targetGrid: Grid, updateGrid: Boolean)
 
     abstract fun accept(visitor: HintVisitor)
@@ -39,6 +41,10 @@ abstract class Hint protected constructor(val gridType:         Grid.Type,
         val hint = o as Hint
         return gridType         == hint.gridType &&
                solvingTechnique == hint.solvingTechnique
+    }
+
+    override fun toString(): String {
+        return "%s: %s".format(solvingTechnique.techniqueName, description)
     }
 }
 
