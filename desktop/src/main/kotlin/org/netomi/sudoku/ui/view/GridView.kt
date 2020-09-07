@@ -38,7 +38,7 @@ class GridView : View()
 {
     private val gridController: GridController by inject()
 
-    private val modelProperty: ObjectProperty<Grid> = SimpleObjectProperty()
+    private val modelProperty: ObjectProperty<Grid?> = SimpleObjectProperty()
     private val cellFragmentList: ArrayList<CellFragment> = ArrayList()
 
     private val model: Grid?

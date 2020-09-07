@@ -24,7 +24,8 @@ import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
-import javafx.event.ActionEvent
+import javafx.scene.control.Alert
+import javafx.scene.control.ButtonType
 import javafx.scene.input.Clipboard
 import javafx.scene.input.DataFormat
 import org.netomi.sudoku.io.GridValueLoader
@@ -63,7 +64,19 @@ class GridController : Controller()
     fun loadModelFromClipboard() {
         val data = Clipboard.getSystemClipboard().getContent(DataFormat.PLAIN_TEXT) as String?
         data?.apply {
-            grid?.accept(GridValueLoader(data))
+            grid?.apply {
+                try {
+                    val newGrid = copy()
+                    newGrid.clear(true)
+                    newGrid.accept(GridValueLoader(data))
+                    modelProperty.set(newGrid)
+                } catch (ex: RuntimeException) {
+                    ex.printStackTrace()
+
+                    val alert = Alert(Alert.AlertType.ERROR, "failed to load model from clipboard", ButtonType.OK)
+                    alert.showAndWait()
+                }
+            }
         }
     }
 
