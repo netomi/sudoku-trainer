@@ -19,17 +19,14 @@
  */
 package org.netomi.sudoku.ui.view
 
+import javafx.application.Platform
 import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleDoubleProperty
-import javafx.beans.value.ObservableValue
 import javafx.geometry.Side
 import javafx.scene.Scene
-import javafx.scene.control.ListCell
 import javafx.scene.control.ListView
 import javafx.scene.layout.Priority
-import javafx.util.Callback
 import org.netomi.sudoku.solver.Hint
-import org.netomi.sudoku.ui.Styles
 import org.netomi.sudoku.ui.controller.GridController
 import tornadofx.*
 
@@ -43,23 +40,14 @@ class MainView : View("Sudoku Trainer") {
         vbox {
             menubar {
                 menu("File") {
-                    item("New").action {
-                        //workspace.dock(mainView, true)
-                        log.info("Opening new sudoku grid")
-                        //workspace.dock(gridController.newModel(), true)
+                    item("New sudoku").action {
+                        log.info("Creating new sudoku")
                     }
                     separator()
                     item("Exit").action {
-                        log.info("Leaving workspace")
-                        javafx.application.Platform.exit()
+                        log.info("Exiting application")
+                        Platform.exit()
                     }
-                }
-                menu("Window") {
-                    item("Close all").action {
-                        //editorController.editorModelList.clear()
-                        //workspace.dock(EmptyView(),true)
-                    }
-                    separator()
                 }
                 menu("Help") {
                     item("About...")
@@ -80,7 +68,7 @@ class MainView : View("Sudoku Trainer") {
                             }
 
                             hintListView = listview {
-                                addClass(Styles.listCell)
+                                //addClass(Styles.listCell)
 
                                 minWidth = 250.0
                                 useMaxSize = true
@@ -129,7 +117,7 @@ class MainView : View("Sudoku Trainer") {
     init {
         hintListView.items = gridController.hintList
 
-        hintListView.selectionModel.selectedItemProperty().addListener { _: ObservableValue<out Hint>, _: Hint?, newValue: Hint? ->
+        hintListView.selectionModel.selectedItemProperty().addListener { _, _, newValue: Hint? ->
             gridController.hintProperty.set(newValue)
             gridView.refreshView()
         }

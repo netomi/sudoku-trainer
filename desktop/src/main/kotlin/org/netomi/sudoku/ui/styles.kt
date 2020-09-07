@@ -19,12 +19,8 @@
  */
 package org.netomi.sudoku.ui
 
-import javafx.geometry.HPos
 import javafx.geometry.Pos
-import javafx.scene.control.ContentDisplay
-import javafx.scene.layout.BackgroundSize
 import javafx.scene.paint.Color
-import javafx.scene.text.TextAlignment
 import tornadofx.*
 
 class Styles : Stylesheet() {
@@ -39,16 +35,9 @@ class Styles : Stylesheet() {
         val cellValueConflict   by cssclass()
         val cellAssigmentHint   by cssclass()
         val cellEliminationHint by cssclass()
-
-        val listCell by cssclass()
     }
 
     init {
-        root {
-            prefHeight = 600.px
-            prefWidth  = 800.px
-        }
-
         grid {
             borderColor += box(Color.BLACK)
             borderWidth += box(2.px)
@@ -94,11 +83,9 @@ class Styles : Stylesheet() {
             backgroundColor  += Color.LIGHTCORAL
         }
 
-        listCell {
-            and(empty) {
-                backgroundColor += Color.WHITE
-                borderColor     += box(Color.WHITE)
-            }
+        listCell and empty {
+            backgroundColor += Color.WHITE
+            borderColor     += box(Color.WHITE)
         }
     }
 }
