@@ -9,35 +9,33 @@ import java.io.InputStreamReader
 
 object SpeedTest {
     private fun solveGrid(grid: Grid, solver: GridSolver): Grid {
-        val solvedGrid: Grid = solver.solve(grid)
-//        return if (!solvedGrid.isSolved) {
-//            val bfSolver = BruteForceSolver()
-//            bfSolver.solve(solvedGrid)
-//        } else {
-            return solvedGrid
-//        }
+        return solver.solve(grid)
     }
 
     @Throws(IOException::class)
     @JvmStatic
     fun main(args: Array<String>) {
-        //GridSolver solver = new BruteForceSolver();
-        val solver: GridSolver = HintSolver()
         val `is` = SpeedTest::class.java.getResourceAsStream("/all_17_clue_sudokus.txt")
+        //val `is` = SpeedTest::class.java.getResourceAsStream("/hard_sudokus.txt")
+
         val reader = BufferedReader(InputStreamReader(`is`))
         val tests = Integer.valueOf(reader.readLine())
+
         val grid: Grid = Grid.of(PredefinedType.CLASSIC_9x9)
+        val solver = BruteForceSolver()
+        //val solver = HintSolver()
+
         for (i in 0 until tests) {
             val input = reader.readLine()
             grid.clear()
             grid.accept(GridValueLoader(input))
             val start = System.nanoTime()
-            val grid2: Grid = solveGrid(grid, solver)
+            val result: Grid = solveGrid(grid, solver)
             val end = System.nanoTime()
 
-            if (!grid2.isSolved) {
+            if (!result.isSolved) {
                 println(input)
-                println("Solved sudoku in " + (end - start) / 1e6 + " ms " + (i + 1) + " valid = " + grid2.isValid + " solved = " + grid2.isSolved)
+                println("Solved " + (i + 1) + " sudoku in " + (end - start) / 1e6 + " ms, valid = " + result.isValid + ", solved = " + result.isSolved)
             }
         }
     }

@@ -21,32 +21,40 @@ package org.netomi.sudoku.solver
 
 import org.netomi.sudoku.model.Cell
 import org.netomi.sudoku.model.Grid
-import org.netomi.sudoku.model.MutableValueSet
-import org.netomi.sudoku.model.ValueSet
 import org.netomi.sudoku.solver.techniques.HiddenSingleFinder
 import org.netomi.sudoku.solver.techniques.NakedSingleFinder
-import java.lang.IllegalStateException
 import java.util.*
 
-class BruteForceSolver : GridSolver {
+class BruteForceSolver : GridSolver
+{
     private val hintSolver: HintSolver = HintSolver(NakedSingleFinder(), HiddenSingleFinder())
 
-    private var guesses = 0
-    private var backtracks = 0
-    private var direct_propagation = 0
+    // some statistics
+
+    var guesses = 0
+        private set
+
+    var backtracks = 0
+        private set
+
+    var directPropagations = 0
+        private set
 
     override fun solve(grid: Grid): Grid {
         return solve(grid, true)
     }
 
     fun solve(grid: Grid, forward: Boolean): Grid {
-        backtracks = 0
-        guesses = 0
-        direct_propagation = 0
+        guesses            = 0
+        backtracks         = 0
+        directPropagations = 0
+
         val searchGrid = grid.copy()
         val cellSet: MutableSet<Cell> = LinkedHashSet()
+
         searchGrid.unassignedCells().forEach { cell -> cellSet.add(cell) }
-        val success = solveRecursive(searchGrid, cellSet, forward)
+        solveRecursive(searchGrid, cellSet, forward)
+
         return searchGrid
     }
 
@@ -55,15 +63,16 @@ class BruteForceSolver : GridSolver {
             return true
         }
 
-        val hints = hintSolver.findNextHint(grid)
-        if (hints.hints.isNotEmpty()) {
-            val hint = hints.hints.iterator().next() as AssignmentHint
-            val cellIndex = hint.cellIndex
-            hint.apply(grid, true)
-            direct_propagation++
+        val hint = hintSolver.findNextHint(grid)
+        hint?.apply {
+            val assignmentHint = this as AssignmentHint
 
-            val cell = grid.getCell(cellIndex)
+            assignmentHint.apply(grid, true)
+            directPropagations++
+
+            val cell = grid.getCell(assignmentHint.cellIndex)
             unassignedCells.remove(cell)
+
             if (solveRecursive(grid, unassignedCells, forward)) {
                 return true
             }
@@ -75,13 +84,17 @@ class BruteForceSolver : GridSolver {
         }
 
         val nextCell = selectNextCell(unassignedCells)
-        val possibleValues: MutableValueSet = nextCell.possibleValueSet.toMutableValueSet()
+        val possibleValues = nextCell.possibleValueSet.toMutableValueSet()
+
+        // try all remaining possible values of the current cell
+        // and traverse all other cells recursively. Slow but guaranteed
+        // to solve the sudoku grid.
         while (possibleValues.cardinality() > 0) {
             if (possibleValues.cardinality() > 1) {
                 guesses++
             }
 
-            var value: Int = if (forward) {
+            val value = if (forward) {
                 possibleValues.firstSetBit()
             } else {
                 possibleValues.previousSetBit(possibleValues.lastBitIndex)
@@ -89,6 +102,7 @@ class BruteForceSolver : GridSolver {
 
             possibleValues.clear(value)
             nextCell.value = value
+
             if (solveRecursive(grid, unassignedCells, forward)) {
                 return true
             }
@@ -100,25 +114,32 @@ class BruteForceSolver : GridSolver {
         return false
     }
 
+    /**
+     * Select the next cell. The decision is based on the remaining
+     * possible values to be used. The cell with the fewest possible
+     * values is selected.
+     */
     private fun selectNextCell(cellSet: MutableSet<Cell>): Cell {
         val domains = arrayOfNulls<Cell>(9)
+
         for (cell in cellSet) {
             val cardinality = cell.possibleValueSet.cardinality()
-            if (cardinality == 0) {
+            if (cardinality <= 1) {
                 return cell
             }
+
             if (domains[cardinality - 1] == null) {
                 domains[cardinality - 1] = cell
             }
         }
+
         for (cell in domains) {
-            if (cell != null) {
-                cellSet.remove(cell)
-                return cell
+            cell?.apply {
+                cellSet.remove(this)
+                return this
             }
         }
 
         throw AssertionError("impossible")
     }
-
 }

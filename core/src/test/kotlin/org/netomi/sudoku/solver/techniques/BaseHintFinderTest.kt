@@ -57,6 +57,8 @@ abstract class BaseHintFinderTest
                     val cell = grid.getCell(c.row, c.col)
                     cell.excludePossibleValues(false, c.value)
                 }
+                grid.updateState()
+
                 val hints = solver.findAllHintsSingleStep(grid)
                 var foundExpectedResult = false
                 if (testCase.expectsDirectHint()) {

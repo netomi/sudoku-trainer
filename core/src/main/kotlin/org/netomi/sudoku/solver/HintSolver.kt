@@ -66,23 +66,6 @@ class HintSolver : GridSolver
         return searchGrid
     }
 
-    fun findAllHintsSingleStep(grid: Grid): HintAggregator {
-        val searchGrid     = grid.copy()
-        val hintAggregator = HintAggregator()
-
-        try {
-            for (hintFinder in finderList) {
-                hintFinder.findHints(searchGrid, hintAggregator)
-            }
-        } catch (ex: HintAggregatorExhaustedException) {
-            // do nothing
-        } catch (ex: RuntimeException) {
-            ex.printStackTrace()
-        }
-
-        return hintAggregator
-    }
-
     fun findAllHints(grid: Grid): HintAggregator {
         val searchGrid = grid.copy()
         val allHints   = HintAggregator()
@@ -110,9 +93,15 @@ class HintSolver : GridSolver
         return allHints
     }
 
-    fun findNextHint(grid: Grid): HintAggregator {
-        val hintAggregator = SingleHintAggregator()
+    fun findAllHintsSingleStep(grid: Grid): HintAggregator {
+        return findHintsSingleStep(grid, HintAggregator())
+    }
 
+    fun findNextHint(grid: Grid): Hint? {
+        return findHintsSingleStep(grid, SingleHintAggregator()).firstOrNull()
+    }
+
+    private fun findHintsSingleStep(grid: Grid, hintAggregator: HintAggregator): HintAggregator {
         try {
             for (hintFinder in finderList) {
                 hintFinder.findHints(grid, hintAggregator)

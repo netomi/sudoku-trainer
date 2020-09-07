@@ -315,6 +315,10 @@ class Grid
     }
 
     fun updateState() {
+        if (stateValid) {
+            return
+        }
+
         // First: reset the possible values in all cells.
         cells().forEach { obj -> obj.resetPossibleValues() }
 
