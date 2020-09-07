@@ -28,9 +28,9 @@ import javafx.event.EventHandler
 import javafx.geometry.HPos
 import javafx.geometry.VPos
 import javafx.scene.Node
+import javafx.scene.control.ContextMenu
 import javafx.scene.control.Label
-import javafx.scene.input.KeyCode
-import javafx.scene.input.KeyEvent
+import javafx.scene.input.*
 import javafx.scene.layout.ColumnConstraints
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.Priority
@@ -42,6 +42,7 @@ import org.netomi.sudoku.solver.EliminationHint
 import org.netomi.sudoku.solver.Hint
 import org.netomi.sudoku.solver.HintVisitor
 import org.netomi.sudoku.ui.Styles
+import org.netomi.sudoku.ui.model.DisplayOptions
 import tornadofx.*
 import java.lang.RuntimeException
 import java.util.function.Consumer
@@ -129,7 +130,12 @@ class CellFragment(private val cell: Cell) : Fragment()
         })
 
         valueProperty.set(cell.value)
-        possibleValuesProperty.setAll(*cell.possibleValueSet.toArray())
+
+        if (DisplayOptions.displayPossibleValues) {
+            possibleValuesProperty.setAll(*cell.possibleValueSet.toArray())
+        } else {
+            possibleValuesProperty.setAll(*cell.excludedValueSet.inverse().toArray())
+        }
     }
 
     private fun setupEventListeners() {
@@ -212,6 +218,70 @@ class CellFragment(private val cell: Cell) : Fragment()
                    adjacentCellIndex < cell.owner.cellCount) { cell.owner.getCell(adjacentCellIndex) } else null
     }
 
+    private fun buildAndDisplayContextMenu(event: ContextMenuEvent) {
+        val contextMenu = ContextMenu()
+
+        if (!cell.isAssigned) {
+            if (DisplayOptions.displayPossibleValues) {
+                // add assignment items
+                for (value in cell.possibleValueSet.allSetBits()) {
+                    contextMenu.item("Assign $value").action {
+                        cell.setValue(value, true)
+                    }
+                }
+
+                contextMenu.separator()
+
+                // add exclude possible values items
+                for (value in cell.possibleValueSet.allSetBits()) {
+                    contextMenu.item("Exclude $value").action {
+                        cell.excludePossibleValues(true, value)
+                    }
+                }
+
+                contextMenu.separator()
+
+                // add include previously excluded value items
+                for (value in cell.excludedValueSet.allSetBits()) {
+                    contextMenu.item("Include $value").action {
+                        cell.removeExcludedPossibleValues(true, value)
+                    }
+                }
+            } else {
+                // add assignment items
+                for (value in cell.excludedValueSet.allUnsetBits()) {
+                    contextMenu.item("Assign $value").action {
+                        cell.setValue(value, true)
+                    }
+                }
+
+                contextMenu.separator()
+
+                // add exclude possible values items
+                for (value in cell.excludedValueSet.allUnsetBits()) {
+                    contextMenu.item("Exclude $value").action {
+                        cell.excludePossibleValues(true, value)
+                    }
+                }
+
+                contextMenu.separator()
+
+                // add include previously excluded value items
+                for (value in cell.excludedValueSet.allSetBits()) {
+                    contextMenu.item("Include $value").action {
+                        cell.removeExcludedPossibleValues(true, value)
+                    }
+                }
+            }
+        } else if (!cell.isGiven) {
+            contextMenu.item("Delete value from cell").action {
+                cell.setValue(0, true)
+            }
+        }
+
+        contextMenu.show(root, event.screenX, event.screenY)
+    }
+
     override fun toString(): String {
         return cell.toString()
     }
@@ -273,6 +343,25 @@ class CellFragment(private val cell: Cell) : Fragment()
                     addClass(Styles.cellAssignedValue)
                 }
                 isVisible = false
+            }
+
+            setOnContextMenuRequested {
+                buildAndDisplayContextMenu(it)
+            }
+
+            setOnMouseClicked { event: MouseEvent ->
+                if (event.button === MouseButton.PRIMARY &&
+                    event.clickCount == 2) {
+                    if (DisplayOptions.displayPossibleValues) {
+                        if (cell.possibleValueSet.cardinality() == 1) {
+                            cell.setValue(cell.possibleValueSet.firstSetBit(), true)
+                        }
+                    } else {
+                        if (cell.excludedValueSet.cardinality() == cell.owner.gridSize - 1) {
+                            cell.setValue(cell.excludedValueSet.firstUnsetBit(), true)
+                        }
+                    }
+                }
             }
         }
 

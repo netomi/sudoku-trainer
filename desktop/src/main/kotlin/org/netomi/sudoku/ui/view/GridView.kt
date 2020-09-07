@@ -29,6 +29,7 @@ import org.netomi.sudoku.model.ConflictDetector
 import org.netomi.sudoku.model.Grid
 import org.netomi.sudoku.ui.Styles
 import org.netomi.sudoku.ui.controller.GridController
+import org.netomi.sudoku.ui.model.DisplayOptions
 import tornadofx.*
 
 /**

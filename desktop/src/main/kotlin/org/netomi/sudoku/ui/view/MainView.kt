@@ -23,7 +23,6 @@ import javafx.application.Platform
 import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.collections.FXCollections
-import javafx.collections.ObservableList
 import javafx.geometry.Side
 import javafx.scene.Scene
 import javafx.scene.control.ButtonBar
@@ -33,8 +32,8 @@ import javafx.scene.layout.Priority
 import org.netomi.sudoku.model.PredefinedType
 import org.netomi.sudoku.solver.Hint
 import org.netomi.sudoku.ui.controller.GridController
+import org.netomi.sudoku.ui.model.DisplayOptions
 import tornadofx.*
-import java.util.*
 
 class MainView : View("Sudoku Trainer") {
     private val gridController: GridController by inject()
@@ -76,7 +75,7 @@ class MainView : View("Sudoku Trainer") {
                 left = drawer(side = Side.LEFT) {
                     item("Layout", expanded = true) {
                         form {
-                            fieldset {
+                            fieldset("General settings") {
                                 field("Grid Layout") {
                                     combobox<PredefinedType> {
                                         gridTypeComboBox = this
@@ -85,13 +84,26 @@ class MainView : View("Sudoku Trainer") {
                                         selectionModel.select(PredefinedType.CLASSIC_9x9)
                                     }
                                 }
-                            }
-                            buttonbar {
-                                button("Reset") {
-                                    ButtonBar.setButtonData(this@button, ButtonBar.ButtonData.APPLY)
 
-                                    action {
-                                        gridController.resetModel(gridTypeComboBox.selectedItem ?: PredefinedType.CLASSIC_9x9)
+                                buttonbar {
+                                    button("Reset") {
+                                        ButtonBar.setButtonData(this@button, ButtonBar.ButtonData.LEFT)
+
+                                        action {
+                                            gridController.resetModel(gridTypeComboBox.selectedItem ?: PredefinedType.CLASSIC_9x9)
+                                        }
+                                    }
+                                }
+                            }
+
+                            fieldset("Display settings") {
+                                field("Display possible values") {
+                                    checkbox {
+                                        selectedProperty().set(true)
+                                        selectedProperty().bindBidirectional(DisplayOptions.displayPossibleValuesProperty)
+                                        action {
+                                            gridView.refreshView()
+                                        }
                                     }
                                 }
                             }

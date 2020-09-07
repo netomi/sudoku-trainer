@@ -211,6 +211,14 @@ abstract class AbstractBitSetImpl<in T : SimpleBitSet, out R>(final override val
 
 interface ValueSet : SimpleBitSet
 {
+    fun inverse(): MutableValueSet {
+        val valueSet = toMutableValueSet()
+        for (idx in 1..lastBitIndex) {
+            valueSet.bits.flip(idx)
+        }
+        return valueSet
+    }
+
     fun toMutableValueSet(): MutableValueSet {
         return MutableValueSet(this)
     }
