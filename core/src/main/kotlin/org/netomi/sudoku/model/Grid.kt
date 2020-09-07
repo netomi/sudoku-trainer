@@ -93,7 +93,7 @@ class Grid
 
         potentialPositions = Array(gridSize) { MutableCellSet.empty(this) }
 
-        stateValid = false
+        stateValid = true
     }
 
     /**

@@ -72,7 +72,7 @@ class GridView : View()
                 root.rowConstraints.add(row)
             }
 
-            for (i in 0 until model!!.gridSize) {
+            for (i in 0 until it.gridSize) {
                 val col = ColumnConstraints(3.0, 100.0, Double.MAX_VALUE)
                 col.hgrow = Priority.ALWAYS
                 root.columnConstraints.add(col)

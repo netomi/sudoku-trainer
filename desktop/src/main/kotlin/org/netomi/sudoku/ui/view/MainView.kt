@@ -22,19 +22,27 @@ package org.netomi.sudoku.ui.view
 import javafx.application.Platform
 import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleDoubleProperty
+import javafx.collections.FXCollections
+import javafx.collections.ObservableList
 import javafx.geometry.Side
 import javafx.scene.Scene
+import javafx.scene.control.ButtonBar
+import javafx.scene.control.ComboBox
 import javafx.scene.control.ListView
 import javafx.scene.layout.Priority
+import org.netomi.sudoku.model.PredefinedType
 import org.netomi.sudoku.solver.Hint
 import org.netomi.sudoku.ui.controller.GridController
 import tornadofx.*
+import java.util.*
 
 class MainView : View("Sudoku Trainer") {
     private val gridController: GridController by inject()
 
     private val gridView: GridView by inject()
-    private lateinit var hintListView: ListView<Hint>
+
+    private lateinit var hintListView:     ListView<Hint>
+    private lateinit var gridTypeComboBox: ComboBox<PredefinedType>
 
     override val root =
         vbox {
@@ -49,6 +57,11 @@ class MainView : View("Sudoku Trainer") {
                         Platform.exit()
                     }
                 }
+                menu("Edit") {
+                    item("Paste values").action {
+                        gridController.loadModelFromClipboard()
+                    }
+                }
                 menu("Help") {
                     item("About...")
                 }
@@ -61,18 +74,41 @@ class MainView : View("Sudoku Trainer") {
                 center = gridView.root
 
                 left = drawer(side = Side.LEFT) {
-                    item("Solver", expanded = true) {
+                    item("Layout", expanded = true) {
+                        form {
+                            fieldset {
+                                field("Grid Layout") {
+                                    combobox<PredefinedType> {
+                                        gridTypeComboBox = this
+
+                                        items = FXCollections.observableArrayList(*PredefinedType.values())
+                                        selectionModel.select(PredefinedType.CLASSIC_9x9)
+                                    }
+                                }
+                            }
+                            buttonbar {
+                                button("Reset") {
+                                    ButtonBar.setButtonData(this@button, ButtonBar.ButtonData.APPLY)
+
+                                    action {
+                                        gridController.resetModel(gridTypeComboBox.selectedItem ?: PredefinedType.CLASSIC_9x9)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    item("Solver") {
                         vbox {
                             button("Solve") {
                                 action { gridController.findHints() }
                             }
 
-                            hintListView = listview {
-                                //addClass(Styles.listCell)
+                            listview<Hint> {
+                                hintListView = this
 
-                                minWidth = 250.0
+                                minWidth   = 250.0
                                 useMaxSize = true
-                                vgrow = Priority.ALWAYS
+                                vgrow      = Priority.ALWAYS
 
                                 contextmenu {
                                     item("Apply").action {

@@ -20,9 +20,7 @@
 package org.netomi.sudoku.ui.view
 
 import javafx.beans.binding.Bindings
-import javafx.beans.property.BooleanProperty
 import javafx.beans.property.IntegerProperty
-import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.collections.FXCollections
 import javafx.collections.ObservableIntegerArray
@@ -45,6 +43,7 @@ import org.netomi.sudoku.solver.Hint
 import org.netomi.sudoku.solver.HintVisitor
 import org.netomi.sudoku.ui.Styles
 import tornadofx.*
+import java.lang.RuntimeException
 import java.util.function.Consumer
 
 /**
@@ -55,14 +54,20 @@ class CellFragment(private val cell: Cell) : Fragment()
     private val valueProperty: IntegerProperty = SimpleIntegerProperty(0)
     private val possibleValuesProperty         = FXCollections.observableIntegerArray()
 
-    val dirtyProperty: BooleanProperty = SimpleBooleanProperty(false)
-
     private val possibleValuesPane: GridPane
     private val assignedValueLabel: Label
 
     override val root = stackpane {}
 
     fun refreshView(conflicts: Array<Conflict>, displayedHint: Hint?) {
+        assignedValueLabel.apply {
+            if (cell.isGiven) {
+                addClass(Styles.cellGivenValue)
+            } else {
+                addClass(Styles.cellAssignedValue)
+            }
+        }
+
         var foundConflict = false
         for (conflict in conflicts) {
             if (conflict.contains(cell)) {
@@ -125,7 +130,6 @@ class CellFragment(private val cell: Cell) : Fragment()
 
         valueProperty.set(cell.value)
         possibleValuesProperty.setAll(*cell.possibleValueSet.toArray())
-        dirtyProperty.set(false)
     }
 
     private fun setupEventListeners() {
@@ -139,13 +143,11 @@ class CellFragment(private val cell: Cell) : Fragment()
                     event.code == KeyCode.BACK_SPACE) {
                     cell.value = 0
                     valueProperty.value = 0
-                    dirtyProperty.set(true)
                 } else {
                     try {
                         val newValue = event.text.toInt()
                         cell.value = newValue
                         valueProperty.value = newValue
-                        dirtyProperty.set(true)
                     } catch (ex: NumberFormatException) {}
                 }
             }
@@ -223,25 +225,38 @@ class CellFragment(private val cell: Cell) : Fragment()
             setMinSize(30.0, 30.0)
             useMaxSize = true
 
+            val rows = when (cell.owner.gridSize) {
+                4    -> 2
+                6    -> 2
+                9    -> 3
+                else -> throw RuntimeException("unexpected grid size " + cell.owner.gridSize)
+            }
+            val cols = cell.owner.gridSize / rows
+
+            val percentageRow = 100.0 / rows
+            val percentageCol = 100.0 / cols
+
             possibleValuesPane = gridpane {
-                for (i in 0..2) {
+                for (i in 0 until rows) {
                     val row = RowConstraints(10.0, 20.0, Double.MAX_VALUE)
                     row.vgrow         = Priority.ALWAYS
                     row.valignment    = VPos.CENTER
-                    row.percentHeight = 33.0
+                    row.percentHeight = percentageRow
                     rowConstraints.add(row)
+                }
 
+                for (i in 0 until cols) {
                     val col = ColumnConstraints(10.0, 20.0, Double.MAX_VALUE)
                     col.hgrow        = Priority.ALWAYS
                     col.halignment   = HPos.CENTER
-                    col.percentWidth = 33.0
+                    col.percentWidth = percentageCol
                     columnConstraints.add(col)
                 }
             }
 
             var possibleValue = 1
-            for (i in 0..2) {
-                for (j in 0..2) {
+            for (i in 0 until rows) {
+                for (j in 0 until cols) {
                     val possibleValueLabel = label((possibleValue++).toString()) {
                         useMaxHeight = true
                         maxWidth     = 36.0

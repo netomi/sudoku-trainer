@@ -25,6 +25,8 @@ import javafx.beans.property.SimpleObjectProperty
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
 import javafx.event.ActionEvent
+import javafx.scene.input.Clipboard
+import javafx.scene.input.DataFormat
 import org.netomi.sudoku.io.GridValueLoader
 import org.netomi.sudoku.model.Grid
 import org.netomi.sudoku.model.Grid.Companion.of
@@ -35,8 +37,8 @@ import tornadofx.Controller
 
 class GridController : Controller()
 {
-    val modelProperty: ObjectProperty<Grid> = SimpleObjectProperty()
-    private val grid: Grid
+    val modelProperty: ObjectProperty<Grid?> = SimpleObjectProperty()
+    private val grid: Grid?
         get() = modelProperty.get()
 
     val hintProperty:  ObjectProperty<Hint> = SimpleObjectProperty()
@@ -48,30 +50,48 @@ class GridController : Controller()
     fun loadModel() {
         //Grid grid = Grid.of(PredefinedType.JIGSAW_1);
         val grid = of(PredefinedType.CLASSIC_9x9)
-        //String input = "3.......4..2.6.1...1.9.8.2...5...6...2.....1...9...8...8.3.4.6...4.1.9..5.......7"; // jigsaw
-        val input = "4.....8.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......" // 9x9
-        //String input = "000000010400000000020000000000050407008000300001090000300400200050100000000806000"; // 9x9
+        //val input = "3.......4..2.6.1...1.9.8.2...5...6...2.....1...9...8...8.3.4.6...4.1.9..5.......7"; // jigsaw
+        //val input = "4.....8.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......" // 9x9
+        //val input = "000000010400000000020000000000050407008000300001090000300400200050100000000806000"; // 9x9
+        val input = "..+1.+4+9+2+636+3.21+7+9+4.942+63..+7.2634.+17.98.+4.+9..2...+9.+6+2.+34..7..4.9.+4..9+7631..+9+6.+2.+4.7"
+
         grid.accept(GridValueLoader(input))
 
         modelProperty.set(grid)
     }
 
+    fun loadModelFromClipboard() {
+        val data = Clipboard.getSystemClipboard().getContent(DataFormat.PLAIN_TEXT) as String?
+        data?.apply {
+            grid?.accept(GridValueLoader(data))
+        }
+    }
+
+    fun resetModel(type: PredefinedType) {
+        modelProperty.set(of(type))
+    }
+
     fun findHints() {
-        val hintSolver = HintSolver()
-        val hints = hintSolver.findAllHints(modelProperty.get())
-        hintList.setAll(hints.hints)
+        grid?.apply {
+            val hintSolver = HintSolver()
+            val hints = hintSolver.findAllHints(this)
+            hintList.setAll(hints.hints)
+        }
     }
 
     fun applyHint(hint: Hint) {
-        hint.apply(grid, true)
+        grid?.apply {
+            hint.apply(this, true)
+        }
     }
 
     fun applyHints(from: Int, to: Int) {
-        for (i in from..to) {
-            val hint = hintList[i]
-            hint.apply(grid, false)
+        grid?.apply {
+            for (i in from..to) {
+                val hint = hintList[i]
+                hint.apply(this, false)
+            }
+            updateState()
         }
-        grid.updateState()
     }
-
 }
