@@ -219,6 +219,10 @@ interface ValueSet : SimpleBitSet
         return valueSet
     }
 
+    fun copy(): ValueSet {
+        return toMutableValueSet()
+    }
+
     fun toMutableValueSet(): MutableValueSet {
         return MutableValueSet(this)
     }
@@ -370,6 +374,10 @@ interface CellSet : SimpleBitSet
 
     fun toCellList(grid: Grid): MutableList<Cell> {
         return allCells(grid).toMutableList()
+    }
+
+    fun copy(): CellSet {
+        return toMutableCellSet()
     }
 
     fun toMutableCellSet(): MutableCellSet {

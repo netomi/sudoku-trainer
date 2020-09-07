@@ -32,9 +32,13 @@ import org.netomi.sudoku.io.GridValueLoader
 import org.netomi.sudoku.model.Grid
 import org.netomi.sudoku.model.Grid.Companion.of
 import org.netomi.sudoku.model.PredefinedType
+import org.netomi.sudoku.solver.BruteForceSolver
 import org.netomi.sudoku.solver.Hint
 import org.netomi.sudoku.solver.HintSolver
+import org.netomi.sudoku.solver.ValueSelection
 import tornadofx.Controller
+import tornadofx.onChange
+import kotlin.random.Random
 
 class GridController : Controller()
 {
@@ -81,6 +85,32 @@ class GridController : Controller()
     }
 
     fun resetModel(type: PredefinedType) {
+        val grid = of(type)
+
+        var count = 0
+        do {
+            grid.clear(true)
+
+            val solver = BruteForceSolver()
+            val fullGrid = solver.solve(grid, ValueSelection.RANDOM)
+
+            val testGrid = fullGrid.copy()
+
+            while (testGrid.assignedCells().count() > 30) {
+                val idx = Random.nextInt(grid.cellCount)
+                testGrid.getCell(idx).setValue(0, false)
+            }
+            testGrid.updateState()
+
+            val hintSolver = HintSolver()
+            val solvedGrid = hintSolver.solve(testGrid)
+            if (solvedGrid.isValid && solvedGrid.isSolved) {
+                testGrid.assignedCells().forEach { it.isGiven = true }
+                modelProperty.set(testGrid)
+                return
+            }
+        } while(count++ < 1000)
+
         modelProperty.set(of(type))
     }
 
@@ -106,5 +136,9 @@ class GridController : Controller()
             }
             updateState()
         }
+    }
+
+    init {
+        modelProperty.onChange { hintList.clear() }
     }
 }

@@ -38,7 +38,7 @@ internal interface BaseHintFinder : HintFinder
                          peerSet:        CellSet,
                          value:          Int)
     {
-        hintAggregator.addHint(AssignmentHint(grid.type, solvingTechnique, cellIndex, peerSet, value))
+        hintAggregator.addHint(AssignmentHint(grid.type, solvingTechnique, cellIndex, peerSet.copy(), value))
     }
 
     /**
@@ -73,7 +73,7 @@ internal interface BaseHintFinder : HintFinder
                                                    solvingTechnique,
                                                    affectedCells,
                                                    eliminations,
-                                                   affectedHouse.cellSet,
+                                                   affectedHouse.cellSet.copy(),
                                                    cellsToModify,
                                                    eliminations))
         }
@@ -104,11 +104,12 @@ internal interface BaseHintFinder : HintFinder
         }
 
         if (cellsToModify.cardinality() > 0) {
+            val affectedCellCopy = affectedCells.copy()
             hintAggregator.addHint(EliminationHint(grid.type,
                                                    solvingTechnique,
-                                                   affectedCells,
-                                                   allowedValues,
-                                                   affectedCells,
+                                                   affectedCellCopy,
+                                                   allowedValues.copy(),
+                                                   affectedCellCopy,
                                                    cellsToModify,
                                                    excludedValues.toTypedArray()))
         }
@@ -119,7 +120,9 @@ internal interface BaseHintFinder : HintFinder
                                  affectedCells:  CellSet,
                                  excludedValues: ValueSet): Boolean
     {
-        return eliminateValuesFromCells(grid, hintAggregator, affectedCells, excludedValues, affectedCells, excludedValues)
+        val affectedCellsCopy  = affectedCells.copy()
+        val excludedValuesCopy = excludedValues.copy()
+        return eliminateValuesFromCells(grid, hintAggregator, affectedCellsCopy, excludedValuesCopy, affectedCellsCopy, excludedValuesCopy)
     }
 
     /**
@@ -152,9 +155,9 @@ internal interface BaseHintFinder : HintFinder
         return if (cellsToModify.cardinality() > 0) {
             hintAggregator.addHint(EliminationHint(grid.type,
                                                    solvingTechnique,
-                                                   matchingCells,
-                                                   matchingValues,
-                                                   affectedCells,
+                                                   matchingCells.copy(),
+                                                   matchingValues.copy(),
+                                                   affectedCells.copy(),
                                                    cellsToModify,
                                                    valuesToExcludeList.toTypedArray()))
             true

@@ -63,14 +63,5 @@ object LocalTest {
 //String input = ".....6....59.....82....8....45........3........6..3.54...325..6..................";
 //String input = "627134598..1928763938675.2.3764........763........2637.63..794.7...4638..843...76";
 //String input = "300000004002060100010908020005000600020000010009000800080304060004010900500000007";
-
-        val grid: Grid = Grid.of(PredefinedType.CLASSIC_9x9)
-        grid.accept(GridValueLoader(input))
-        grid.accept(GridPrinter(GridPrinter.STYLE.SIMPLE))
-        println()
-
-        val hints = HintSolver().findAllHints(grid)
-
-        println(hints)
     }
 }

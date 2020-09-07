@@ -41,10 +41,10 @@ class BruteForceSolver : GridSolver
         private set
 
     override fun solve(grid: Grid): Grid {
-        return solve(grid, true)
+        return solve(grid, ValueSelection.FORWARD)
     }
 
-    fun solve(grid: Grid, forward: Boolean): Grid {
+    fun solve(grid: Grid, valueSelection: ValueSelection): Grid {
         guesses            = 0
         backtracks         = 0
         directPropagations = 0
@@ -53,12 +53,12 @@ class BruteForceSolver : GridSolver
         val cellSet: MutableSet<Cell> = LinkedHashSet()
 
         searchGrid.unassignedCells().forEach { cell -> cellSet.add(cell) }
-        solveRecursive(searchGrid, cellSet, forward)
+        solveRecursive(searchGrid, cellSet, valueSelection)
 
         return searchGrid
     }
 
-    private fun solveRecursive(grid: Grid, unassignedCells: MutableSet<Cell>, forward: Boolean): Boolean {
+    private fun solveRecursive(grid: Grid, unassignedCells: MutableSet<Cell>, valueSelection: ValueSelection): Boolean {
         if (unassignedCells.isEmpty()) {
             return true
         }
@@ -73,7 +73,7 @@ class BruteForceSolver : GridSolver
             val cell = grid.getCell(assignmentHint.cellIndex)
             unassignedCells.remove(cell)
 
-            if (solveRecursive(grid, unassignedCells, forward)) {
+            if (solveRecursive(grid, unassignedCells, valueSelection)) {
                 return true
             }
 
@@ -94,16 +94,16 @@ class BruteForceSolver : GridSolver
                 guesses++
             }
 
-            val value = if (forward) {
-                possibleValues.firstSetBit()
-            } else {
-                possibleValues.previousSetBit(possibleValues.lastBitIndex)
+            val value = when (valueSelection) {
+                ValueSelection.FORWARD ->  possibleValues.firstSetBit()
+                ValueSelection.BACKWARD -> possibleValues.previousSetBit(possibleValues.lastBitIndex)
+                ValueSelection.RANDOM ->   possibleValues.allSetBits().shuffled().first()
             }
 
             possibleValues.clear(value)
             nextCell.value = value
 
-            if (solveRecursive(grid, unassignedCells, forward)) {
+            if (solveRecursive(grid, unassignedCells, valueSelection)) {
                 return true
             }
         }
@@ -142,4 +142,11 @@ class BruteForceSolver : GridSolver
 
         throw AssertionError("impossible")
     }
+}
+
+enum class ValueSelection
+{
+    FORWARD,
+    BACKWARD,
+    RANDOM
 }
