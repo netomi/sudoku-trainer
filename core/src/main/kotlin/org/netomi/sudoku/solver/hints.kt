@@ -27,6 +27,7 @@ import java.util.*
 class AssignmentHint(type:             Grid.Type,
                      solvingTechnique: SolvingTechnique,
                      val cellIndex:    Int,
+                     val peerSet:      CellSet,
                      val value:        Int) : Hint(type, solvingTechnique)
 {
     override val description: String
@@ -60,6 +61,7 @@ class EliminationHint(type:               Grid.Type,
                       solvingTechnique:   SolvingTechnique,
                       val matchingCells:  CellSet,
                       val matchingValues: ValueSet,
+                      val peerSet:        CellSet,
                       val affectedCells:  CellSet,
                       val excludedValues: Array<ValueSet>)
     : Hint(type, solvingTechnique)
@@ -68,12 +70,14 @@ class EliminationHint(type:               Grid.Type,
                 solvingTechnique: SolvingTechnique,
                 matchingCells:    CellSet,
                 matchingValues:   ValueSet,
+                peerSet:          CellSet,
                 affectedCells:    CellSet,
                 excludedValues:   ValueSet) :
             this(type,
                  solvingTechnique,
                  matchingCells,
                  matchingValues,
+                 peerSet,
                  affectedCells,
                  expand(excludedValues, affectedCells.cardinality()))
 

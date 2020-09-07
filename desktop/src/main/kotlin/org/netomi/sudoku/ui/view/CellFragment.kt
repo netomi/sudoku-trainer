@@ -81,12 +81,19 @@ class CellFragment(private val cell: Cell) : Fragment()
         possibleValuesPane.children.forEach(Consumer { child: Node -> child.removeClass(Styles.cellAssigmentHint) })
         possibleValuesPane.children.forEach(Consumer { child: Node -> child.removeClass(Styles.cellEliminationHint) })
 
+        root.removeClass(Styles.cellHighlight)
         displayedHint?.accept(object : HintVisitor {
             override fun visitAnyHint(hint: Hint) {}
 
             override fun visitAssignmentHint(hint: AssignmentHint) {
                 if (hint.cellIndex == cell.cellIndex) {
                     possibleValuesPane.children[hint.value - 1].addClass(Styles.cellAssigmentHint)
+                }
+
+                for (cellIndex in hint.peerSet.allSetBits()) {
+                    if (cellIndex == cell.cellIndex) {
+                        root.addClass(Styles.cellHighlight)
+                    }
                 }
             }
 
@@ -105,6 +112,12 @@ class CellFragment(private val cell: Cell) : Fragment()
                         for (value in excludedValues.allSetBits()) {
                             possibleValuesPane.children[value - 1].addClass(Styles.cellEliminationHint)
                         }
+                    }
+                }
+
+                for (cellIndex in hint.peerSet.allSetBits()) {
+                    if (cellIndex == cell.cellIndex) {
+                        root.addClass(Styles.cellHighlight)
                     }
                 }
             }

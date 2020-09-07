@@ -42,7 +42,7 @@ class FullHouseFinder : BaseHintFinder
                 val value = assignedValues.firstUnsetBit()
                 // Create a hint for all unassigned cells.
                 for (cell in house.unassignedCells()) {
-                    placeValueInCell(grid, hintAggregator, cell.cellIndex, value)
+                    placeValueInCell(grid, hintAggregator, cell.cellIndex, house.cellSet, value)
                 }
             }
         }
@@ -64,7 +64,7 @@ class HiddenSingleFinder : BaseHintFinder
                 val possiblePositions: CellSet = house.getPotentialPositionsAsSet(value)
                 if (possiblePositions.cardinality() == 1) {
                     val cellIndex = possiblePositions.firstSetBit()
-                    placeValueInCell(grid, hintAggregator, cellIndex, value)
+                    placeValueInCell(grid, hintAggregator, cellIndex, house.cellSet, value)
                 }
             }
         }
@@ -86,7 +86,7 @@ class NakedSingleFinder : BaseHintFinder
                 val possibleValues = cell.possibleValueSet
                 if (possibleValues.cardinality() == 1) {
                     val value = possibleValues.firstSetBit()
-                    placeValueInCell(grid, hintAggregator, cell.cellIndex, value)
+                    placeValueInCell(grid, hintAggregator, cell.cellIndex, MutableCellSet.of(cell), value)
                 }
             }
         }

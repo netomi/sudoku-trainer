@@ -35,6 +35,7 @@ class Styles : Stylesheet() {
         val cellValueConflict   by cssclass()
         val cellAssigmentHint   by cssclass()
         val cellEliminationHint by cssclass()
+        val cellHighlight       by cssclass()
     }
 
     init {
@@ -75,12 +76,18 @@ class Styles : Stylesheet() {
 
         cellAssigmentHint {
             backgroundRadius += box(2.em)
-            backgroundColor  += Color.LIGHTGREEN
+            backgroundColor  += Color.LIMEGREEN
+            textFill = Color.BLACK
         }
 
         cellEliminationHint {
             backgroundRadius += box(2.em)
-            backgroundColor  += Color.LIGHTCORAL
+            backgroundColor  += Color.CORAL
+            textFill = Color.BLACK
+        }
+
+        cellHighlight {
+            backgroundColor += Color.LIGHTSTEELBLUE
         }
 
         listCell and empty {

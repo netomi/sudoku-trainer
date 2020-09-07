@@ -35,9 +35,10 @@ internal interface BaseHintFinder : HintFinder
     fun placeValueInCell(grid:           Grid,
                          hintAggregator: HintAggregator,
                          cellIndex:      Int,
+                         peerSet:        CellSet,
                          value:          Int)
     {
-        hintAggregator.addHint(AssignmentHint(grid.type, solvingTechnique, cellIndex, value))
+        hintAggregator.addHint(AssignmentHint(grid.type, solvingTechnique, cellIndex, peerSet, value))
     }
 
     /**
@@ -72,6 +73,7 @@ internal interface BaseHintFinder : HintFinder
                                                    solvingTechnique,
                                                    affectedCells,
                                                    eliminations,
+                                                   affectedHouse.cellSet,
                                                    cellsToModify,
                                                    eliminations))
         }
@@ -106,6 +108,7 @@ internal interface BaseHintFinder : HintFinder
                                                    solvingTechnique,
                                                    affectedCells,
                                                    allowedValues,
+                                                   affectedCells,
                                                    cellsToModify,
                                                    excludedValues.toTypedArray()))
         }
@@ -151,6 +154,7 @@ internal interface BaseHintFinder : HintFinder
                                                    solvingTechnique,
                                                    matchingCells,
                                                    matchingValues,
+                                                   affectedCells,
                                                    cellsToModify,
                                                    valuesToExcludeList.toTypedArray()))
             true
