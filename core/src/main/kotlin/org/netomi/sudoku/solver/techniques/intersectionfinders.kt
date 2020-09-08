@@ -33,7 +33,7 @@ class LockedCandidatesType1Finder : BaseHintFinder
         grid.acceptBlocks { house ->
             for (value in house.unassignedValues()) {
                 val possiblePositions: CellSet = house.getPotentialPositionsAsSet(value)
-                if (possiblePositions.cardinality() == 0) {
+                if (possiblePositions.cardinality() <= 1) {
                     continue
                 }
                 // Check if all possible cells are in the same row.
@@ -57,7 +57,7 @@ class LockedCandidatesType2Finder : BaseHintFinder
         val visitor = HouseVisitor { house ->
             for (value in house.unassignedValues()) {
                 val possiblePositions: CellSet = house.getPotentialPositionsAsSet(value)
-                if (possiblePositions.cardinality() == 0) {
+                if (possiblePositions.cardinality() <= 1) {
                     continue
                 }
                 // Check if all possible cells are in the same block.

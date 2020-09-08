@@ -135,6 +135,14 @@ class GridController : Controller()
         }
     }
 
+    fun findHintsSingleStep() {
+        grid?.apply {
+            val hintSolver = HintSolver()
+            val hints = hintSolver.findAllHintsSingleStep(this)
+            hintList.setAll(hints.hints)
+        }
+    }
+
     fun applyHint(hint: Hint) {
         grid?.apply {
             hint.apply(this, true)

@@ -113,8 +113,15 @@ class MainView : View("Sudoku Trainer") {
                     }
                     item("Solver", expanded = true) {
                         vbox {
-                            button("Solve") {
-                                action { gridController.findHints() }
+                            buttonbar {
+                                button("Full") {
+                                    action { gridController.findHints() }
+                                }
+
+                                button("Single Step") {
+                                    action { gridController.findHintsSingleStep() }
+                                }
+
                             }
 
                             listview<Hint> {

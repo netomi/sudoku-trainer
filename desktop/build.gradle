@@ -12,16 +12,16 @@ mainClassName = 'sudoku.desktop/org.netomi.sudoku.ui.SudokuApp'
 
 task copyResources {
     copy {
-        from ('build/resources/main')
+        from 'build/resources/main'
         into 'build/classes/kotlin/main'
-    }
 
-    outputs.upToDateWhen { false }
+        outputs.upToDateWhen { false }
+    }
 }
 
 copyResources.dependsOn(tasks.processResources)
 
-compileKotlin.finalizedBy {
+compileKotlin.dependsOn {
     tasks.copyResources
 }
 

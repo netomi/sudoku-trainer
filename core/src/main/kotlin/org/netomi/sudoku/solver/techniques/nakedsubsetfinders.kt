@@ -38,7 +38,7 @@ open class NakedPairFinder protected constructor(private val findLockedHouses: B
         get() = SolvingTechnique.NAKED_PAIR
 
     override fun findHints(grid: Grid, hintAggregator: HintAggregator) {
-        grid.acceptHouses { house ->
+        val visitor = HouseVisitor { house ->
             for (cell in house.cells()) {
                 val possibleValues = cell.possibleValueSet
                 if (possibleValues.cardinality() != 2) {
@@ -55,23 +55,29 @@ open class NakedPairFinder protected constructor(private val findLockedHouses: B
                     if (possibleValues == otherPossibleValues) {
                         val affectedCells = house.cellSet.toMutableCellSet()
 
+                        val matchingCells = MutableCellSet.of(cell, otherCell)
                         if (findLockedHouses) {
-                            val pairCells = MutableCellSet.of(cell, otherCell)
-
-                            val row = pairCells.getSingleRow(grid)
+                            val row = matchingCells.getSingleRow(grid)
                             row?.let { affectedCells.or(it.cellSet) }
 
-                            val col = pairCells.getSingleColumn(grid)
+                            val col = matchingCells.getSingleColumn(grid)
                             col?.let { affectedCells.or(it.cellSet) }
                         }
 
+                        val relatedCells = affectedCells.copy()
+
                         affectedCells.clear(cell.cellIndex)
                         affectedCells.clear(otherCell.cellIndex)
-                        eliminateValuesFromCells(grid, hintAggregator, affectedCells, possibleValues)
+                        eliminateValuesFromCells(grid, hintAggregator, matchingCells, relatedCells, affectedCells, possibleValues.copy())
                     }
                 }
             }
         }
+
+        // look first in blocks to generate fewer hints.
+        grid.acceptBlocks(visitor)
+        grid.acceptRows(visitor)
+        grid.acceptColumns(visitor)
     }
 }
 
@@ -119,12 +125,12 @@ class NakedQuadrupleFinder : NakedSubsetFinder(4)
         get() = SolvingTechnique.NAKED_QUADRUPLE
 }
 
-abstract class NakedSubsetFinder protected constructor(private val subSetSize: Int,
+abstract class NakedSubsetFinder protected constructor(private val subSetSize:       Int,
                                                        private val findLockedHouses: Boolean = false)
     : BaseHintFinder
 {
     override fun findHints(grid: Grid, hintAggregator: HintAggregator) {
-        grid.acceptHouses { house ->
+        val visitor = HouseVisitor { house ->
             if (!house.isSolved) {
                 for (cell in house.unassignedCells()) {
                     findSubset(grid,
@@ -137,6 +143,11 @@ abstract class NakedSubsetFinder protected constructor(private val subSetSize: I
                 }
             }
         }
+
+        // look first in blocks to generate fewer hints.
+        grid.acceptBlocks(visitor)
+        grid.acceptRows(visitor)
+        grid.acceptColumns(visitor)
     }
 
     private fun findSubset(grid:           Grid,
@@ -171,8 +182,10 @@ abstract class NakedSubsetFinder protected constructor(private val subSetSize: I
                     col?.let { affectedCells.or(it.cellSet) }
                 }
 
+                val relatedCells = affectedCells.copy()
+
                 affectedCells.andNot(visitedCells)
-                eliminateValuesFromCells(grid, hintAggregator, affectedCells, allVisitedValues)
+                eliminateValuesFromCells(grid, hintAggregator, visitedCells.copy(), relatedCells, affectedCells, allVisitedValues)
                 foundHint = true
             }
             visitedCells.clear(currentCell.cellIndex)

@@ -24,7 +24,6 @@ import org.netomi.sudoku.solver.BaseHintFinder
 import org.netomi.sudoku.solver.HintAggregator
 import org.netomi.sudoku.solver.HintFinder
 import org.netomi.sudoku.solver.SolvingTechnique
-import java.util.ArrayList
 
 class XWingHintFinder : BasicFishFinder(2) {
     override val solvingTechnique: SolvingTechnique
@@ -90,16 +89,20 @@ abstract class BasicFishFinder protected constructor(private val size: Int) : Ba
         }
 
         visitedRegions.add(house)
-        if (level == size) { // get affected cells from cover sets.
+        if (level == size) {
+            // get affected cells from cover sets.
             val affectedCells = getCellsOfCoverSet(grid, house.type, mergedCoverSet)
+
             // remove all cells from base sets.
             for (row in visitedRegions) {
                 affectedCells.andNot(row.cellSet)
             }
+
             val excludedValue = MutableValueSet.of(grid, value)
+
             // eliminate the detected fish value from all affected cells,
             // affected cells = cells of cover set - cells of base set
-            eliminateValuesFromCells(grid, hintAggregator, affectedCells, excludedValue)
+            eliminateValuesFromCells(grid, hintAggregator, affectedCells, affectedCells, affectedCells, excludedValue)
             visitedRegions.removeAt(visitedRegions.size - 1)
             return true
         }

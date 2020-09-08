@@ -69,13 +69,14 @@ internal interface BaseHintFinder : HintFinder
 
         val eliminations = MutableValueSet.of(grid, excludedValue)
         if (cellsToModify.cardinality() > 0) {
-            hintAggregator.addHint(EliminationHint(grid.type,
-                                                   solvingTechnique,
-                                                   affectedCells,
-                                                   eliminations,
-                                                   affectedHouse.cellSet.copy(),
-                                                   cellsToModify,
-                                                   eliminations))
+            hintAggregator.addHint(
+                EliminationHint(grid.type,
+                                solvingTechnique,
+                                affectedCells,
+                                eliminations,
+                                affectedHouse.cellSet,
+                                cellsToModify,
+                                eliminations))
         }
     }
 
@@ -93,36 +94,34 @@ internal interface BaseHintFinder : HintFinder
     {
         val cellsToModify = MutableCellSet.empty(grid)
         val excludedValues: MutableList<ValueSet> = ArrayList()
-        for (cell in affectedCells.allCells(grid)) {
-            if (!cell.isAssigned) {
-                val valuesToExclude = valuesExcluding(cell.possibleValueSet, allowedValues)
-                if (valuesToExclude.cardinality() > 0) {
-                    cellsToModify.set(cell.cellIndex)
-                    excludedValues.add(valuesToExclude)
-                }
+        for (cell in affectedCells.filteredCells(grid, { cell -> !cell.isAssigned })) {
+            val valuesToExclude = valuesExcluding(cell.possibleValueSet, allowedValues)
+            if (valuesToExclude.cardinality() > 0) {
+                cellsToModify.set(cell.cellIndex)
+                excludedValues.add(valuesToExclude)
             }
         }
 
         if (cellsToModify.cardinality() > 0) {
-            val affectedCellCopy = affectedCells.copy()
-            hintAggregator.addHint(EliminationHint(grid.type,
-                                                   solvingTechnique,
-                                                   affectedCellCopy,
-                                                   allowedValues.copy(),
-                                                   affectedCellCopy,
-                                                   cellsToModify,
-                                                   excludedValues.toTypedArray()))
+            hintAggregator.addHint(
+                EliminationHint(grid.type,
+                                solvingTechnique,
+                                affectedCells,
+                                allowedValues,
+                                affectedCells,
+                                cellsToModify,
+                                excludedValues.toTypedArray()))
         }
     }
 
     fun eliminateValuesFromCells(grid:           Grid,
                                  hintAggregator: HintAggregator,
+                                 matchingCells:  CellSet,
+                                 relatedCells:   CellSet,
                                  affectedCells:  CellSet,
                                  excludedValues: ValueSet): Boolean
     {
-        val affectedCellsCopy  = affectedCells.copy()
-        val excludedValuesCopy = excludedValues.copy()
-        return eliminateValuesFromCells(grid, hintAggregator, affectedCellsCopy, excludedValuesCopy, affectedCellsCopy, excludedValuesCopy)
+        return eliminateValuesFromCells(grid, hintAggregator, matchingCells, excludedValues, relatedCells, affectedCells, excludedValues)
     }
 
     /**
@@ -136,30 +135,30 @@ internal interface BaseHintFinder : HintFinder
                                  hintAggregator: HintAggregator,
                                  matchingCells:  CellSet,
                                  matchingValues: ValueSet,
+                                 relatedCells:   CellSet,
                                  affectedCells:  CellSet,
                                  excludedValues: ValueSet): Boolean
     {
         val cellsToModify = MutableCellSet.empty(grid)
         val valuesToExcludeList: MutableList<ValueSet> = ArrayList()
 
-        for (cell in affectedCells.allCells(grid)) {
-            if (!cell.isAssigned) {
-                val valuesToExclude = valuesIncluding(cell.possibleValueSet, excludedValues)
-                if (valuesToExclude.cardinality() > 0) {
-                    cellsToModify.set(cell.cellIndex)
-                    valuesToExcludeList.add(valuesToExclude)
-                }
+        for (cell in affectedCells.filteredCells(grid, { cell -> !cell.isAssigned })) {
+            val valuesToExclude = valuesIncluding(cell.possibleValueSet, excludedValues)
+            if (valuesToExclude.cardinality() > 0) {
+                cellsToModify.set(cell.cellIndex)
+                valuesToExcludeList.add(valuesToExclude)
             }
         }
 
         return if (cellsToModify.cardinality() > 0) {
-            hintAggregator.addHint(EliminationHint(grid.type,
-                                                   solvingTechnique,
-                                                   matchingCells.copy(),
-                                                   matchingValues.copy(),
-                                                   affectedCells.copy(),
-                                                   cellsToModify,
-                                                   valuesToExcludeList.toTypedArray()))
+            hintAggregator.addHint(
+                EliminationHint(grid.type,
+                                solvingTechnique,
+                                matchingCells,
+                                matchingValues,
+                                relatedCells,
+                                cellsToModify,
+                                valuesToExcludeList.toTypedArray()))
             true
         } else {
             false

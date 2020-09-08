@@ -24,7 +24,6 @@ import org.netomi.sudoku.solver.BaseHintFinder
 import org.netomi.sudoku.solver.HintAggregator
 import org.netomi.sudoku.solver.HintFinder
 import org.netomi.sudoku.solver.SolvingTechnique
-import java.util.*
 
 /**
  * A [HintFinder] implementation ...
@@ -73,7 +72,7 @@ class RemotePairFinder : BaseHintFinder {
             }
 
             val matchingCells = currentChain.cells.copy()
-            if (eliminateValuesFromCells(grid, hintAggregator, matchingCells, possibleValues, affectedCells, possibleValues)) {
+            if (eliminateValuesFromCells(grid, hintAggregator, matchingCells, possibleValues, affectedCells, affectedCells, possibleValues)) {
                 visitedChains.add(matchingCells)
             }
         }

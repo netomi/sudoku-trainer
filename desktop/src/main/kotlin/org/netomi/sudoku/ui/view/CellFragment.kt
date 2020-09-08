@@ -96,19 +96,15 @@ class CellFragment(private val cell: Cell) : Fragment()
                     possibleValuesPane.children[hint.value - 1].addClass(Styles.cellAssigmentHint)
                 }
 
-                for (cellIndex in hint.peerSet.allSetBits()) {
-                    if (cellIndex == cell.cellIndex) {
-                        root.addClass(Styles.cellHighlight)
-                    }
+                if (hint.relatedCells[cell.cellIndex]) {
+                    root.addClass(Styles.cellHighlight)
                 }
             }
 
             override fun visitEliminationHint(hint: EliminationHint) {
-                for (cellIndex in hint.matchingCells.allSetBits()) {
-                    if (cellIndex == cell.cellIndex) {
-                        for (value in hint.matchingValues.allSetBits()) {
-                            possibleValuesPane.children[value - 1].addClass(Styles.cellAssigmentHint)
-                        }
+                if (hint.matchingCells[cell.cellIndex]) {
+                    for (value in hint.matchingValues.allSetBits()) {
+                        possibleValuesPane.children[value - 1].addClass(Styles.cellAssigmentHint)
                     }
                 }
 
@@ -121,10 +117,8 @@ class CellFragment(private val cell: Cell) : Fragment()
                     }
                 }
 
-                for (cellIndex in hint.peerSet.allSetBits()) {
-                    if (cellIndex == cell.cellIndex) {
-                        root.addClass(Styles.cellHighlight)
-                    }
+                if (hint.relatedCells[cell.cellIndex]) {
+                    root.addClass(Styles.cellHighlight)
                 }
             }
         })
