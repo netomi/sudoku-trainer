@@ -40,10 +40,9 @@ class FullHouseFinder : BaseHintFinder
             val assignedValues = house.assignedValueSet
             if (assignedValues.cardinality() == expectedCardinality) {
                 val value = assignedValues.firstUnsetBit()
-                // Create a hint for all unassigned cells.
-                for (cell in house.unassignedCells()) {
-                    placeValueInCell(grid, hintAggregator, cell.cellIndex, house.cellSet, value)
-                }
+                // Create a hint for the unassigned cell.
+                val cell = house.unassignedCells().first()
+                placeValueInCell(grid, hintAggregator, cell.cellIndex, house.cellSet, value)
             }
         }
     }
@@ -72,7 +71,7 @@ class HiddenSingleFinder : BaseHintFinder
 }
 
 /**
- * A [HintFinder] implementation that checks if digit can only
+ * A [HintFinder] implementation that checks if a digit can only
  * be placed in a single cell within a specific house.
  */
 class NakedSingleFinder : BaseHintFinder
@@ -81,13 +80,11 @@ class NakedSingleFinder : BaseHintFinder
         get() = SolvingTechnique.NAKED_SINGLE
 
     override fun findHints(grid: Grid, hintAggregator: HintAggregator) {
-        grid.acceptCells { cell ->
-            if (!cell.isAssigned) {
-                val possibleValues = cell.possibleValueSet
-                if (possibleValues.cardinality() == 1) {
-                    val value = possibleValues.firstSetBit()
-                    placeValueInCell(grid, hintAggregator, cell.cellIndex, MutableCellSet.of(cell), value)
-                }
+        grid.unassignedCells().forEach { cell ->
+            val possibleValues = cell.possibleValueSet
+            if (possibleValues.cardinality() == 1) {
+                val value = possibleValues.firstSetBit()
+                placeValueInCell(grid, hintAggregator, cell.cellIndex, MutableCellSet.of(cell), value)
             }
         }
     }

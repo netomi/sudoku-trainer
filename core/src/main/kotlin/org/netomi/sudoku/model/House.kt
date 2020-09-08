@@ -201,7 +201,7 @@ abstract class House internal constructor(internal val owner: Grid, val regionIn
         _assignedValueSet.clearAll()
     }
 
-    internal abstract fun copy(grid: Grid): House
+    internal abstract fun copy(target: Grid): House
 }
 
 /**

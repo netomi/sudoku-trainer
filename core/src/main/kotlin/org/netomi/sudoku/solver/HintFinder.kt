@@ -35,10 +35,10 @@ internal interface BaseHintFinder : HintFinder
     fun placeValueInCell(grid:           Grid,
                          hintAggregator: HintAggregator,
                          cellIndex:      Int,
-                         peerSet:        CellSet,
+                         relatedCells:   CellSet,
                          value:          Int)
     {
-        hintAggregator.addHint(AssignmentHint(grid.type, solvingTechnique, cellIndex, peerSet.copy(), value))
+        hintAggregator.addHint(AssignmentHint(grid.type, solvingTechnique, cellIndex, relatedCells, value))
     }
 
     /**

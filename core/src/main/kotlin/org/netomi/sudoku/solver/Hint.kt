@@ -35,10 +35,10 @@ abstract class Hint protected constructor(val gridType:         Grid.Type,
         return Objects.hash(gridType, solvingTechnique)
     }
 
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o == null || javaClass != o.javaClass) return false
-        val hint = o as Hint
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
+        val hint = other as Hint
         return gridType         == hint.gridType &&
                solvingTechnique == hint.solvingTechnique
     }

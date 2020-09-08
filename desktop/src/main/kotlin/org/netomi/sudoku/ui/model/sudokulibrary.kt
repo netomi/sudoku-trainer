@@ -74,7 +74,7 @@ enum class Category constructor(val prefix: String, val parent: Category?)
     companion object {
         fun of(technique: String): Category? {
             for (category in values()) {
-                if (category.prefix == technique) {
+                if (technique.startsWith(category.prefix)) {
                     return category
                 }
             }

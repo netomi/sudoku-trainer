@@ -47,11 +47,11 @@ class AssignmentHint(type:             Grid.Type,
         return result
     }
 
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o == null || javaClass != o.javaClass) return false
-        val that = o as AssignmentHint
-        return super.equals(o) &&
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
+        val that = other as AssignmentHint
+        return super.equals(other) &&
                cellIndex == that.cellIndex &&
                value     == that.value
     }
@@ -114,11 +114,11 @@ class EliminationHint(type:               Grid.Type,
         return result
     }
 
-    override fun equals(o: Any?): Boolean {
-        if (this === o) return true
-        if (o == null || javaClass != o.javaClass) return false
-        val that = o as EliminationHint
-        return super.equals(o) &&
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
+        val that = other as EliminationHint
+        return super.equals(other) &&
                affectedCells == that.affectedCells &&
                excludedValues.contentEquals(that.excludedValues)
     }

@@ -29,6 +29,10 @@ enum class SolvingTechnique(val techniqueName: String, val supplier: Supplier<Hi
     NAKED_SINGLE("Naked Single", ::NakedSingleFinder),
     HIDDEN_SINGLE("Hidden Single", ::HiddenSingleFinder),
 
+    // Locked subsets.
+    LOCKED_PAIR("Locked Pair", ::LockedPairFinder),
+    LOCKED_TRIPLE("Locked Triple", ::LockedTripleFinder),
+
     // Intersections.
     LOCKED_CANDIDATES_TYPE_1("Locked Candidates Type 1 (Pointing)", ::LockedCandidatesType1Finder),
     LOCKED_CANDIDATES_TYPE_2("Locked Candidates Type 2 (Claiming)", ::LockedCandidatesType2Finder),
@@ -42,10 +46,6 @@ enum class SolvingTechnique(val techniqueName: String, val supplier: Supplier<Hi
     NAKED_PAIR("Naked Pair", ::NakedPairFinder),
     NAKED_TRIPLE("Naked Triple", ::NakedTripleFinder),
     NAKED_QUADRUPLE("Naked Quadruple", ::NakedQuadrupleFinder),
-
-    // Locked subsets.
-    LOCKED_PAIR("Locked Pair", ::LockedPairFinder),
-    LOCKED_TRIPLE("Locked Triple", ::LockedTripleFinder),
 
     // Basic fish.
     X_WING("X-Wing", ::XWingHintFinder),

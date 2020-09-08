@@ -15,9 +15,13 @@ task copyResources {
         from ('build/resources/main')
         into 'build/classes/kotlin/main'
     }
+
+    outputs.upToDateWhen { false }
 }
 
-compileKotlin.doLast {
+copyResources.dependsOn(tasks.processResources)
+
+compileKotlin.finalizedBy {
     tasks.copyResources
 }
 

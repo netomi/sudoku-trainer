@@ -76,10 +76,12 @@ class MainView : View("Sudoku Trainer") {
 
                 center = gridView.root
 
-                left = drawer(side = Side.LEFT) {
-                    item("Layout", expanded = true) {
+                right = drawer(side = Side.RIGHT, multiselect = true) {
+                    minWidth = 350.0
+
+                    item("Layout", expanded = false) {
                         form {
-                            fieldset("General settings") {
+                            fieldset("Layout settings") {
                                 field("Grid Layout") {
                                     combobox<PredefinedType> {
                                         gridTypeComboBox = this
@@ -89,19 +91,15 @@ class MainView : View("Sudoku Trainer") {
                                     }
                                 }
 
-                                buttonbar {
-                                    button("Reset") {
-                                        ButtonBar.setButtonData(this@button, ButtonBar.ButtonData.LEFT)
-
-                                        action {
-                                            gridController.resetModel(gridTypeComboBox.selectedItem ?: PredefinedType.CLASSIC_9x9)
-                                        }
+                                button("Reset") {
+                                    action {
+                                        gridController.resetModel(gridTypeComboBox.selectedItem ?: PredefinedType.CLASSIC_9x9)
                                     }
                                 }
                             }
 
                             fieldset("Display settings") {
-                                field("Display possible values") {
+                                field("Show pencil marks") {
                                     checkbox {
                                         selectedProperty().set(true)
                                         selectedProperty().bindBidirectional(DisplayOptions.displayPossibleValuesProperty)
@@ -113,7 +111,7 @@ class MainView : View("Sudoku Trainer") {
                             }
                         }
                     }
-                    item("Solver") {
+                    item("Solver", expanded = true) {
                         vbox {
                             button("Solve") {
                                 action { gridController.findHints() }
@@ -122,7 +120,6 @@ class MainView : View("Sudoku Trainer") {
                             listview<Hint> {
                                 hintListView = this
 
-                                minWidth   = 250.0
                                 useMaxSize = true
                                 vgrow      = Priority.ALWAYS
 
@@ -145,7 +142,7 @@ class MainView : View("Sudoku Trainer") {
                         }
                     }
 
-                    item("Library") {
+                    item("Library", expanded = true) {
                         treeview<String> {
                             root = TreeItem("Solving Techniques")
 
