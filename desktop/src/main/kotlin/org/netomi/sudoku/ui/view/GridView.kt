@@ -47,7 +47,7 @@ class GridView : View()
 
     override val root = gridpane {
         useMaxSize = true
-        addClass(Styles.grid)
+        addClass(Styles.sudokuGrid)
     }
 
     private fun rebuildViewFromModel() {

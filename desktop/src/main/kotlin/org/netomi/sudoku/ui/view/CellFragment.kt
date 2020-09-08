@@ -288,7 +288,7 @@ class CellFragment(private val cell: Cell) : Fragment()
 
     init {
         with(root) {
-            addClass(Styles.cell)
+            addClass(Styles.sudokuCell)
 
             style += getBorderStyle(cell)
 

@@ -36,6 +36,8 @@ import org.netomi.sudoku.solver.BruteForceSolver
 import org.netomi.sudoku.solver.Hint
 import org.netomi.sudoku.solver.HintSolver
 import org.netomi.sudoku.solver.ValueSelection
+import org.netomi.sudoku.ui.model.LibraryEntry
+import org.netomi.sudoku.ui.model.SudokuLibrary
 import tornadofx.Controller
 import tornadofx.onChange
 import kotlin.random.Random
@@ -65,6 +67,16 @@ class GridController : Controller()
         modelProperty.set(grid)
     }
 
+    fun loadModel(entry: LibraryEntry) {
+        val grid = of(PredefinedType.CLASSIC_9x9)
+        grid.accept(GridValueLoader(entry.givens))
+
+        grid.assignedCells().forEach { cell -> if (!cell.isGiven) cell.setValue(0, false) }
+        grid.updateState()
+
+        modelProperty.set(grid)
+    }
+
     fun loadModelFromClipboard() {
         val data = Clipboard.getSystemClipboard().getContent(DataFormat.PLAIN_TEXT) as String?
         data?.apply {
@@ -87,13 +99,13 @@ class GridController : Controller()
     fun resetModel(type: PredefinedType) {
         val grid = of(type)
 
+        grid.clear(true)
+
+        val solver = BruteForceSolver()
+        val fullGrid = solver.solve(grid, ValueSelection.RANDOM)
+
         var count = 0
         do {
-            grid.clear(true)
-
-            val solver = BruteForceSolver()
-            val fullGrid = solver.solve(grid, ValueSelection.RANDOM)
-
             val testGrid = fullGrid.copy()
 
             while (testGrid.assignedCells().count() > 30) {
@@ -109,6 +121,7 @@ class GridController : Controller()
                 modelProperty.set(testGrid)
                 return
             }
+            println("checking grid $count")
         } while(count++ < 1000)
 
         modelProperty.set(of(type))

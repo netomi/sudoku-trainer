@@ -25,8 +25,8 @@ import tornadofx.*
 
 class Styles : Stylesheet() {
     companion object {
-        val grid by cssclass()
-        val cell by cssclass()
+        val sudokuGrid by cssclass()
+        val sudokuCell by cssclass()
 
         val cellAssignedValue   by cssclass()
         val cellGivenValue      by cssclass()
@@ -39,13 +39,13 @@ class Styles : Stylesheet() {
     }
 
     init {
-        grid {
+        sudokuGrid {
             borderColor += box(Color.BLACK)
             borderWidth += box(2.px)
             padding      = box(2.px)
         }
 
-        cell {
+        sudokuCell {
             borderColor += box(Color.GRAY)
             borderWidth += box(1.px)
         }
