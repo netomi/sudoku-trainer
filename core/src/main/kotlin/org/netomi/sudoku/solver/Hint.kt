@@ -19,15 +19,19 @@
  */
 package org.netomi.sudoku.solver
 
+import org.netomi.sudoku.model.CellSet
 import org.netomi.sudoku.model.Grid
 import java.util.*
 
 abstract class Hint protected constructor(val gridType:         Grid.Type,
-                                          val solvingTechnique: SolvingTechnique)
+                                          val solvingTechnique: SolvingTechnique,
+                                          val relatedCells:     CellSet)
 {
     abstract val description: String
 
     abstract fun apply(targetGrid: Grid, updateGrid: Boolean)
+
+    abstract fun revert(targetGrid: Grid, updateGrid: Boolean)
 
     abstract fun accept(visitor: HintVisitor)
 

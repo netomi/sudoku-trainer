@@ -89,16 +89,18 @@ class CellFragment(private val cell: Cell) : Fragment()
 
         root.removeClass(Styles.cellHighlight)
         displayedHint?.accept(object : HintVisitor {
-            override fun visitAnyHint(hint: Hint) {}
+            override fun visitAnyHint(hint: Hint) {
+                if (hint.relatedCells[cell.cellIndex]) {
+                    root.addClass(Styles.cellHighlight)
+                }
+            }
 
             override fun visitAssignmentHint(hint: AssignmentHint) {
                 if (hint.cellIndex == cell.cellIndex) {
                     possibleValuesPane.children[hint.value - 1].addClass(Styles.cellAssigmentHint)
                 }
 
-                if (hint.relatedCells[cell.cellIndex]) {
-                    root.addClass(Styles.cellHighlight)
-                }
+                visitAnyHint(hint)
             }
 
             override fun visitEliminationHint(hint: EliminationHint) {
@@ -117,9 +119,7 @@ class CellFragment(private val cell: Cell) : Fragment()
                     }
                 }
 
-                if (hint.relatedCells[cell.cellIndex]) {
-                    root.addClass(Styles.cellHighlight)
-                }
+                visitAnyHint(hint)
             }
         })
 

@@ -164,6 +164,20 @@ class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowInde
         }
     }
 
+    fun removeExcludedPossibleValues(values: ValueSet, updateGrid: Boolean = true) {
+        owner.invalidateState()
+        _excludedValueSet.andNot(values)
+
+        resetPossibleValues()
+        for (house in arrayOf(row, column, block)) {
+            house.updatePossibleValuesInCell(this)
+        }
+
+        if (updateGrid) {
+            owner.notifyPossibleValuesChanged(this)
+        }
+    }
+
     fun removeExcludedPossibleValues(updateGrid: Boolean, vararg values: Int) {
         owner.invalidateState()
         for (value in values) {

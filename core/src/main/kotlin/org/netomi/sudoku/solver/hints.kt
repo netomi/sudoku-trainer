@@ -27,14 +27,18 @@ import java.util.*
 class AssignmentHint(type:             Grid.Type,
                      solvingTechnique: SolvingTechnique,
                      val cellIndex:    Int,
-                     val relatedCells: CellSet,
-                     val value:        Int) : Hint(type, solvingTechnique)
+                     relatedCells:     CellSet,
+                     val value:        Int) : Hint(type, solvingTechnique, relatedCells)
 {
     override val description: String
         get() = "%s=%d".format(gridType.getCellName(cellIndex), value)
 
     override fun apply(targetGrid: Grid, updateGrid: Boolean) {
         targetGrid.getCell(cellIndex).setValue(value, updateGrid)
+    }
+
+    override fun revert(targetGrid: Grid, updateGrid: Boolean) {
+        targetGrid.getCell(cellIndex).setValue(0, updateGrid)
     }
 
     override fun accept(visitor: HintVisitor) {
@@ -61,10 +65,10 @@ class EliminationHint(type:               Grid.Type,
                       solvingTechnique:   SolvingTechnique,
                       val matchingCells:  CellSet,
                       val matchingValues: ValueSet,
-                      val relatedCells:   CellSet,
+                      relatedCells:       CellSet,
                       val affectedCells:  CellSet,
                       val excludedValues: Array<ValueSet>)
-    : Hint(type, solvingTechnique)
+    : Hint(type, solvingTechnique, relatedCells)
 {
     constructor(type:             Grid.Type,
                 solvingTechnique: SolvingTechnique,
@@ -100,6 +104,12 @@ class EliminationHint(type:               Grid.Type,
     override fun apply(targetGrid: Grid, updateGrid: Boolean) {
         for ((index, cell) in affectedCells.allCells(targetGrid).withIndex()) {
             cell.excludePossibleValues(excludedValues[index], updateGrid)
+        }
+    }
+
+    override fun revert(targetGrid: Grid, updateGrid: Boolean) {
+        for ((index, cell) in affectedCells.allCells(targetGrid).withIndex()) {
+            cell.removeExcludedPossibleValues(excludedValues[index], updateGrid)
         }
     }
 
