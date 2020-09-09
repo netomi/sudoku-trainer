@@ -53,7 +53,7 @@ class HiddenPairFinder : BaseHintFinder
                     // share the exact same positions, we have found a hidden pair.
                     if (potentialPositions == otherPotentialPositions) {
                         val allowedValues = MutableValueSet.of(grid, value, otherValue)
-                        eliminateNotAllowedValuesFromCells(grid, hintAggregator, potentialPositions, allowedValues)
+                        eliminateNotAllowedValuesFromCells(grid, hintAggregator, potentialPositions, allowedValues, house.cellSet)
                     }
                 }
             }
@@ -124,7 +124,7 @@ abstract class HiddenSubsetFinder protected constructor(private val subSetSize: 
         if (level == subSetSize) {
             var foundHint = false
             if (allPotentialPositions.cardinality() == subSetSize) {
-                eliminateNotAllowedValuesFromCells(grid, hintAggregator, allPotentialPositions, visitedValues.copy())
+                eliminateNotAllowedValuesFromCells(grid, hintAggregator, allPotentialPositions, visitedValues.copy(), house.cellSet)
                 foundHint = true
             }
             visitedValues.clear(currentValue)

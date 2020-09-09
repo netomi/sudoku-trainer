@@ -90,7 +90,8 @@ internal interface BaseHintFinder : HintFinder
     fun eliminateNotAllowedValuesFromCells(grid:           Grid,
                                            hintAggregator: HintAggregator,
                                            affectedCells:  CellSet,
-                                           allowedValues:  ValueSet)
+                                           allowedValues:  ValueSet,
+                                           relatedCells:   CellSet)
     {
         val cellsToModify = MutableCellSet.empty(grid)
         val excludedValues: MutableList<ValueSet> = ArrayList()
@@ -108,7 +109,7 @@ internal interface BaseHintFinder : HintFinder
                                 solvingTechnique,
                                 affectedCells,
                                 allowedValues,
-                                affectedCells,
+                                relatedCells,
                                 cellsToModify,
                                 excludedValues.toTypedArray()))
         }
