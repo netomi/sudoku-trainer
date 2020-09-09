@@ -53,6 +53,7 @@ internal interface BaseHintFinder : HintFinder
     fun eliminateValueFromCells(grid:           Grid,
                                 hintAggregator: HintAggregator,
                                 affectedHouse:  House,
+                                relatedCells:   CellSet,
                                 excludedHouse:  House,
                                 excludedValue:  Int)
     {
@@ -74,7 +75,7 @@ internal interface BaseHintFinder : HintFinder
                                 solvingTechnique,
                                 affectedCells,
                                 eliminations,
-                                affectedHouse.cellSet,
+                                relatedCells,
                                 cellsToModify,
                                 eliminations))
         }

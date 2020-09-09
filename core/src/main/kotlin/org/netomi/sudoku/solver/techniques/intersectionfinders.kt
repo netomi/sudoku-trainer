@@ -39,11 +39,11 @@ class LockedCandidatesType1Finder : BaseHintFinder
                 }
                 // Check if all possible cells are in the same row.
                 val row = possiblePositions.getSingleRow(grid)
-                row?.let { eliminateValueFromCells(grid, hintAggregator, it, house, value) }
+                row?.let { eliminateValueFromCells(grid, hintAggregator, it, house.cellSet, house, value) }
 
                 // Check if all possible cells are in the same column.
                 val column = possiblePositions.getSingleColumn(grid)
-                column?.let { eliminateValueFromCells(grid, hintAggregator, it, house, value) }
+                column?.let { eliminateValueFromCells(grid, hintAggregator, it, house.cellSet, house, value) }
             }
         }
     }
@@ -63,7 +63,7 @@ class LockedCandidatesType2Finder : BaseHintFinder
                 }
                 // Check if all possible cells are in the same block.
                 val block = possiblePositions.getSingleBlock(grid)
-                block?.let { eliminateValueFromCells(grid, hintAggregator, block, house, value) }
+                block?.let { eliminateValueFromCells(grid, hintAggregator, block, house.cellSet, house, value) }
             }
         }
 

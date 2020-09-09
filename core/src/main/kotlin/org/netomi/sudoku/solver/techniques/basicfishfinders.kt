@@ -92,18 +92,20 @@ abstract class BasicFishFinder protected constructor(private val size: Int) : Ba
         if (level == size) {
             // get affected cells from cover sets.
             val affectedCells = getCellsOfCoverSet(grid, house.type, mergedCoverSet)
+            val matchingCells = MutableCellSet.empty(grid)
 
             // remove all cells from base sets.
-            for (row in visitedRegions) {
-                affectedCells.andNot(row.cellSet)
+            for (house in visitedRegions) {
+                affectedCells.andNot(house.cellSet)
+                matchingCells.or(house.cellSet)
             }
 
             val excludedValue = MutableValueSet.of(grid, value)
 
             // eliminate the detected fish value from all affected cells,
             // affected cells = cells of cover set - cells of base set
-            eliminateValuesFromCells(grid, hintAggregator, affectedCells, affectedCells, affectedCells, excludedValue)
-            visitedRegions.removeAt(visitedRegions.size - 1)
+            eliminateValuesFromCells(grid, hintAggregator, matchingCells, matchingCells, affectedCells, excludedValue)
+            visitedRegions.removeLast()
             return true
         }
 
