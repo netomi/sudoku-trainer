@@ -36,6 +36,7 @@ class FullHouseFinder : BaseHintFinder
 
     override fun findHints(grid: Grid, hintAggregator: HintAggregator) {
         val expectedCardinality = grid.gridSize - 1
+
         grid.acceptHouses { house ->
             val assignedValues = house.assignedValueSet
             if (assignedValues.cardinality() == expectedCardinality) {
@@ -60,7 +61,7 @@ class HiddenSingleFinder : BaseHintFinder
     override fun findHints(grid: Grid, hintAggregator: HintAggregator) {
         grid.acceptHouses { house ->
             for (value in house.unassignedValues()) {
-                val possiblePositions: CellSet = house.getPotentialPositionsAsSet(value)
+                val possiblePositions = house.getPotentialPositionsAsSet(value)
                 if (possiblePositions.cardinality() == 1) {
                     val cellIndex = possiblePositions.firstSetBit()
                     placeValueInCell(grid, hintAggregator, cellIndex, house.cellSet, value)
