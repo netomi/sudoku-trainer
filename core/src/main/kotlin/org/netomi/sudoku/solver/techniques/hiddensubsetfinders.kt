@@ -124,7 +124,7 @@ abstract class HiddenSubsetFinder protected constructor(private val subSetSize: 
         if (level == subSetSize) {
             var foundHint = false
             if (allPotentialPositions.cardinality() == subSetSize) {
-                eliminateNotAllowedValuesFromCells(grid, hintAggregator, allPotentialPositions, visitedValues)
+                eliminateNotAllowedValuesFromCells(grid, hintAggregator, allPotentialPositions, visitedValues.copy())
                 foundHint = true
             }
             visitedValues.clear(currentValue)
