@@ -30,10 +30,8 @@ import org.netomi.sudoku.solver.SolvingTechnique
  * of cells has the same two candidates left, forming a naked pair. The
  * same candidates in other cells of the same house can be removed.
  */
-open class NakedPairFinder protected constructor(private val findLockedHouses: Boolean) : BaseHintFinder
+open class NakedPairFinder : BaseHintFinder
 {
-    constructor() : this(false)
-
     override val solvingTechnique: SolvingTechnique
         get() = SolvingTechnique.NAKED_PAIR
 
@@ -54,17 +52,8 @@ open class NakedPairFinder protected constructor(private val findLockedHouses: B
                     // have the same candidates, we have found a naked pair.
                     if (possibleValues == otherPossibleValues) {
                         val affectedCells = house.cellSet.toMutableCellSet()
-
                         val matchingCells = MutableCellSet.of(cell, otherCell)
-                        if (findLockedHouses) {
-                            val row = matchingCells.getSingleRow(grid)
-                            row?.let { affectedCells.or(it.cellSet) }
-
-                            val col = matchingCells.getSingleColumn(grid)
-                            col?.let { affectedCells.or(it.cellSet) }
-                        }
-
-                        val relatedCells = affectedCells.copy()
+                        val relatedCells  = affectedCells.copy()
 
                         affectedCells.clear(cell.cellIndex)
                         affectedCells.clear(otherCell.cellIndex)
@@ -82,17 +71,6 @@ open class NakedPairFinder protected constructor(private val findLockedHouses: B
 }
 
 /**
- * A [HintFinder] implementation that looks for houses, where a pair
- * of cells has the same two candidates left, forming a locked pair if they
- * are on the same row or column. The same candidates in other cells of the
- * same house and row / column can be removed.
- */
-class LockedPairFinder : NakedPairFinder(true) {
-    override val solvingTechnique: SolvingTechnique
-        get() = SolvingTechnique.LOCKED_PAIR
-}
-
-/**
  * A [HintFinder] implementation that looks for houses where a subset
  * of 3 cells has the same three candidates left, forming a naked triple. The
  * candidates in other cells of the same house can be removed.
@@ -101,17 +79,6 @@ class NakedTripleFinder : NakedSubsetFinder(3)
 {
     override val solvingTechnique: SolvingTechnique
         get() = SolvingTechnique.NAKED_TRIPLE
-}
-
-/**
- * A [HintFinder] implementation that looks for houses where a subset of 3 cells
- * has the same three candidates left, forming a naked triple if they are on the same
- * row or column. The candidates in other cells of the same house and row / columns can
- * be removed.
- */
-class LockedTripleFinder : NakedSubsetFinder(3, true) {
-    override val solvingTechnique: SolvingTechnique
-        get() = SolvingTechnique.LOCKED_TRIPLE
 }
 
 /**
@@ -125,8 +92,7 @@ class NakedQuadrupleFinder : NakedSubsetFinder(4)
         get() = SolvingTechnique.NAKED_QUADRUPLE
 }
 
-abstract class NakedSubsetFinder protected constructor(private val subSetSize:       Int,
-                                                       private val findLockedHouses: Boolean = false)
+abstract class NakedSubsetFinder protected constructor(private val subSetSize: Int)
     : BaseHintFinder
 {
     override fun findHints(grid: Grid, hintAggregator: HintAggregator) {
@@ -173,16 +139,7 @@ abstract class NakedSubsetFinder protected constructor(private val subSetSize:  
             var foundHint = false
             if (allVisitedValues.cardinality() == subSetSize) {
                 val affectedCells = house.cellSet.toMutableCellSet()
-
-                if (findLockedHouses) {
-                    val row = visitedCells.getSingleRow(grid)
-                    row?.let { affectedCells.or(it.cellSet) }
-
-                    val col = visitedCells.getSingleColumn(grid)
-                    col?.let { affectedCells.or(it.cellSet) }
-                }
-
-                val relatedCells = affectedCells.copy()
+                val relatedCells  = affectedCells.copy()
 
                 affectedCells.andNot(visitedCells)
                 eliminateValuesFromCells(grid, hintAggregator, visitedCells.copy(), relatedCells, affectedCells, allVisitedValues)

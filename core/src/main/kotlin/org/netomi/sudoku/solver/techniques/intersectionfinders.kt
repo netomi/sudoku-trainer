@@ -22,6 +22,7 @@ package org.netomi.sudoku.solver.techniques
 import org.netomi.sudoku.model.*
 import org.netomi.sudoku.solver.BaseHintFinder
 import org.netomi.sudoku.solver.HintAggregator
+import org.netomi.sudoku.solver.HintFinder
 import org.netomi.sudoku.solver.SolvingTechnique
 
 class LockedCandidatesType1Finder : BaseHintFinder
@@ -69,5 +70,149 @@ class LockedCandidatesType2Finder : BaseHintFinder
         // Check all rows and columns.
         grid.acceptRows(visitor)
         grid.acceptColumns(visitor)
+    }
+}
+
+/**
+ * A [HintFinder] implementation that looks for blocks, where a pair
+ * of cells has the same two candidates left, forming a locked pair if they
+ * are on the same row or column. The same candidates in other cells of the
+ * same block and row / column can be removed.
+ */
+open class LockedPairFinder : BaseHintFinder
+{
+    override val solvingTechnique: SolvingTechnique
+        get() = SolvingTechnique.LOCKED_PAIR
+
+    override fun findHints(grid: Grid, hintAggregator: HintAggregator) {
+        grid.acceptBlocks { house ->
+            for (cell in house.cells()) {
+                val possibleValues = cell.possibleValueSet
+                if (possibleValues.cardinality() != 2) {
+                    continue
+                }
+                for (otherCell in house.cells(cell.cellIndex + 1)) {
+                    val otherPossibleValues = otherCell.possibleValueSet
+                    if (otherPossibleValues.cardinality() != 2) {
+                        continue
+                    }
+
+                    // If the two [CellSet]s containing the possible candidate values
+                    // have the same candidates, we potentially have found a locked pair.
+                    if (possibleValues == otherPossibleValues) {
+                        val affectedCells = house.cellSet.toMutableCellSet()
+
+                        val matchingCells = MutableCellSet.of(cell, otherCell)
+                        val row = matchingCells.getSingleRow(grid)
+                        row?.let { affectedCells.or(it.cellSet) }
+
+                        val col = matchingCells.getSingleColumn(grid)
+                        col?.let { affectedCells.or(it.cellSet) }
+
+                        // if the two cells are neither on the same
+                        // row or column, we have not found a locked pair
+                        // (just a naked one).
+                        if (row == null && col == null) {
+                            continue
+                        }
+
+                        val relatedCells = affectedCells.copy()
+
+                        affectedCells.clear(cell.cellIndex)
+                        affectedCells.clear(otherCell.cellIndex)
+                        eliminateValuesFromCells(grid, hintAggregator, matchingCells, relatedCells, affectedCells, possibleValues.copy())
+                    }
+                }
+            }
+        }
+    }
+}
+
+/**
+ * A [HintFinder] implementation that looks for blocks where a subset of 3 cells
+ * has the same three candidates left, forming a locked triple if they are on the same
+ * row or column. The candidates in other cells of the same block and row / columns can
+ * be removed.
+ */
+class LockedTripleFinder : BaseHintFinder {
+
+    private val subSetSize = 3
+
+    override val solvingTechnique: SolvingTechnique
+        get() = SolvingTechnique.LOCKED_TRIPLE
+
+    override fun findHints(grid: Grid, hintAggregator: HintAggregator) {
+        grid.acceptBlocks { house ->
+            if (!house.isSolved) {
+                for (cell in house.unassignedCells()) {
+                    findSubset(grid,
+                               hintAggregator,
+                               house,
+                               MutableCellSet.empty(grid),
+                               cell,
+                               MutableValueSet.empty(grid),
+                               1)
+                }
+            }
+        }
+    }
+
+    private fun findSubset(grid:           Grid,
+                           hintAggregator: HintAggregator,
+                           house:          House,
+                           visitedCells:   MutableCellSet,
+                           currentCell:    Cell,
+                           visitedValues:  MutableValueSet,
+                           level:          Int): Boolean
+    {
+        if (level > subSetSize) {
+            return false
+        }
+
+        val allVisitedValues = visitedValues.copy()
+        allVisitedValues.or(currentCell.possibleValueSet)
+        if (allVisitedValues.cardinality() > subSetSize) {
+            return false
+        }
+        visitedCells.set(currentCell.cellIndex)
+
+        if (level == subSetSize) {
+            var foundHint = false
+            if (allVisitedValues.cardinality() == subSetSize) {
+                val affectedCells = house.cellSet.toMutableCellSet()
+
+                val row = visitedCells.getSingleRow(grid)
+                row?.let { affectedCells.or(it.cellSet) }
+
+                val col = visitedCells.getSingleColumn(grid)
+                col?.let { affectedCells.or(it.cellSet) }
+
+                // if the cells are either on the same
+                // row or column, we have found a locked triple.
+                if (row != null || col != null) {
+                    val relatedCells = affectedCells.copy()
+
+                    affectedCells.andNot(visitedCells)
+                    eliminateValuesFromCells(grid, hintAggregator, visitedCells.copy(), relatedCells, affectedCells, allVisitedValues)
+                    foundHint = true
+                }
+            }
+            visitedCells.clear(currentCell.cellIndex)
+            return foundHint
+        }
+
+        var foundHint = false
+        for (nextCell in house.unassignedCells(currentCell.cellIndex + 1)) {
+            foundHint = foundHint or findSubset(grid,
+                    hintAggregator,
+                    house,
+                    visitedCells,
+                    nextCell,
+                    allVisitedValues,
+                    level + 1)
+        }
+
+        visitedCells.clear(currentCell.cellIndex)
+        return foundHint
     }
 }

@@ -40,3 +40,23 @@ class LockedCandidatesType2FinderTest : BaseHintFinderTest() {
         return testCase.technique.startsWith("0101")
     }
 }
+
+class LockedPairFinderTest : BaseHintFinderTest() {
+    override fun createHintFinder(): HintFinder {
+        return LockedPairFinder()
+    }
+
+    override fun matches(testCase: TechniqueTestCase): Boolean {
+        return testCase.technique.startsWith("0110")
+    }
+}
+
+class LockedTripleFinderTest : BaseHintFinderTest() {
+    override fun createHintFinder(): HintFinder {
+        return LockedTripleFinder()
+    }
+
+    override fun matches(testCase: TechniqueTestCase): Boolean {
+        return testCase.technique.startsWith("0111")
+    }
+}
