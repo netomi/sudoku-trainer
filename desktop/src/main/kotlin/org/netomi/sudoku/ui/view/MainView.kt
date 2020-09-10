@@ -33,10 +33,7 @@ import javafx.scene.layout.Priority
 import org.netomi.sudoku.model.PredefinedType
 import org.netomi.sudoku.solver.Hint
 import org.netomi.sudoku.ui.controller.GridController
-import org.netomi.sudoku.ui.model.Category
-import org.netomi.sudoku.ui.model.DisplayOptions
-import org.netomi.sudoku.ui.model.LibraryEntry
-import org.netomi.sudoku.ui.model.SudokuLibrary
+import org.netomi.sudoku.ui.model.*
 import tornadofx.*
 
 class MainView : View("Sudoku Trainer") {
@@ -150,32 +147,29 @@ class MainView : View("Sudoku Trainer") {
                     }
 
                     item("Library", expanded = true) {
-                        treeview<String> {
-                            root = TreeItem("Solving Techniques")
+                        treeview<TechniqueCategoryOrLibraryEntry> {
+                            root = TreeItem(TechniqueCategory.All)
 
-                            cellFormat { text = it }
+                            cellFormat { text = it.toDisplayString() }
 
                             populate { parent ->
-                                if (parent === root) {
-                                    Category.values().filter { category -> category.parent == null }.map { category -> category.toString() }
-                                } else {
-                                    val value = parent.value
-                                    val parentCategory = Category.ofName(value)
+                                val node = parent.value
+                                return@populate if (node.isCategory()) {
+                                    val category = node as TechniqueCategory
 
-                                    if (parentCategory != null) {
-                                        val subcategories = Category.values().filter { category -> category.parent == parentCategory }.map { category -> category.toString() }
-                                        if (subcategories.isNotEmpty()) {
-                                            return@populate subcategories
-                                        }
+                                    if (category.hasSubCategories()) {
+                                        category.subCategories()
+                                    } else {
+                                        SudokuLibrary.entries[category]
                                     }
-                                    SudokuLibrary.entries[parentCategory]?.map { entry -> entry.toString() }
+                                } else {
+                                    null
                                 }
                             }
 
                             onUserSelect {
-                                if (it.contains(":")) {
-                                    val entry = LibraryEntry.of(it)
-                                    gridController.loadModel(entry)
+                                it.getLibraryEntry()?.apply {
+                                    gridController.loadModel(this)
                                 }
                             }
                         }

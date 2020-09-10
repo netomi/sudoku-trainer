@@ -71,7 +71,11 @@ class GridController : Controller()
         val grid = of(PredefinedType.CLASSIC_9x9)
         grid.accept(GridValueLoader(entry.givens))
 
-        grid.assignedCells().forEach { cell -> if (!cell.isGiven) cell.setValue(0, false) }
+        for (c in entry.getDeletedCandidates()) {
+            val cell = grid.getCell(c.row, c.col)
+            cell.excludePossibleValues(false, c.value)
+        }
+
         grid.updateState()
 
         modelProperty.set(grid)

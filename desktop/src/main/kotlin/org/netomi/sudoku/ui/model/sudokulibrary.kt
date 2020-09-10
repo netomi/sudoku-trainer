@@ -24,9 +24,16 @@ import java.io.InputStreamReader
 import java.util.*
 import kotlin.collections.ArrayList
 
+interface TechniqueCategoryOrLibraryEntry
+{
+    fun isCategory(): Boolean
+    fun getLibraryEntry(): LibraryEntry?
+    fun toDisplayString(): String
+}
+
 object SudokuLibrary
 {
-    val entries: MutableMap<Category, MutableList<LibraryEntry>> = EnumMap(Category::class.java)
+    val entries = EnumMap<TechniqueCategory, MutableList<LibraryEntry>>(TechniqueCategory::class.java)
 
     init {
         this::class.java.getResourceAsStream("/reglib-1.4.txt")?.use { `is` ->
@@ -35,7 +42,7 @@ object SudokuLibrary
                 while (reader.readLine().also { line = it } != null) {
                     if (line!!.startsWith(":")) {
                         val entry = LibraryEntry.of(line!!)
-                        val category = Category.of(entry.technique)
+                        val category = TechniqueCategory.of(entry.technique)
 
                         category?.apply {
                             val list = entries.getOrPut(category, { ArrayList() })
@@ -48,42 +55,63 @@ object SudokuLibrary
     }
 }
 
-enum class Category constructor(val prefix: String, val parent: Category?)
+enum class TechniqueCategory constructor(private val displayName: String,
+                                         private val prefix: String,
+                                         private val parent: TechniqueCategory?)
+    : TechniqueCategoryOrLibraryEntry
 {
-    Singles("00xx", null),
-    FullHouse("0000", Singles),
-    HiddenSingle("0002", Singles),
-    NakedSingle("0003", Singles),
-    Intersections("01xx", null),
-    LockedCandidateType1("0100", Intersections),
-    LockedCandidateType2("0101", Intersections),
-    LockedPair("0110", Intersections),
-    LockedTriple("0111", Intersections),
-    Subsets("02xx", null),
-    NakedPair("0200", Subsets),
-    NakedTriple("0201", Subsets),
-    NakedQuadruple("0202", Subsets),
-    HiddenPair("0210", Subsets),
-    HiddenTriple("0211", Subsets),
-    HiddenQuadruple("0212", Subsets),
-    Fish("03xx", null),
-    XWing("0300", Fish),
-    Swordfish("0301", Fish),
-    Jellyfish("0302", Fish);
+    All                 ("All solving techniques", "xxxx", null),
+    Singles             ("Singles", "00xx", All),
+    FullHouse           ("Full House", "0000", Singles),
+    HiddenSingle        ("Hidden Single", "0002", Singles),
+    NakedSingle         ("Naked Single", "0003", Singles),
+    Intersections       ("Intersections", "01xx", All),
+    LockedCandidateType1("Locked Candidate (pointing)", "0100", Intersections),
+    LockedCandidateType2("Locked Candidate (claiming)", "0101", Intersections),
+    LockedPair          ("Locked Pair", "0110", Intersections),
+    LockedTriple        ("Locked Triple", "0111", Intersections),
+    Subsets             ("Subsets", "02xx", All),
+    NakedPair           ("Naked Pair", "0200", Subsets),
+    NakedTriple         ("Naked Triple", "0201", Subsets),
+    NakedQuadruple      ("Naked Quadruple", "0202", Subsets),
+    HiddenPair          ("Hidden Pair", "0210", Subsets),
+    HiddenTriple        ("Hidden Triple", "0211", Subsets),
+    HiddenQuadruple     ("Hidden Quadruple", "0212", Subsets),
+    Fish                ("Fish", "03xx", All),
+    XWing               ("X-Wing", "0300", Fish),
+    Swordfish           ("Swordfish", "0301", Fish),
+    Jellyfish           ("Jellyfish", "0302", Fish),
+    Chains              ("Chains", "07xx", All),
+    RemotePair          ("Remote Pair", "0703", Chains);
+
+    override fun isCategory(): Boolean {
+        return true
+    }
+
+    fun hasSubCategories(): Boolean {
+        return prefix.contains("x")
+    }
+
+    override fun getLibraryEntry(): LibraryEntry? {
+        return null
+    }
+
+    override fun toDisplayString(): String {
+        return displayName
+    }
+
+    fun subCategories(): Iterable<TechniqueCategory> {
+        return if (hasSubCategories()) {
+            values().filter { category -> category.parent === this@TechniqueCategory }
+        } else {
+            emptyList()
+        }
+    }
 
     companion object {
-        fun of(technique: String): Category? {
+        fun of(technique: String): TechniqueCategory? {
             for (category in values()) {
                 if (technique.startsWith(category.prefix)) {
-                    return category
-                }
-            }
-            return null
-        }
-
-        fun ofName(name: String): Category? {
-            for (category in values()) {
-                if (category.name == name) {
                     return category
                 }
             }
@@ -94,16 +122,79 @@ enum class Category constructor(val prefix: String, val parent: Category?)
 
 class LibraryEntry private constructor(val technique: String,
                                        val candidate: String,
-                                       val givens:    String)
+                                       val givens:    String,
+                                       deletedCandidatesString: String)
+    : TechniqueCategoryOrLibraryEntry
 {
+    private val deletedCandidates: MutableList<Candidate> = mutableListOf()
+
+    fun getDeletedCandidates(): Collection<Candidate> {
+        return deletedCandidates
+    }
+
+    override fun isCategory(): Boolean {
+        return false
+    }
+
+    override fun getLibraryEntry(): LibraryEntry? {
+        return this
+    }
+
+    override fun toDisplayString(): String {
+        return toString()
+    }
+
     override fun toString(): String {
-        return ":%s:%s:%s".format(technique, candidate, givens)
+        return ":%s:%s:%s:s".format(technique, candidate, givens, deletedCandidates)
+    }
+
+    init {
+        for (str in deletedCandidatesString.split(" ").toTypedArray()) {
+            if (str.isNotEmpty()) {
+                deletedCandidates.add(Candidate.of(str))
+            }
+        }
     }
 
     companion object {
         fun of(line: String): LibraryEntry {
             val tokens = line.split(":").toTypedArray()
-            return LibraryEntry(tokens[1], tokens[2], tokens[3])
+            return LibraryEntry(tokens[1], tokens[2], tokens[3], tokens[4])
+        }
+    }
+}
+
+class Candidate(val row: Int, val col: Int, val value: Int)
+{
+    override fun hashCode(): Int {
+        return Objects.hash(row, col, value)
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
+        val candidate = other as Candidate
+        return row == candidate.row && col == candidate.col && value == candidate.value
+    }
+
+    fun asPlacement(): String {
+        return "r%dc%d=%d".format(row, col, value)
+    }
+
+    fun asElimination(): String {
+        return toString()
+    }
+
+    override fun toString(): String {
+        return "r%dc%d<>%d".format(row, col, value)
+    }
+
+    companion object {
+        fun of(str: String): Candidate {
+            val row = ("" + str[1]).toInt()
+            val col = ("" + str[2]).toInt()
+            val `val` = ("" + str[0]).toInt()
+            return Candidate(row, col, `val`)
         }
     }
 }
