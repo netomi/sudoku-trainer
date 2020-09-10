@@ -10,21 +10,6 @@ javafx {
 
 mainClassName = 'sudoku.desktop/org.netomi.sudoku.ui.SudokuApp'
 
-task copyResources {
-    copy {
-        from 'build/resources/main'
-        into 'build/classes/kotlin/main'
-    }
-
-    outputs.upToDateWhen { false }
-}
-
-copyResources.dependsOn(tasks.processResources)
-
-compileKotlin.finalizedBy {
-    tasks.copyResources
-}
-
 jar {
     manifest {
         attributes 'Main-Class': mainClassName
