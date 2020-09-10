@@ -63,4 +63,8 @@ fun interface HintVisitor
     fun visitEliminationHint(hint: EliminationHint) {
         visitAnyHint(hint)
     }
+
+    fun visitChainEliminationHint(hint: ChainEliminationHint) {
+        visitAnyHint(hint)
+    }
 }

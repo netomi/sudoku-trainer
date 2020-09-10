@@ -28,14 +28,16 @@ class Styles : Stylesheet() {
         val sudokuGrid by cssclass()
         val sudokuCell by cssclass()
 
-        val cellAssignedValue   by cssclass()
-        val cellGivenValue      by cssclass()
-        val cellPossibleValue   by cssclass()
-        val cellFocus           by cssclass()
-        val cellValueConflict   by cssclass()
-        val cellAssigmentHint   by cssclass()
-        val cellEliminationHint by cssclass()
-        val cellHighlight       by cssclass()
+        val cellAssignedValue       by cssclass()
+        val cellGivenValue          by cssclass()
+        val cellPossibleValue       by cssclass()
+        val cellFocus               by cssclass()
+        val cellValueConflict       by cssclass()
+        val cellMatchingCandidate   by cssclass()
+        val cellEliminatedCandidate by cssclass()
+        val cellActiveCandidate     by cssclass()
+        val cellInactiveCandidate   by cssclass()
+        val cellHighlight           by cssclass()
     }
 
     init {
@@ -74,15 +76,27 @@ class Styles : Stylesheet() {
             backgroundColor += Color.YELLOW
         }
 
-        cellAssigmentHint {
+        cellMatchingCandidate {
             backgroundRadius += box(2.em)
             backgroundColor  += Color.LIMEGREEN
             textFill = Color.BLACK
         }
 
-        cellEliminationHint {
+        cellEliminatedCandidate {
             backgroundRadius += box(2.em)
             backgroundColor  += Color.CORAL
+            textFill = Color.BLACK
+        }
+
+        cellActiveCandidate {
+            backgroundRadius += box(2.em)
+            backgroundColor  += Color.LIMEGREEN
+            textFill = Color.BLACK
+        }
+
+        cellInactiveCandidate {
+            backgroundRadius += box(2.em)
+            backgroundColor  += Color.CORNFLOWERBLUE
             textFill = Color.BLACK
         }
 

@@ -27,6 +27,7 @@ import javafx.collections.ObservableIntegerArray
 import javafx.event.EventHandler
 import javafx.geometry.HPos
 import javafx.geometry.VPos
+import javafx.scene.Group
 import javafx.scene.Node
 import javafx.scene.control.ContextMenu
 import javafx.scene.control.Label
@@ -35,12 +36,12 @@ import javafx.scene.layout.ColumnConstraints
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.Priority
 import javafx.scene.layout.RowConstraints
+import javafx.scene.shape.Shape
 import org.netomi.sudoku.model.Cell
 import org.netomi.sudoku.model.Conflict
-import org.netomi.sudoku.solver.AssignmentHint
-import org.netomi.sudoku.solver.EliminationHint
-import org.netomi.sudoku.solver.Hint
-import org.netomi.sudoku.solver.HintVisitor
+import org.netomi.sudoku.model.Grid
+import org.netomi.sudoku.model.ValueSet
+import org.netomi.sudoku.solver.*
 import org.netomi.sudoku.ui.Styles
 import org.netomi.sudoku.ui.model.DisplayOptions
 import tornadofx.*
@@ -84,8 +85,11 @@ class CellFragment(private val cell: Cell) : Fragment()
             assignedValueLabel.removeClass(Styles.cellValueConflict)
         }
 
-        possibleValuesPane.children.forEach(Consumer { child: Node -> child.removeClass(Styles.cellAssigmentHint) })
-        possibleValuesPane.children.forEach(Consumer { child: Node -> child.removeClass(Styles.cellEliminationHint) })
+        // TODO: investigate how this can be improved using properties that bind style classes.
+        possibleValuesPane.children.forEach(Consumer { child: Node -> child.removeClass(Styles.cellMatchingCandidate) })
+        possibleValuesPane.children.forEach(Consumer { child: Node -> child.removeClass(Styles.cellEliminatedCandidate) })
+        possibleValuesPane.children.forEach(Consumer { child: Node -> child.removeClass(Styles.cellActiveCandidate) })
+        possibleValuesPane.children.forEach(Consumer { child: Node -> child.removeClass(Styles.cellInactiveCandidate) })
 
         root.removeClass(Styles.cellHighlight)
         displayedHint?.accept(object : HintVisitor {
@@ -97,7 +101,7 @@ class CellFragment(private val cell: Cell) : Fragment()
 
             override fun visitAssignmentHint(hint: AssignmentHint) {
                 if (hint.cellIndex == cell.cellIndex) {
-                    possibleValuesPane.children[hint.value - 1].addClass(Styles.cellAssigmentHint)
+                    getCandidateLabel(hint.value).addClass(Styles.cellMatchingCandidate)
                 }
 
                 visitAnyHint(hint)
@@ -106,7 +110,7 @@ class CellFragment(private val cell: Cell) : Fragment()
             override fun visitEliminationHint(hint: EliminationHint) {
                 if (hint.matchingCells[cell.cellIndex]) {
                     for (value in hint.matchingValues.allSetBits()) {
-                        possibleValuesPane.children[value - 1].addClass(Styles.cellAssigmentHint)
+                        getCandidateLabel(value).addClass(Styles.cellMatchingCandidate)
                     }
                 }
 
@@ -114,7 +118,36 @@ class CellFragment(private val cell: Cell) : Fragment()
                     if (cellIndex == cell.cellIndex) {
                         val excludedValues = hint.excludedValues[i]
                         for (value in excludedValues.allSetBits()) {
-                            possibleValuesPane.children[value - 1].addClass(Styles.cellEliminationHint)
+                            getCandidateLabel(value).addClass(Styles.cellEliminatedCandidate)
+                        }
+                    }
+                }
+
+                visitAnyHint(hint)
+            }
+
+            override fun visitChainEliminationHint(hint: ChainEliminationHint) {
+                hint.relatedChain.accept(cell.owner, object: ChainVisitor {
+                    override fun visitCell(grid: Grid, chain: Chain, currentCell: Cell, activeValues: ValueSet, inactiveValues: ValueSet) {
+                        if (cell.cellIndex == currentCell.cellIndex) {
+                            for (value in activeValues.allSetBits()) {
+                                getCandidateLabel(value).addClass(Styles.cellActiveCandidate)
+                            }
+
+                            for (value in inactiveValues.allSetBits()) {
+                                getCandidateLabel(value).addClass(Styles.cellInactiveCandidate)
+                            }
+                        }
+                    }
+
+                    override fun visitCellLink(grid: Grid, chain: Chain, fromCell: Cell, fromCandidate: Int, toCell: Cell, toCandidate: Int, linkType: LinkType) {}
+                })
+
+                for ((i, cellIndex) in hint.affectedCells.allSetBits().withIndex()) {
+                    if (cellIndex == cell.cellIndex) {
+                        val excludedValues = hint.excludedValues[i]
+                        for (value in excludedValues.allSetBits()) {
+                            getCandidateLabel(value).addClass(Styles.cellEliminatedCandidate)
                         }
                     }
                 }
@@ -153,6 +186,7 @@ class CellFragment(private val cell: Cell) : Fragment()
             }
 
             focusedProperty().addListener { _, _, newPropertyValue: Boolean ->
+                println("" + this.layoutX + " " + this.layoutY)
                 if (newPropertyValue) {
                     removeClass(Styles.cellFocus)
                     addClass(Styles.cellFocus)
@@ -274,6 +308,23 @@ class CellFragment(private val cell: Cell) : Fragment()
         }
 
         contextMenu.show(root, event.screenX, event.screenY)
+    }
+
+    internal fun getCandidateLabel(candidate: Int): Node {
+        return possibleValuesPane.children[candidate - 1]
+    }
+
+    fun getArrow(fromCandidate: Int, toFragment: CellFragment, toCandidate: Int, linkType: LinkType): Shape {
+        // FIXME: very simple arrow, improve using cubic curve and dashed lines
+        val fromLabel = getCandidateLabel(fromCandidate)
+        val toLabel   = toFragment.getCandidateLabel(toCandidate)
+
+        val from = fromLabel.boundsInParent
+        val to   = toLabel.boundsInParent
+
+        val arrow = Arrow(root.layoutX + from.centerX, root.layoutY + from.centerY, toFragment.root.layoutX + to.centerX, toFragment.root.layoutY + to.centerY)
+        arrow.strokeWidth = 4.0
+        return arrow
     }
 
     override fun toString(): String {

@@ -21,12 +21,12 @@ package org.netomi.sudoku.ui.view
 
 import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleObjectProperty
-import javafx.scene.layout.ColumnConstraints
-import javafx.scene.layout.Priority
-import javafx.scene.layout.RowConstraints
-import org.netomi.sudoku.model.Conflict
-import org.netomi.sudoku.model.ConflictDetector
-import org.netomi.sudoku.model.Grid
+import javafx.scene.Group
+import javafx.scene.layout.*
+import javafx.scene.paint.Color
+import javafx.scene.shape.Line
+import org.netomi.sudoku.model.*
+import org.netomi.sudoku.solver.*
 import org.netomi.sudoku.ui.Styles
 import org.netomi.sudoku.ui.controller.GridController
 import org.netomi.sudoku.ui.model.DisplayOptions
@@ -39,28 +39,39 @@ class GridView : View()
 {
     private val gridController: GridController by inject()
 
+    private lateinit var grid: GridPane
+    private lateinit var shapeGroup: Pane
+
     private val modelProperty: ObjectProperty<Grid?> = SimpleObjectProperty()
     private val cellFragmentList: ArrayList<CellFragment> = ArrayList()
 
     private val model: Grid?
         get() = modelProperty.get()
 
-    override val root = gridpane {
-        useMaxSize = true
-        addClass(Styles.sudokuGrid)
-    }
+    override val root =
+        stackpane {
+            grid = gridpane {
+                useMaxSize = true
+                addClass(Styles.sudokuGrid)
+            }
+
+            shapeGroup = pane {
+                managedProperty().set(false)
+                useMaxSize = true
+            }
+        }
 
     private fun rebuildViewFromModel() {
-        root.children.clear()
-        root.rowConstraints.clear()
-        root.columnConstraints.clear()
+        grid.children.clear()
+        grid.rowConstraints.clear()
+        grid.columnConstraints.clear()
         cellFragmentList.clear()
 
         model?.let {
             for (cell in it.cells()) {
                 val cellFragment = CellFragment(cell)
                 cellFragmentList.add(cellFragment)
-                root.add(cellFragment).apply {
+                grid.add(cellFragment).apply {
                     cellFragment.root.gridpaneConstraints {
                         columnRowIndex(cell.columnIndex, cell.rowIndex)
                     }
@@ -70,13 +81,13 @@ class GridView : View()
             for (i in 0 until it.gridSize) {
                 val row = RowConstraints(3.0, 100.0, Double.MAX_VALUE)
                 row.vgrow = Priority.ALWAYS
-                root.rowConstraints.add(row)
+                grid.rowConstraints.add(row)
             }
 
             for (i in 0 until it.gridSize) {
                 val col = ColumnConstraints(3.0, 100.0, Double.MAX_VALUE)
                 col.hgrow = Priority.ALWAYS
-                root.columnConstraints.add(col)
+                grid.columnConstraints.add(col)
             }
 
             it.onUpdate { refreshView() }
@@ -98,9 +109,30 @@ class GridView : View()
             }
         }
 
+        val hint = gridController.hintProperty.get()
+
         for (child in cellFragmentList) {
-            child.refreshView(conflicts, gridController.hintProperty.get())
+            child.refreshView(conflicts, hint)
         }
+
+        shapeGroup.children.clear()
+        hint?.accept(object: HintVisitor {
+            override fun visitAnyHint(hint: Hint) {}
+
+            override fun visitChainEliminationHint(hint: ChainEliminationHint) {
+                hint.relatedChain.accept(model!!, object: ChainVisitor {
+                    override fun visitCell(grid: Grid, chain: Chain, cell: Cell, activeValues: ValueSet, inactiveValues: ValueSet) {}
+
+                    override fun visitCellLink(grid: Grid, chain: Chain, fromCell: Cell, fromCandidate: Int, toCell: Cell, toCandidate: Int, linkType: LinkType) {
+                        val fromFragment = cellFragmentList[fromCell.cellIndex]
+                        val toFragment = cellFragmentList[toCell.cellIndex]
+
+                        val arrow = fromFragment.getArrow(fromCandidate, toFragment, toCandidate, linkType)
+                        shapeGroup.add(arrow)
+                    }
+                })
+            }
+        })
     }
 
     init {

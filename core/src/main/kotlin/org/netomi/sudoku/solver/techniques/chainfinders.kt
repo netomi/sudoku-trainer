@@ -20,10 +20,8 @@
 package org.netomi.sudoku.solver.techniques
 
 import org.netomi.sudoku.model.*
+import org.netomi.sudoku.solver.*
 import org.netomi.sudoku.solver.BaseHintFinder
-import org.netomi.sudoku.solver.HintAggregator
-import org.netomi.sudoku.solver.HintFinder
-import org.netomi.sudoku.solver.SolvingTechnique
 
 /**
  * A [HintFinder] implementation ...
@@ -37,7 +35,12 @@ class RemotePairFinder : BaseHintFinder {
         grid.acceptCells { cell ->
             val possibleValues = cell.possibleValueSet
             if (possibleValues.cardinality() == 2) {
-                findChain(grid, hintAggregator, cell, Chain(grid, cell), visitedChains, 1)
+                // initial chain setup
+                val firstCandidate = possibleValues.firstSetBit()
+                val chain = Chain(grid, cell.cellIndex, firstCandidate)
+                chain.addLink(LinkType.STRONG, cell.cellIndex, possibleValues.nextSetBit(firstCandidate + 1))
+
+                findChain(grid, hintAggregator, cell, chain, visitedChains, 1)
             }
         }
     }
@@ -47,32 +50,38 @@ class RemotePairFinder : BaseHintFinder {
                           currentCell:    Cell,
                           currentChain:   Chain,
                           visitedChains:  MutableSet<CellSet>,
-                          length:         Int)
+                          cellCount:      Int)
     {
-        currentChain.addLink(currentCell)
-        val possibleValues = currentCell.possibleValueSet
         // make sure we do not add chains twice: in forward and reverse order.
-        if (visitedChains.contains(currentChain.cells)) {
+        if (visitedChains.contains(currentChain.cellSet)) {
             return
         }
 
-        if (length > 3) {
+        // to find a remote pair, the chain has to include at least
+        // 4 cells. Also the start / end points of the chain need to
+        // have opposite active states.
+        if (cellCount >= 4 && cellCount % 2 == 0) {
             val affectedCells = currentCell.peerSet.toMutableCellSet()
-            affectedCells.andNot(currentChain.cells)
+            affectedCells.andNot(currentChain.cellSet)
 
             for (affectedCell in affectedCells.allCells(grid)) {
                 val peers = affectedCell.peerSet.toMutableCellSet()
-                val endPoints = MutableCellSet.of(currentChain.startCell, currentCell)
+
+                val startCell = currentChain.rootNode.cellIndex
+                val endPoints = MutableCellSet.of(grid.getCell(startCell), currentCell)
 
                 peers.and(endPoints)
 
+                // if the cell does not see both endpoints,
+                // it can not be considered for elimination.
                 if (peers.cardinality() < 2) {
                     affectedCells.clear(affectedCell.cellIndex)
                 }
             }
 
-            val matchingCells = currentChain.cells.copy()
-            if (eliminateValuesFromCells(grid, hintAggregator, matchingCells, possibleValues, affectedCells, affectedCells, possibleValues)) {
+            val matchingCells = currentChain.cellSet.copy()
+            val possibleValues = currentCell.possibleValueSet.copy()
+            if (eliminateValuesFromCells(grid, hintAggregator, matchingCells, possibleValues, affectedCells, currentChain.copy(), affectedCells, possibleValues)) {
                 visitedChains.add(matchingCells)
             }
         }
@@ -82,35 +91,23 @@ class RemotePairFinder : BaseHintFinder {
                 continue
             }
 
+            val possibleValues           = currentCell.possibleValueSet
             val possibleValuesOfNextCell = nextCell.possibleValueSet
+
             if (possibleValuesOfNextCell.cardinality() != 2 ||
-                possibleValues != possibleValuesOfNextCell) {
+                    possibleValues != possibleValuesOfNextCell) {
                 continue
             }
 
-            findChain(grid, hintAggregator, nextCell, currentChain, visitedChains, length + 1)
-        }
+            val linkedCandidate = currentChain.lastNode.candidate
+            currentChain.addLink(LinkType.WEAK, nextCell.cellIndex, linkedCandidate)
+            val otherCandidate = possibleValuesOfNextCell.filteredSetBits { it != linkedCandidate }.first()
+            currentChain.addLink(LinkType.STRONG, nextCell.cellIndex, otherCandidate)
 
-        currentChain.removeLink(currentCell)
-    }
+            findChain(grid, hintAggregator, nextCell, currentChain, visitedChains, cellCount + 1)
 
-    private class Chain(grid: Grid, val startCell: Cell) {
-        val cells: MutableCellSet = MutableCellSet.empty(grid)
-
-        fun addLink(cell: Cell) {
-            cells.set(cell.cellIndex)
-        }
-
-        fun removeLink(cell: Cell) {
-            cells.clear(cell.cellIndex)
-        }
-
-        operator fun contains(cell: Cell): Boolean {
-            return cells[cell.cellIndex]
-        }
-
-        init {
-            cells.set(startCell.cellIndex)
+            currentChain.removeLastLink()
+            currentChain.removeLastLink()
         }
     }
 }

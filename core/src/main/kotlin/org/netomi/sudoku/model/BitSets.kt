@@ -39,10 +39,14 @@ interface SimpleBitSet
     fun firstSetBit(): Int
     fun firstUnsetBit(): Int
 
+    fun nextSetBit(startBit: Int): Int
     fun previousSetBit(startBit: Int): Int
 
     fun allSetBits(): Iterable<Int>
     fun allSetBits(startBit: Int): Iterable<Int>
+
+    fun filteredSetBits(predicate: (Int) -> Boolean): Iterable<Int>
+
     fun allUnsetBits(): Iterable<Int>
     fun allUnsetBits(startBit: Int): Iterable<Int>
 
@@ -117,6 +121,10 @@ abstract class AbstractBitSetImpl<in T : SimpleBitSet, out R>(final override val
         return bits.nextClearBit(offset)
     }
 
+    override fun nextSetBit(startBit: Int): Int {
+        return bits.nextSetBit(startBit)
+    }
+
     override fun previousSetBit(startBit: Int): Int {
         return bits.previousSetBit(startBit)
     }
@@ -127,6 +135,10 @@ abstract class AbstractBitSetImpl<in T : SimpleBitSet, out R>(final override val
 
     override fun allSetBits(startBit: Int): Iterable<Int> {
         return Iterable { BitIterator(startBit, size, false) }
+    }
+
+    override fun filteredSetBits(predicate: (Int) -> Boolean): Iterable<Int> {
+        return allSetBits().filter(predicate)
     }
 
     override fun allUnsetBits(): Iterable<Int> {

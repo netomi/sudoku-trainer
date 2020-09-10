@@ -167,6 +167,49 @@ internal interface BaseHintFinder : HintFinder
         }
     }
 
+    /**
+     * Adds an elimination hint to remove all candidate values from the affected
+     * cells (except the excluded ones) that are contained in the excludedValues bitset.
+     *
+     * @param affectedCells  the affected cells for this elimination hint
+     * @param excludedValues the candidate value to remove
+     */
+    fun eliminateValuesFromCells(grid:           Grid,
+                                 hintAggregator: HintAggregator,
+                                 matchingCells:  CellSet,
+                                 matchingValues: ValueSet,
+                                 relatedCells:   CellSet,
+                                 relatedChain:   Chain,
+                                 affectedCells:  CellSet,
+                                 excludedValues: ValueSet): Boolean
+    {
+        val cellsToModify = MutableCellSet.empty(grid)
+        val valuesToExcludeList: MutableList<ValueSet> = ArrayList()
+
+        for (cell in affectedCells.filteredCells(grid, { cell -> !cell.isAssigned })) {
+            val valuesToExclude = valuesIncluding(cell.possibleValueSet, excludedValues)
+            if (valuesToExclude.cardinality() > 0) {
+                cellsToModify.set(cell.cellIndex)
+                valuesToExcludeList.add(valuesToExclude)
+            }
+        }
+
+        return if (cellsToModify.cardinality() > 0) {
+            hintAggregator.addHint(
+                    ChainEliminationHint(grid.type,
+                            solvingTechnique,
+                            matchingCells,
+                            matchingValues,
+                            relatedCells,
+                            relatedChain,
+                            cellsToModify,
+                            valuesToExcludeList.toTypedArray()))
+            true
+        } else {
+            false
+        }
+    }
+
     companion object {
         /**
          * Returns a BitSet containing all values that have been set in the given bitset
