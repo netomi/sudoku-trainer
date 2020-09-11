@@ -25,6 +25,11 @@ import org.netomi.sudoku.solver.HintAggregator
 import org.netomi.sudoku.solver.HintFinder
 import org.netomi.sudoku.solver.SolvingTechnique
 
+/**
+ * A [HintFinder] implementation that looks for blocks, where a certain
+ * candidate value is restricted to a single row or column. The same candidate
+ * can not appear in this row / column outside the block.
+ */
 class LockedCandidatesType1Finder : BaseHintFinder
 {
     override val solvingTechnique: SolvingTechnique
@@ -49,6 +54,11 @@ class LockedCandidatesType1Finder : BaseHintFinder
     }
 }
 
+/**
+ * A [HintFinder] implementation that looks for rows / columns where a certain
+ * candidate value is constrained to a single block. The same candidate can
+ * not appear in other cells of this block.
+ */
 class LockedCandidatesType2Finder : BaseHintFinder
 {
     override val solvingTechnique: SolvingTechnique

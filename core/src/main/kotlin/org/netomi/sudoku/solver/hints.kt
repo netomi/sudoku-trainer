@@ -169,6 +169,24 @@ class ChainEliminationHint(type:             Grid.Type,
     override fun accept(visitor: HintVisitor) {
         visitor.visitChainEliminationHint(this)
     }
+
+    override fun hashCode(): Int {
+        var result = super.hashCode()
+        result = 31 * result + Objects.hash(affectedCells)
+        result = 31 * result + excludedValues.contentHashCode()
+        result = 31 * result + relatedChain.hashCode()
+        return result
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || javaClass != other.javaClass) return false
+        val that = other as ChainEliminationHint
+        return super.equals(other) &&
+               affectedCells == that.affectedCells &&
+               excludedValues.contentEquals(that.excludedValues) &&
+               relatedChain == that.relatedChain
+    }
 }
 
 class Chain() {

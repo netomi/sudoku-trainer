@@ -52,7 +52,11 @@ enum class SolvingTechnique(val techniqueName: String, val supplier: Supplier<Hi
     SWORDFISH("Swordfish", ::SwordFishFinder),
     JELLYFISH("Jellyfish", ::JellyFishFinder),
 
-    // chains.
+    // Single digit patterns.
+    SKYSCRAPER("Skyscraper", ::SkyscraperFinder),
+    TWO_STRING_KITE("2-String Kite", ::TwoStringKiteFinder),
+
+    // Chains.
     REMOTE_PAIR("Remote Pair", ::RemotePairFinder),
     X_CHAIN("X-Chain", ::XChainFinder);
 }
