@@ -25,12 +25,10 @@ import javafx.beans.binding.When
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.collections.FXCollections
 import javafx.event.Event
+import javafx.geometry.Insets
 import javafx.geometry.Side
 import javafx.scene.Scene
-import javafx.scene.control.ComboBox
-import javafx.scene.control.ListCell
-import javafx.scene.control.ListView
-import javafx.scene.control.TreeItem
+import javafx.scene.control.*
 import javafx.scene.input.MouseButton
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Priority
@@ -48,6 +46,8 @@ class MainView : View("Sudoku Trainer") {
     private val gridController: GridController by inject()
 
     private val gridView: GridView by inject()
+
+    private val filterToggleGroup = ToggleGroup()
 
     private lateinit var hintListView:     ListView<Hint>
     private lateinit var gridTypeComboBox: ComboBox<PredefinedType>
@@ -72,6 +72,57 @@ class MainView : View("Sudoku Trainer") {
                 }
                 menu("Help") {
                     item("About...")
+                }
+            }
+
+            hbox {
+                padding = Insets(2.0, 2.0, 2.0, 2.0)
+                spacing = 2.0
+
+                togglebutton("1", filterToggleGroup) {
+                    isFocusTraversable = false
+                    userData = 1
+                    setMinSize(40.0, 40.0)
+                }
+                togglebutton("2", filterToggleGroup) {
+                    isFocusTraversable = false
+                    userData = 2
+                    setMinSize(40.0, 40.0)
+                }
+                togglebutton("3", filterToggleGroup) {
+                    isFocusTraversable = false
+                    userData = 3
+                    setMinSize(40.0, 40.0)
+                }
+                togglebutton("4", filterToggleGroup) {
+                    isFocusTraversable = false
+                    userData = 4
+                    setMinSize(40.0, 40.0)
+                }
+                togglebutton("5", filterToggleGroup) {
+                    isFocusTraversable = false
+                    userData = 5
+                    setMinSize(40.0, 40.0)
+                }
+                togglebutton("6", filterToggleGroup) {
+                    isFocusTraversable = false
+                    userData = 6
+                    setMinSize(40.0, 40.0)
+                }
+                togglebutton("7", filterToggleGroup) {
+                    isFocusTraversable = false
+                    userData = 7
+                    setMinSize(40.0, 40.0)
+                }
+                togglebutton("8", filterToggleGroup) {
+                    isFocusTraversable = false
+                    userData = 8
+                    setMinSize(40.0, 40.0)
+                }
+                togglebutton("9", filterToggleGroup) {
+                    isFocusTraversable = false
+                    userData = 9
+                    setMinSize(40.0, 40.0)
                 }
             }
 
@@ -119,7 +170,10 @@ class MainView : View("Sudoku Trainer") {
                     }
                     item("Solver", expanded = true) {
                         vbox {
-                            buttonbar {
+                            hbox {
+                                padding = Insets(2.0, 2.0, 2.0, 2.0)
+                                spacing = 4.0
+
                                 button("Full") {
                                     action { gridController.findHints() }
                                 }
@@ -223,26 +277,33 @@ class MainView : View("Sudoku Trainer") {
             }
         }
 
-        hintListView.setCellFactory { lv ->
-            val selectionModel = lv.selectionModel
-            val cell = ListCell<Hint>()
-            cell.textProperty().bind(When(cell.itemProperty().isNotNull).then(cell.itemProperty().asString()).otherwise(""))
-            cell.addEventFilter(MouseEvent.MOUSE_PRESSED) { event: Event ->
-                if (!cell.isEmpty) {
-                    val index = cell.index
-                    if (selectionModel.selectedIndices.contains(index) && lv.isFocused) {
-                        selectionModel.clearSelection(index)
-                    } else {
-                        selectionModel.select(index)
-                    }
-                    lv.requestFocus()
-                    event.consume()
-                }
-            }
-            cell
-        }
+//        hintListView.setCellFactory { lv ->
+//            val selectionModel = lv.selectionModel
+//            val cell = ListCell<Hint>()
+//            cell.textProperty().bind(When(cell.itemProperty().isNotNull).then(cell.itemProperty().asString()).otherwise(""))
+//            cell.addEventFilter(MouseEvent.MOUSE_PRESSED) { event: Event ->
+//                if (!cell.isEmpty) {
+//                    val index = cell.index
+//                    if (selectionModel.selectedIndices.contains(index) && lv.isFocused) {
+//                        selectionModel.clearSelection(index)
+//                    } else {
+//                        selectionModel.select(index)
+//                    }
+//                    lv.requestFocus()
+//                    event.consume()
+//                }
+//            }
+//            cell
+//        }
 
-        //hintListView.focusedProperty().onChange { focused -> if (!focused) hintListView.selectionModel.clearSelection() }
+        hintListView.focusedProperty().onChange { focused -> if (!focused) hintListView.selectionModel.clearSelection() }
+
+        filterToggleGroup.selectToggle(null)
+        filterToggleGroup.selectedToggleProperty().addListener { _, _, newValue: Toggle? ->
+            val filterValue = newValue?.let { newValue.userData as Int } ?: 0
+            DisplayOptions.possibleValueFilterProperty.set(filterValue)
+            gridView.refreshView()
+        }
 
         initializeFontSizeManager()
     }

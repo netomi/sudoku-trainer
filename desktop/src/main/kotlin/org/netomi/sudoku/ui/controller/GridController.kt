@@ -125,7 +125,6 @@ class GridController : Controller()
                 modelProperty.set(testGrid)
                 return
             }
-            println("checking grid $count")
         } while(count++ < 1000)
 
         modelProperty.set(of(type))

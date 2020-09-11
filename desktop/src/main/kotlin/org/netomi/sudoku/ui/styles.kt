@@ -38,6 +38,9 @@ class Styles : Stylesheet() {
         val cellActiveCandidate     by cssclass()
         val cellInactiveCandidate   by cssclass()
         val cellHighlight           by cssclass()
+
+        val cellActiveFilter        by cssclass()
+        val cellInactiveFilter      by cssclass()
     }
 
     init {
@@ -102,6 +105,14 @@ class Styles : Stylesheet() {
 
         cellHighlight {
             backgroundColor += Color.LIGHTSTEELBLUE
+        }
+
+        cellActiveFilter {
+            backgroundColor += Color.LIGHTGREEN
+        }
+
+        cellInactiveFilter {
+            backgroundColor += Color.LIGHTCORAL
         }
 
         listCell and empty {

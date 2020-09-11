@@ -20,10 +20,15 @@
 package org.netomi.sudoku.ui.model
 
 import javafx.beans.property.SimpleBooleanProperty
+import javafx.beans.property.SimpleIntegerProperty
 
 object DisplayOptions
 {
     val displayPossibleValuesProperty = SimpleBooleanProperty(true)
     val displayPossibleValues
         get() = displayPossibleValuesProperty.get()
+
+    val possibleValueFilterProperty = SimpleIntegerProperty(0)
+    val possibleValueFilter
+        get() = possibleValueFilterProperty.get()
 }

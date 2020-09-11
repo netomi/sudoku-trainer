@@ -70,6 +70,16 @@ class CellFragment(private val cell: Cell) : Fragment()
             }
         }
 
+        // possible value filter
+        root.removeClass(Styles.cellActiveFilter)
+        root.removeClass(Styles.cellInactiveFilter)
+        val possibleValueFilter = DisplayOptions.possibleValueFilter
+        if (possibleValueFilter != 0) {
+            if (cell.possibleValueSet[possibleValueFilter]) {
+                root.addClass(Styles.cellActiveFilter)
+            }
+        }
+
         var foundConflict = false
         for (conflict in conflicts) {
             if (conflict.contains(cell)) {
@@ -186,7 +196,6 @@ class CellFragment(private val cell: Cell) : Fragment()
             }
 
             focusedProperty().addListener { _, _, newPropertyValue: Boolean ->
-                println("" + this.layoutX + " " + this.layoutY)
                 if (newPropertyValue) {
                     removeClass(Styles.cellFocus)
                     addClass(Styles.cellFocus)
