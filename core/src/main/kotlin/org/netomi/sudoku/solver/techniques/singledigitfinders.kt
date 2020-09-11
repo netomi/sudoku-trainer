@@ -25,13 +25,44 @@ import org.netomi.sudoku.solver.HintAggregator
 import org.netomi.sudoku.solver.HintFinder
 import org.netomi.sudoku.solver.SolvingTechnique
 
-class SkyscraperFinder : BaseHintFinder
+/**
+ * A [HintFinder] implementation that looks for a pair of a rows or columns
+ * which have a candidate value with only 2 possible positions left. If a pair of
+ * these positions is in the same column or row respectively, any cell seeing the
+ * other two cells can not contain the candidate value.
+ *
+ * Every Skyscraper is also a Turbot Fish (X-Chain of cell length 4). This [HintFinder]
+ * implementation creates hint patterns that are easier to spot / learn, but are conceptually
+ * equivalent to an X-Chain hint.
+ */
+class SkyscraperFinder : BaseSingleDigitFinder()
 {
     override val solvingTechnique: SolvingTechnique
         get() = SolvingTechnique.SKYSCRAPER
 
     override fun findHints(grid: Grid, hintAggregator: HintAggregator) {
-        // TODO: implement
+        val visitor = HouseVisitor { house ->
+            // find rows for which a possible value has only 2 positions left.
+            if (house.isSolved) return@HouseVisitor
+
+            for (candidate in house.unassignedValues()) {
+                val potentialPositions = house.getPotentialPositionsAsSet(candidate)
+                if (potentialPositions.cardinality() == 2) {
+                    findMatchingHouse(grid, hintAggregator, house, potentialPositions, candidate)
+                }
+            }
+        }
+
+        grid.acceptRows(visitor)
+        grid.acceptColumns(visitor)
+    }
+
+    override fun getSingleHouse(grid: Grid, house: House, cellSet: CellSet): House? {
+        return if (house.type == HouseType.ROW) cellSet.getSingleColumn(grid) else cellSet.getSingleRow(grid)
+    }
+
+    override fun otherHouses(grid: Grid, house: House): Iterable<House> {
+        return grid.regionsAfter(house)
     }
 }
 
@@ -45,73 +76,93 @@ class SkyscraperFinder : BaseHintFinder
  * implementation creates hint patterns that are easier to spot / learn, but are conceptually
  * equivalent to an X-Chain hint.
  */
-class TwoStringKiteFinder : BaseHintFinder
+class TwoStringKiteFinder : BaseSingleDigitFinder()
 {
     override val solvingTechnique: SolvingTechnique
         get() = SolvingTechnique.TWO_STRING_KITE
 
     override fun findHints(grid: Grid, hintAggregator: HintAggregator) {
-        // find rows for which a possible value has only 2 positions left.
-        for (row in grid.rows()) {
-            if (row.isSolved) continue
+        grid.acceptRows { row ->
+            if (row.isSolved) return@acceptRows
 
+            // find rows for which a possible value has only 2 positions left.
             for (candidate in row.unassignedValues()) {
                 val potentialPositions = row.getPotentialPositionsAsSet(candidate)
                 if (potentialPositions.cardinality() == 2) {
-                    findMatchingColumn(grid, hintAggregator, row, potentialPositions, candidate)
+                    findMatchingHouse(grid, hintAggregator, row, potentialPositions, candidate)
                 }
             }
         }
     }
 
-    private fun findMatchingColumn(grid: Grid, hintAggregator: HintAggregator, row: Row, potentialRowPositions: CellSet, candidate: Int) {
-        for (col in grid.columns()) {
-            if (col.isSolved) continue
+    override fun getSingleHouse(grid: Grid, house: House, cellSet: CellSet): House? {
+        return cellSet.getSingleBlock(grid)
+    }
 
-            val assignedValues = col.assignedValueSet
+    override fun otherHouses(grid: Grid, house: House): Iterable<House> {
+        return grid.columns()
+    }
+}
+
+abstract class BaseSingleDigitFinder : BaseHintFinder
+{
+    protected abstract fun otherHouses(grid: Grid, house: House): Iterable<House>
+
+    protected fun findMatchingHouse(grid:               Grid,
+                                    hintAggregator:     HintAggregator,
+                                    house:              House,
+                                    potentialPositions: CellSet,
+                                    candidate:          Int)
+    {
+        for (otherHouse in otherHouses(grid, house)) {
+            if (otherHouse.isSolved) continue
+
+            val assignedValues = otherHouse.assignedValueSet
             if (assignedValues[candidate]) continue
 
-            val potentialColPositions = col.getPotentialPositionsAsSet(candidate)
-            if (potentialColPositions.cardinality() != 2) continue
+            val potentialOtherPositions = otherHouse.getPotentialPositionsAsSet(candidate)
+            if (potentialOtherPositions.cardinality() != 2) continue
 
             // check that the position sets are mutually exclusive.
-            val combinedPositions = potentialRowPositions.toMutableCellSet()
-            combinedPositions.and(potentialColPositions)
+            val combinedPositions = potentialPositions.toMutableCellSet()
+            combinedPositions.and(potentialOtherPositions)
             if (combinedPositions.cardinality() != 0) continue
 
-            checkMatchingRowAndCol(grid, hintAggregator, row, potentialRowPositions, col, potentialColPositions, candidate)
+            checkMatchingHouse(grid, hintAggregator, house, potentialPositions, otherHouse, potentialOtherPositions, candidate)
         }
     }
 
-    private fun checkMatchingRowAndCol(grid:                  Grid,
-                                       hintAggregator:        HintAggregator,
-                                       row:                   Row,
-                                       potentialRowPositions: CellSet,
-                                       col:                   Column,
-                                       potentialColPositions: CellSet,
-                                       candidate:             Int)
+    protected abstract fun getSingleHouse(grid: Grid, house: House, cellSet: CellSet): House?
+
+    private fun checkMatchingHouse(grid:                    Grid,
+                                   hintAggregator:          HintAggregator,
+                                   house:                   House,
+                                   potentialPositions:      CellSet,
+                                   otherHouse:              House,
+                                   potentialOtherPositions: CellSet,
+                                   candidate:               Int)
     {
-        for (rowCell in potentialRowPositions.allSetBits()) {
-            for (colCell in potentialColPositions.allSetBits()) {
-                val combinedSet = MutableCellSet.of(grid, rowCell, colCell)
-                val block = combinedSet.getSingleBlock(grid)
+        for (cellInFirstHouse in potentialPositions.allSetBits()) {
+            for (cellInSecondHouse in potentialOtherPositions.allSetBits()) {
+                val combinedSet = MutableCellSet.of(grid, cellInFirstHouse, cellInSecondHouse)
+                val singleHouse = getSingleHouse(grid, house, combinedSet)
 
-                // we found a pair of cells from row / col that are in the same block.
-                block?.apply {
-                    val otherRowCell = potentialRowPositions.filteredSetBits { cellIndex -> cellIndex != rowCell }.first()
-                    val otherColCell = potentialColPositions.filteredSetBits { cellIndex -> cellIndex != colCell }.first()
+                // we found a pair of cells from the two houses that are in the same house.
+                singleHouse?.apply {
+                    val otherRowCell = potentialPositions.filteredSetBits { cellIndex -> cellIndex != cellInFirstHouse }.first()
+                    val otherColCell = potentialOtherPositions.filteredSetBits { cellIndex -> cellIndex != cellInSecondHouse }.first()
 
-                    // find all cells that see both, the cell in the matching row and col.
+                    // find all cells that see both, the cell in the matching houses.
                     val affectedCells = grid.getCell(otherRowCell).peerSet.toMutableCellSet()
                     affectedCells.and(grid.getCell(otherColCell).peerSet)
 
                     val excludedValues = MutableValueSet.of(grid, candidate)
 
-                    val matchingCells = potentialRowPositions.toMutableCellSet()
-                    matchingCells.or(potentialColPositions)
+                    val matchingCells = potentialPositions.toMutableCellSet()
+                    matchingCells.or(potentialOtherPositions)
 
-                    val relatedCells = row.cellSet.toMutableCellSet()
-                    relatedCells.or(col.cellSet)
+                    val relatedCells = house.cellSet.toMutableCellSet()
+                    relatedCells.or(otherHouse.cellSet)
 
                     eliminateValuesFromCells(grid, hintAggregator, matchingCells, relatedCells, affectedCells, excludedValues)
                 }

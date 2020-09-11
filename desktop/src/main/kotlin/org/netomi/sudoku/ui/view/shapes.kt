@@ -36,7 +36,7 @@ class Arrow constructor(startX: Double,
     : Path()
 {
     companion object {
-        private const val defaultArrowHeadSize = 15.0
+        private const val defaultArrowHeadSize = 12.0
     }
 
     init {

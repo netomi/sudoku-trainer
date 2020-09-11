@@ -332,7 +332,7 @@ class CellFragment(private val cell: Cell) : Fragment()
         val to   = toLabel.boundsInParent
 
         val arrow = Arrow(root.layoutX + from.centerX, root.layoutY + from.centerY, toFragment.root.layoutX + to.centerX, toFragment.root.layoutY + to.centerY)
-        arrow.strokeWidth = 4.0
+        arrow.strokeWidth = 2.0
         return arrow
     }
 
