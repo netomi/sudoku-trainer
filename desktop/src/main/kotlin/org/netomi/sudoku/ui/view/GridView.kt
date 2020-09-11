@@ -58,6 +58,7 @@ class GridView : View()
             shapeGroup = pane {
                 managedProperty().set(false)
                 useMaxSize = true
+                isMouseTransparent = true
             }
         }
 

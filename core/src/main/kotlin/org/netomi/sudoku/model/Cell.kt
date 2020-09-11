@@ -109,6 +109,13 @@ class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowInde
     }
 
     /**
+     * Returns a [Sequence] of all [House]s this cell is contained in.
+     */
+    fun houses(): Sequence<House> {
+        return sequenceOf(row, column, block);
+    }
+
+    /**
      * Returns the name of this cell in format rXcY, where X and Y are
      * respective row and column numbers this cell is contained in.
      */

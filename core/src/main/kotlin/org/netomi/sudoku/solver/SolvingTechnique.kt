@@ -53,5 +53,6 @@ enum class SolvingTechnique(val techniqueName: String, val supplier: Supplier<Hi
     JELLYFISH("Jellyfish", ::JellyFishFinder),
 
     // chains.
-    REMOTE_PAIR("Remote Pair", ::RemotePairFinder);
+    REMOTE_PAIR("Remote Pair", ::RemotePairFinder),
+    X_CHAIN("X-Chain", ::XChainFinder);
 }

@@ -21,20 +21,28 @@ package org.netomi.sudoku.ui.view
 
 import javafx.application.Platform
 import javafx.beans.binding.Bindings
+import javafx.beans.binding.When
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.collections.FXCollections
+import javafx.event.Event
 import javafx.geometry.Side
 import javafx.scene.Scene
-import javafx.scene.control.ButtonBar
 import javafx.scene.control.ComboBox
+import javafx.scene.control.ListCell
 import javafx.scene.control.ListView
 import javafx.scene.control.TreeItem
+import javafx.scene.input.MouseButton
+import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Priority
 import org.netomi.sudoku.model.PredefinedType
 import org.netomi.sudoku.solver.Hint
 import org.netomi.sudoku.ui.controller.GridController
-import org.netomi.sudoku.ui.model.*
+import org.netomi.sudoku.ui.model.DisplayOptions
+import org.netomi.sudoku.ui.model.SudokuLibrary
+import org.netomi.sudoku.ui.model.TechniqueCategory
+import org.netomi.sudoku.ui.model.TechniqueCategoryOrLibraryEntry
 import tornadofx.*
+
 
 class MainView : View("Sudoku Trainer") {
     private val gridController: GridController by inject()
@@ -90,7 +98,8 @@ class MainView : View("Sudoku Trainer") {
 
                                 button("Reset") {
                                     action {
-                                        gridController.resetModel(gridTypeComboBox.selectedItem ?: PredefinedType.CLASSIC_9x9)
+                                        gridController.resetModel(gridTypeComboBox.selectedItem
+                                                ?: PredefinedType.CLASSIC_9x9)
                                     }
                                 }
                             }
@@ -191,7 +200,7 @@ class MainView : View("Sudoku Trainer") {
                         .divide(1400 + 900)
                         .multiply(100))
                 gridView.root.styleProperty()
-                             .bind(Bindings.concat("-fx-font-size: ", fontSize.asString("%.0f")).concat("%;"))
+                        .bind(Bindings.concat("-fx-font-size: ", fontSize.asString("%.0f")).concat("%;"))
             }
         })
     }
@@ -204,7 +213,36 @@ class MainView : View("Sudoku Trainer") {
             gridView.refreshView()
         }
 
-        hintListView.focusedProperty().onChange { focused -> if (!focused) hintListView.selectionModel.clearSelection() }
+        hintListView.setOnMouseClicked { mouseEvent ->
+            if (mouseEvent.button === MouseButton.PRIMARY &&
+                mouseEvent.clickCount == 2) {
+                hintListView.selectedItem?.apply {
+                    gridController.applyHint(this)
+                    gridView.refreshView()
+                }
+            }
+        }
+
+        hintListView.setCellFactory { lv ->
+            val selectionModel = lv.selectionModel
+            val cell = ListCell<Hint>()
+            cell.textProperty().bind(When(cell.itemProperty().isNotNull).then(cell.itemProperty().asString()).otherwise(""))
+            cell.addEventFilter(MouseEvent.MOUSE_PRESSED) { event: Event ->
+                if (!cell.isEmpty) {
+                    val index = cell.index
+                    if (selectionModel.selectedIndices.contains(index) && lv.isFocused) {
+                        selectionModel.clearSelection(index)
+                    } else {
+                        selectionModel.select(index)
+                    }
+                    lv.requestFocus()
+                    event.consume()
+                }
+            }
+            cell
+        }
+
+        //hintListView.focusedProperty().onChange { focused -> if (!focused) hintListView.selectionModel.clearSelection() }
 
         initializeFontSizeManager()
     }

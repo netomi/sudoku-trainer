@@ -113,11 +113,23 @@ abstract class House internal constructor(internal val owner: Grid, val regionIn
      * excluding all cells contained in the provided houses.
      */
     fun cellsExcluding(vararg excludedHouses: House): Sequence<Cell> {
-        val ownCells = cellSet.toMutableCellSet()
+        val filteredCells = cellSet.toMutableCellSet()
         for (house in excludedHouses) {
-            ownCells.andNot(house.cellSet)
+            filteredCells.andNot(house.cellSet)
         }
-        return ownCells.allCells(owner)
+        return filteredCells.allCells(owner)
+    }
+
+    /**
+     * Returns a [Sequence] containing all cells of this [House]
+     * excluding all provided cells.
+     */
+    fun cellsExcluding(vararg excludedCells: Cell): Sequence<Cell> {
+        val filteredCells = cellSet.toMutableCellSet()
+        for (cell in excludedCells) {
+            filteredCells.clear(cell.cellIndex)
+        }
+        return filteredCells.allCells(owner)
     }
 
     /**
@@ -125,9 +137,9 @@ abstract class House internal constructor(internal val owner: Grid, val regionIn
      * excluding all cells contained in the provided [CellSet].
      */
     fun cellsExcluding(excludedCells: CellSet): Sequence<Cell> {
-        val ownCells = cellSet.toMutableCellSet()
-        ownCells.andNot(excludedCells)
-        return ownCells.allCells(owner)
+        val filteredCells = cellSet.toMutableCellSet()
+        filteredCells.andNot(excludedCells)
+        return filteredCells.allCells(owner)
     }
 
     /**

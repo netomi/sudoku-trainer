@@ -30,3 +30,13 @@ class RemotePairFinderTest : BaseHintFinderTest() {
         return testCase.technique.startsWith("0703")
     }
 }
+
+class XChainFinderTest : BaseHintFinderTest() {
+    override fun createHintFinder(): HintFinder {
+        return XChainFinder()
+    }
+
+    override fun matches(testCase: TechniqueTestCase): Boolean {
+        return testCase.technique.startsWith("0701")
+    }
+}

@@ -82,7 +82,8 @@ enum class TechniqueCategory constructor(private val displayName: String,
     Swordfish           ("Swordfish", "0301", BasicFish),
     Jellyfish           ("Jellyfish", "0302", BasicFish),
     Chains              ("Chains", "07xx", All),
-    RemotePair          ("Remote Pair", "0703", Chains);
+    RemotePair          ("Remote Pair", "0703", Chains),
+    XChain              ("X-Chain", "0701", Chains);
 
     override fun isCategory(): Boolean {
         return true

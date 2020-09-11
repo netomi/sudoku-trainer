@@ -208,6 +208,10 @@ class Chain() {
         lastNode = currentNode
     }
 
+    fun lastLinkType(): LinkType? {
+        return lastNode.prevNode?.nextLink?.linkType
+    }
+
     fun addLink(linkType: LinkType, cellIndex: Int, candidate: Int) {
         cellSet.set(cellIndex)
 
@@ -349,6 +353,12 @@ interface ChainVisitor
 
 enum class LinkType(val symbol: String)
 {
-    WEAK  ("->"),
-    STRONG("=>")
+    WEAK  ("->") {
+        override fun opposite() = STRONG
+    },
+    STRONG("=>") {
+        override fun opposite() = WEAK
+    };
+
+    abstract fun opposite(): LinkType
 }
