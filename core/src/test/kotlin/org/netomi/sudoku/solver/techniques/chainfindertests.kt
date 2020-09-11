@@ -40,3 +40,13 @@ class XChainFinderTest : BaseHintFinderTest() {
         return testCase.technique.startsWith("0701")
     }
 }
+
+class XYChainFinderTest : BaseHintFinderTest() {
+    override fun createHintFinder(): HintFinder {
+        return XYChainFinder()
+    }
+
+    override fun matches(testCase: TechniqueTestCase): Boolean {
+        return testCase.technique.startsWith("0702")
+    }
+}

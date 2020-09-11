@@ -163,7 +163,7 @@ class ChainEliminationHint(type:             Grid.Type,
                 eliminations.append(", ")
             }
             eliminations.delete(eliminations.length - 2, eliminations.length)
-            return "%s => %s".format(relatedChain, eliminations)
+            return "%s => %s".format(relatedChain.toString(gridType), eliminations)
         }
 
     override fun accept(visitor: HintVisitor) {
@@ -314,8 +314,8 @@ class Chain() {
         visitor.visitCell(grid, this, currentCell, activeValues, inactiveValues)
     }
 
-    override fun toString(): String {
-        return rootNode.toString()
+    fun toString(type: Grid.Type): String {
+        return rootNode.toString(type)
     }
 }
 
@@ -329,15 +329,15 @@ class ChainNode(val cellIndex: Int,
         return ChainNode(cellIndex, candidate)
     }
 
-    override fun toString(): String {
+    fun toString(type: Grid.Type): String {
         val sb = StringBuilder()
 
-        sb.append(cellIndex.toString())
+        sb.append(type.getCellName(cellIndex))
         sb.append("=")
         sb.append(candidate.toString())
 
         nextLink?.apply {
-            sb.append(nextLink)
+            sb.append(this.toString(type))
         }
 
         return sb.toString()
@@ -347,8 +347,8 @@ class ChainNode(val cellIndex: Int,
 class ChainLink(val linkType: LinkType,
                 val node:     ChainNode)
 {
-    override fun toString(): String {
-        return " %s %s".format(linkType.symbol, node)
+    fun toString(type: Grid.Type): String {
+        return " %s %s".format(linkType.symbol, node.toString(type))
     }
 }
 

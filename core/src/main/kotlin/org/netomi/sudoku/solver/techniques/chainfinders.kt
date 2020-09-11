@@ -74,7 +74,7 @@ class RemotePairFinder : BaseChainFinder() {
             val possibleValuesOfNextCell = nextCell.possibleValueSet
 
             if (possibleValuesOfNextCell.cardinality() != 2 ||
-                    possibleValues != possibleValuesOfNextCell) {
+                possibleValues != possibleValuesOfNextCell) {
                 continue
             }
 
@@ -157,6 +157,82 @@ class XChainFinder : BaseChainFinder() {
                 findChain(grid, hintAggregator, nextCell, currentChain, visitedChains, cellCount + 1)
                 currentChain.removeLastLink()
             }
+        }
+    }
+}
+
+class XYChainFinder : BaseChainFinder() {
+    override val solvingTechnique: SolvingTechnique
+        get() = SolvingTechnique.XY_CHAIN
+
+    override fun findHints(grid: Grid, hintAggregator: HintAggregator) {
+        val visitedChains: MutableMap<CellSet, MutableSet<Int>> = HashMap()
+        grid.unassignedCells().forEach { cell ->
+            val possibleValues = cell.possibleValueSet
+            if (possibleValues.cardinality() == 2) {
+                for (value in possibleValues.allSetBits()) {
+                    val chain = Chain(grid, cell.cellIndex, value)
+                    chain.addLink(LinkType.STRONG, cell.cellIndex, possibleValues.filteredSetBits { candidate -> candidate != value }.first())
+
+                    findChain(grid, hintAggregator, cell, chain, visitedChains, 1)
+                }
+            }
+        }
+    }
+
+    private fun findChain(grid:           Grid,
+                          hintAggregator: HintAggregator,
+                          currentCell:    Cell,
+                          currentChain:   Chain,
+                          visitedChains:  MutableMap<CellSet, MutableSet<Int>>,
+                          cellCount:      Int)
+    {
+        // make sure we do not add chains twice: in forward and reverse order taking
+        // into account the starting candidate.
+        run {
+            val candidateSet = visitedChains[currentChain.cellSet]
+            candidateSet?.apply {
+                if (this.contains(currentChain.rootNode.candidate)) {
+                    return
+                }
+            }
+        }
+
+        // to find a xy-chain, the chain has to start and end with a strong link.
+        // TODO: currently there is a hard-coded chain limit of 10, make this configurable
+        if (cellCount in 4..10 &&
+            currentChain.lastLinkType() == LinkType.STRONG &&
+            currentChain.lastNode.candidate == currentChain.rootNode.candidate)
+        {
+            val excludedValues = MutableValueSet.of(grid, currentChain.rootNode.candidate)
+            val matchingCells = addChainEliminationHint(grid, hintAggregator, currentCell, currentChain, excludedValues)
+            matchingCells?.apply {
+                val candidateSet = visitedChains.getOrPut(this, { mutableSetOf() })
+                candidateSet.add(currentChain.rootNode.candidate)
+            }
+        }
+
+        for (nextCell in currentCell.peers()) {
+            if (currentChain.contains(nextCell)) {
+                continue
+            }
+
+            val linkedCandidate = currentChain.lastNode.candidate
+            val possibleValuesOfNextCell = nextCell.possibleValueSet
+
+            if (possibleValuesOfNextCell.cardinality() != 2 ||
+                !possibleValuesOfNextCell[linkedCandidate]) {
+                continue
+            }
+
+            currentChain.addLink(LinkType.WEAK, nextCell.cellIndex, linkedCandidate)
+            val otherCandidate = possibleValuesOfNextCell.filteredSetBits { it != linkedCandidate }.first()
+            currentChain.addLink(LinkType.STRONG, nextCell.cellIndex, otherCandidate)
+
+            findChain(grid, hintAggregator, nextCell, currentChain, visitedChains, cellCount + 1)
+
+            currentChain.removeLastLink()
+            currentChain.removeLastLink()
         }
     }
 }

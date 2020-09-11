@@ -58,5 +58,6 @@ enum class SolvingTechnique(val techniqueName: String, val supplier: Supplier<Hi
 
     // Chains.
     REMOTE_PAIR("Remote Pair", ::RemotePairFinder),
-    X_CHAIN("X-Chain", ::XChainFinder);
+    X_CHAIN("X-Chain", ::XChainFinder),
+    XY_CHAIN("XY-Chain", ::XYChainFinder);
 }

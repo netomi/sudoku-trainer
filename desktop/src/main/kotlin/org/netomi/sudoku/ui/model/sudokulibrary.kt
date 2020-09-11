@@ -86,7 +86,9 @@ enum class TechniqueCategory constructor(private val displayName: String,
     TwoStringKite       ("2-String Kite", "0401", SingleDigitPatterns),
     Chains              ("Chains", "07xx", All),
     RemotePair          ("Remote Pair", "0703", Chains),
-    XChain              ("X-Chain", "0701", Chains);
+    XChain              ("X-Chain", "0701", Chains),
+    XYChain             ("XY-Chain", "0702", Chains),
+    TurbotFish          ("Turbot Fish", "0403", Chains);
 
     override fun isCategory(): Boolean {
         return true
