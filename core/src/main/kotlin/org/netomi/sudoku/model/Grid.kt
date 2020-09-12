@@ -20,7 +20,6 @@
 package org.netomi.sudoku.model
 
 import kotlin.properties.Delegates
-import kotlin.streams.asSequence
 
 class Grid
 {
@@ -134,15 +133,13 @@ class Grid
     }
 
     fun assignedCells(): Sequence<Cell> {
-        return cells.stream()
+        return cells.asSequence()
                     .filter { cell -> cell.isAssigned }
-                    .asSequence()
     }
 
     fun unassignedCells(): Sequence<Cell> {
-        return cells.stream()
+        return cells.asSequence()
                     .filter { cell -> !cell.isAssigned }
-                    .asSequence()
     }
 
     fun rows(): Iterable<Row> {

@@ -4,7 +4,6 @@ test {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 
     // junit 5
     testCompile     "org.junit.jupiter:junit-jupiter-api:$junitVersion"

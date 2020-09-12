@@ -19,10 +19,7 @@
  */
 package org.netomi.sudoku.model
 
-import java.util.*
 import kotlin.NoSuchElementException
-import kotlin.streams.asSequence
-import kotlin.streams.toList
 
 interface SimpleBitSet
 {
@@ -71,7 +68,7 @@ interface MutableBitSet<in T, out R> : SimpleBitSet
 
 abstract class AbstractBitSetImpl<in T : SimpleBitSet, out R>(final override val size: Int) : MutableBitSet<T, R>
 {
-    override val bits: BitSet = BitSet(size)
+    override val bits = BitSet(size)
 
     protected open val offset: Int
         get() = 0
@@ -162,11 +159,11 @@ abstract class AbstractBitSetImpl<in T : SimpleBitSet, out R>(final override val
     }
 
     override fun toCollection(): Collection<Int> {
-        return bits.stream().toList()
+        return allSetBits().toList()
     }
 
     override fun toArray(): IntArray {
-        return bits.stream().toArray()
+        return toCollection().toIntArray()
     }
 
     override fun hashCode(): Int {
@@ -329,18 +326,18 @@ class MutableHouseSet : AbstractBitSetImpl<MutableHouseSet, MutableHouseSet>
 interface CellSet : SimpleBitSet
 {
     fun allCells(grid: Grid, startIndex: Int = 0): Sequence<Cell> {
-        return bits.stream()
-                   .filter   { idx -> idx >= startIndex }
-                   .mapToObj { cellIndex -> grid.getCell(cellIndex) }
+        return allSetBits(startIndex)
                    .asSequence()
+                   .filter { idx -> idx >= startIndex }
+                   .map    { cellIndex -> grid.getCell(cellIndex) }
     }
 
     fun filteredCells(grid: Grid, predicate: (Cell) -> Boolean, startIndex: Int = 0): Sequence<Cell> {
-        return bits.stream()
-                   .filter   { idx -> idx >= startIndex }
-                   .mapToObj { cellIndex -> grid.getCell(cellIndex) }
-                   .filter(predicate)
+        return allSetBits(startIndex)
                    .asSequence()
+                   .filter { idx -> idx >= startIndex }
+                   .map    { cellIndex -> grid.getCell(cellIndex) }
+                   .filter(predicate)
     }
 
     fun toRowSet(grid: Grid): MutableHouseSet {
