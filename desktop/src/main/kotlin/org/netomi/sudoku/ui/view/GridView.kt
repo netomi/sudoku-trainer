@@ -106,7 +106,7 @@ class GridView : View()
         model?.let {
             conflicts = when (it.isValid) {
                 true ->  emptyArray()
-                false -> it.accept(ConflictDetector())
+                false -> it.conflicts
             }
         }
 

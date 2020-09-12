@@ -19,7 +19,7 @@
  */
 package org.netomi.sudoku.model
 
-class ConflictDetector : GridVisitor<Array<Conflict>>
+internal class ConflictDetector : GridVisitor<Array<Conflict>>
 {
     override fun visitGrid(grid: Grid): Array<Conflict> {
         val foundConflicts = HashSet<CellSet>()

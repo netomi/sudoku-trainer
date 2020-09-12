@@ -228,6 +228,9 @@ class Grid
             return houses().all { house -> house.isValid }
         }
 
+    val conflicts: Array<Conflict>
+        get() = accept(ConflictDetector())
+
     // Visitor methods.
 
     fun <T> accept(visitor: GridVisitor<T>): T {
