@@ -333,6 +333,11 @@ class CellFragment(private val cell: Cell) : Fragment()
 
         val arrow = Arrow(root.layoutX + from.centerX, root.layoutY + from.centerY, toFragment.root.layoutX + to.centerX, toFragment.root.layoutY + to.centerY)
         arrow.strokeWidth = 2.0
+
+        if (linkType == LinkType.WEAK) {
+            arrow.strokeDashArray.addAll(10.0, 10.0)
+        }
+
         return arrow
     }
 

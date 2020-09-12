@@ -129,9 +129,6 @@ class GridView : View()
                         val toFragment = cellFragmentList[toCell.cellIndex]
 
                         val arrow = fromFragment.getArrow(fromCandidate, toFragment, toCandidate, linkType)
-                        if (linkType == LinkType.WEAK) {
-                            arrow.strokeDashArray.addAll(10.0, 10.0)
-                        }
                         shapeGroup.add(arrow)
                     }
                 })
