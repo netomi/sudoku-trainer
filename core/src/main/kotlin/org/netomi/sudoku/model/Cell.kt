@@ -19,8 +19,6 @@
  */
 package org.netomi.sudoku.model
 
-import java.util.*
-
 /**
  * Represents a cell in a sudoku grid.
  */
@@ -112,7 +110,7 @@ class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowInde
      * Returns a [Sequence] of all [House]s this cell is contained in.
      */
     fun houses(): Sequence<House> {
-        return sequenceOf(row, column, block);
+        return sequenceOf(row, column, block)
     }
 
     /**
@@ -272,15 +270,17 @@ class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowInde
         visitor.visitCell(this)
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || javaClass != other.javaClass) return false
-        val cell = other as Cell
-        return cellIndex == cell.cellIndex
+    override fun hashCode(): Int {
+        return cellIndex
     }
 
-    override fun hashCode(): Int {
-        return Objects.hash(cellIndex)
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Cell) return false
+
+        if (cellIndex != other.cellIndex) return false
+
+        return true
     }
 
     override fun toString(): String {

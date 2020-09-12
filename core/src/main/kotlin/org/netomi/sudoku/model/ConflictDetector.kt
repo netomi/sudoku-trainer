@@ -19,9 +19,6 @@
  */
 package org.netomi.sudoku.model
 
-import java.util.ArrayList
-import java.util.HashSet
-
 class ConflictDetector : GridVisitor<Array<Conflict>>
 {
     override fun visitGrid(grid: Grid): Array<Conflict> {

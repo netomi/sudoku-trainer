@@ -20,7 +20,6 @@
 package org.netomi.sudoku.solver
 
 import org.netomi.sudoku.model.*
-import java.util.ArrayList
 
 interface HintFinder {
     val solvingTechnique: SolvingTechnique

@@ -169,15 +169,20 @@ abstract class AbstractBitSetImpl<in T : SimpleBitSet, out R>(final override val
         return bits.stream().toArray()
     }
 
+    override fun hashCode(): Int {
+        var result = size
+        result = 31 * result + bits.hashCode()
+        return result
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is AbstractBitSetImpl<*, *>) return false
-        return size == other.size &&
-               bits == other.bits
-    }
 
-    override fun hashCode(): Int {
-        return Objects.hash(size, bits)
+        if (size != other.size) return false
+        if (bits != other.bits) return false
+
+        return true
     }
 
     override fun toString(): String {
@@ -263,9 +268,15 @@ class MutableValueSet : AbstractBitSetImpl<ValueSet, MutableValueSet>, ValueSet
         return this
     }
 
+    override fun hashCode(): Int {
+        return super.hashCode()
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        return if (other == null || javaClass != other.javaClass) false else super.equals(other)
+        if (other !is MutableValueSet) return false
+        if (!super.equals(other)) return false
+        return true
     }
 
     companion object {
@@ -303,7 +314,9 @@ class MutableHouseSet : AbstractBitSetImpl<MutableHouseSet, MutableHouseSet>
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        return if (other == null || javaClass != other.javaClass) false else super.equals(other)
+        if (other !is MutableHouseSet) return false
+        if (!super.equals(other)) return false
+        return true
     }
 
     companion object {
@@ -415,7 +428,9 @@ class MutableCellSet : AbstractBitSetImpl<CellSet, MutableCellSet>, CellSet
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        return if (other == null || javaClass != other.javaClass) false else super.equals(other)
+        if (other !is MutableCellSet) return false
+        if (!super.equals(other)) return false
+        return true
     }
 
     companion object {

@@ -20,8 +20,6 @@
 package org.netomi.sudoku.solver
 
 import org.netomi.sudoku.model.Grid
-import org.netomi.sudoku.solver.techniques.*
-import java.util.*
 
 class HintSolver : GridSolver
 {
@@ -29,7 +27,7 @@ class HintSolver : GridSolver
 
     constructor() {
         for (technique in SolvingTechnique.values()) {
-            finderList.add(technique.supplier.get())
+            finderList.add(technique.supplier.invoke())
         }
     }
 

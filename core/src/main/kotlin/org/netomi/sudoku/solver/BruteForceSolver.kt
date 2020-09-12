@@ -23,7 +23,6 @@ import org.netomi.sudoku.model.Cell
 import org.netomi.sudoku.model.Grid
 import org.netomi.sudoku.solver.techniques.HiddenSingleFinder
 import org.netomi.sudoku.solver.techniques.NakedSingleFinder
-import java.util.*
 
 class BruteForceSolver : GridSolver
 {

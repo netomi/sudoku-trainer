@@ -21,12 +21,10 @@ package org.netomi.sudoku.solver
 
 import org.netomi.sudoku.model.CellSet
 import org.netomi.sudoku.model.Grid
-import java.util.*
 
 abstract class Hint protected constructor(val gridType:         Grid.Type,
                                           val solvingTechnique: SolvingTechnique,
-                                          val relatedCells:     CellSet)
-{
+                                          val relatedCells:     CellSet) {
     abstract val description: String
 
     abstract fun apply(targetGrid: Grid, updateGrid: Boolean)
@@ -36,15 +34,19 @@ abstract class Hint protected constructor(val gridType:         Grid.Type,
     abstract fun accept(visitor: HintVisitor)
 
     override fun hashCode(): Int {
-        return Objects.hash(gridType, solvingTechnique)
+        var result = gridType.hashCode()
+        result = 31 * result + solvingTechnique.hashCode()
+        return result
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other == null || javaClass != other.javaClass) return false
-        val hint = other as Hint
-        return gridType         == hint.gridType &&
-               solvingTechnique == hint.solvingTechnique
+        if (other !is Hint) return false
+
+        if (gridType != other.gridType) return false
+        if (solvingTechnique != other.solvingTechnique) return false
+
+        return true
     }
 
     override fun toString(): String {

@@ -19,7 +19,6 @@
  */
 package org.netomi.sudoku.model
 
-import java.util.*
 import kotlin.properties.Delegates
 import kotlin.streams.asSequence
 

@@ -20,7 +20,6 @@
 package org.netomi.sudoku.solver
 
 import org.netomi.sudoku.model.*
-import java.util.*
 
 class AssignmentHint(type:             Grid.Type,
                      solvingTechnique: SolvingTechnique,
@@ -45,17 +44,20 @@ class AssignmentHint(type:             Grid.Type,
 
     override fun hashCode(): Int {
         var result = super.hashCode()
-        result = 31 * result + Objects.hash(cellIndex, value)
+        result = 31 * result + cellIndex
+        result = 31 * result + value
         return result
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other == null || javaClass != other.javaClass) return false
-        val that = other as AssignmentHint
-        return super.equals(other) &&
-               cellIndex    == that.cellIndex &&
-               value        == that.value
+        if (other !is AssignmentHint) return false
+        if (!super.equals(other)) return false
+
+        if (cellIndex != other.cellIndex) return false
+        if (value != other.value) return false
+
+        return true
     }
 }
 
@@ -117,18 +119,20 @@ open class EliminationHint(type:               Grid.Type,
 
     override fun hashCode(): Int {
         var result = super.hashCode()
-        result = 31 * result + Objects.hash(affectedCells)
+        result = 31 * result + affectedCells.hashCode()
         result = 31 * result + excludedValues.contentHashCode()
         return result
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other == null || javaClass != other.javaClass) return false
-        val that = other as EliminationHint
-        return super.equals(other) &&
-               affectedCells == that.affectedCells &&
-               excludedValues.contentEquals(that.excludedValues)
+        if (other !is EliminationHint) return false
+        if (!super.equals(other)) return false
+
+        if (affectedCells != other.affectedCells) return false
+        if (!excludedValues.contentEquals(other.excludedValues)) return false
+
+        return true
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -172,20 +176,18 @@ class ChainEliminationHint(type:             Grid.Type,
 
     override fun hashCode(): Int {
         var result = super.hashCode()
-        result = 31 * result + Objects.hash(affectedCells)
-        result = 31 * result + excludedValues.contentHashCode()
         result = 31 * result + relatedChain.hashCode()
         return result
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other == null || javaClass != other.javaClass) return false
-        val that = other as ChainEliminationHint
-        return super.equals(other) &&
-               affectedCells == that.affectedCells &&
-               excludedValues.contentEquals(that.excludedValues) &&
-               relatedChain == that.relatedChain
+        if (other !is ChainEliminationHint) return false
+        if (!super.equals(other)) return false
+
+        if (relatedChain != other.relatedChain) return false
+
+        return true
     }
 }
 

@@ -33,7 +33,6 @@ import org.netomi.sudoku.solver.HintSolver
 import java.io.BufferedReader
 import java.io.IOException
 import java.io.InputStreamReader
-import java.util.*
 
 abstract class BaseHintFinderTest
 {
@@ -169,25 +168,32 @@ abstract class BaseHintFinderTest
         }
     }
 
-    class Candidate(val row: Int, val col: Int, val value: Int) {
-
-        override fun hashCode(): Int {
-            return Objects.hash(row, col, value)
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (other == null || javaClass != other.javaClass) return false
-            val candidate = other as Candidate
-            return row == candidate.row && col == candidate.col && value == candidate.value
-        }
-
+    class Candidate(val row: Int, val col: Int, val value: Int)
+    {
         fun asPlacement(): String {
             return "r%dc%d=%d".format(row, col, value)
         }
 
         fun asElimination(): String {
             return toString()
+        }
+
+        override fun hashCode(): Int {
+            var result = row
+            result = 31 * result + col
+            result = 31 * result + value
+            return result
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Candidate) return false
+
+            if (row != other.row) return false
+            if (col != other.col) return false
+            if (value != other.value) return false
+
+            return true
         }
 
         override fun toString(): String {

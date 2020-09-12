@@ -20,9 +20,8 @@
 package org.netomi.sudoku.solver
 
 import org.netomi.sudoku.solver.techniques.*
-import java.util.function.Supplier
 
-enum class SolvingTechnique(val techniqueName: String, val supplier: Supplier<HintFinder>)
+enum class SolvingTechnique(val techniqueName: String, val supplier: () -> HintFinder)
 {
     // Singles.
     FULL_HOUSE("Full House", ::FullHouseFinder),

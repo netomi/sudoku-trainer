@@ -19,8 +19,6 @@
  */
 package org.netomi.sudoku.model
 
-import java.util.*
-
 /**
  * A class representing a certain region within a sudoku grid.
  *
@@ -147,7 +145,7 @@ abstract class House internal constructor(internal val owner: Grid, val regionIn
      */
     val isValid: Boolean
         get() {
-            val foundValues = BitSet()
+            val foundValues = MutableValueSet.empty(owner)
             for (cell in assignedCells()) {
                 if (!foundValues[cell.value]) {
                     foundValues.set(cell.value)
