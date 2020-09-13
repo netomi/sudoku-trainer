@@ -1,9 +1,26 @@
+apply plugin: "kotlin"
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.freeCompilerArgs = [
+        "-Xjvm-default=enable"
+    ]
+}
+
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.freeCompilerArgs = [
+        "-Xjvm-default=enable"
+    ]
+}
+
 test {
     useJUnitPlatform()
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.4+"
+    api "org.jetbrains.kotlinx:kotlinx-io:0.1.16"
 
     // junit 5
     testCompile     "org.junit.jupiter:junit-jupiter-api:$junitVersion"

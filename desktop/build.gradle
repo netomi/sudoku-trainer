@@ -1,4 +1,6 @@
 plugins {
+    id 'java'
+    id 'kotlin'
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.0.9'
 }
@@ -13,7 +15,26 @@ application {
     mainClassName = 'sudoku.desktop/org.netomi.sudoku.ui.SudokuApp'
 }
 
+sourceCompatibility = '11'
+targetCompatibility = '11'
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.freeCompilerArgs = [
+        "-Xjvm-default=enable"
+    ]
+}
+
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.freeCompilerArgs = [
+        "-Xjvm-default=enable"
+    ]
+}
+
 jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
     manifest {
         attributes 'Main-Class': mainClassName
     }
@@ -26,6 +47,11 @@ dependencies {
     implementation project(':core')
 
     implementation "no.tornado:tornadofx:1.7.20"
+    constraints {
+        implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.10") {
+            because 'version 1.9 pulled from httpclient has bugs affecting this application'
+        }
+    }
 
     // junit 5
     testCompile     "org.junit.jupiter:junit-jupiter-api:$junitVersion"

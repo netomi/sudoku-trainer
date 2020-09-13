@@ -20,7 +20,6 @@
 package org.netomi.sudoku.solver
 
 import org.netomi.sudoku.model.Grid
-import java.lang.RuntimeException
 import kotlin.collections.LinkedHashSet
 
 open class HintAggregator : Sequence<Hint>

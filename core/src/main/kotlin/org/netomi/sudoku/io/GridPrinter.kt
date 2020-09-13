@@ -21,9 +21,8 @@ package org.netomi.sudoku.io
 
 import org.netomi.sudoku.model.Grid
 import org.netomi.sudoku.model.GridVisitor
-import java.io.PrintStream
 
-class GridPrinter constructor(private val style: STYLE, private val ps: PrintStream = System.out)
+class GridPrinter constructor(private val style: STYLE, private val appendable: Appendable)
     : GridVisitor<Grid>
 {
     enum class STYLE {
@@ -39,13 +38,13 @@ class GridPrinter constructor(private val style: STYLE, private val ps: PrintStr
     }
 
     private fun printOnelineGrid(grid: Grid) {
-        grid.cells().forEach { cell -> ps.println(cell.value) }
+        grid.cells().forEach { cell -> appendable.appendLine(cell.value.toString()) }
     }
 
     private fun printSimpleGrid(grid: Grid) {
         for (row in grid.rows()) {
-            row.cells().forEach { cell -> ps.print(cell.value) }
-            ps.println()
+            row.cells().forEach { cell -> appendable.append(cell.value.toString()) }
+            appendable.appendLine()
         }
     }
 }

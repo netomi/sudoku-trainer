@@ -18,6 +18,9 @@
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
 
+// Workaround for https://youtrack.jetbrains.com/issue/KT-35343
+@file:Suppress("JAVA_MODULE_DOES_NOT_READ_UNNAMED_MODULE")
+
 package org.netomi.sudoku.ui.controller
 
 import javafx.beans.property.ObjectProperty
@@ -37,7 +40,6 @@ import org.netomi.sudoku.solver.Hint
 import org.netomi.sudoku.solver.HintSolver
 import org.netomi.sudoku.solver.ValueSelection
 import org.netomi.sudoku.ui.model.LibraryEntry
-import org.netomi.sudoku.ui.model.SudokuLibrary
 import tornadofx.Controller
 import tornadofx.onChange
 import kotlin.random.Random

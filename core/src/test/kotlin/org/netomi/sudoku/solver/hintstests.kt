@@ -95,14 +95,14 @@ class ChainTest
         chain.addLink(LinkType.WEAK, 1, 2)
         chain.addLink(LinkType.STRONG, 1, 1)
 
-        chain.accept(grid, object: ChainVisitor {
-            override fun visitCell(grid: Grid, chain: Chain, cell: Cell, activeValues: ValueSet, inactiveValues: ValueSet) {
-                println("%s %s %s".format(cell.name, activeValues, inactiveValues))
-            }
-
-            override fun visitCellLink(grid: Grid, chain: Chain, fromCell: Cell, fromCandidate: Int, toCell: Cell, toCandidate: Int, linkType: LinkType) {
-                println("%s %s %s".format(fromCell.name, linkType, toCell.name))
-            }
-        })
+//        chain.accept(grid, object: ChainVisitor {
+//            override fun visitCell(grid: Grid, chain: Chain, cell: Cell, activeValues: ValueSet, inactiveValues: ValueSet) {
+//                println("%s %s %s".format(cell.name, activeValues, inactiveValues))
+//            }
+//
+//            override fun visitCellLink(grid: Grid, chain: Chain, fromCell: Cell, fromCandidate: Int, toCell: Cell, toCandidate: Int, linkType: LinkType) {
+//                println("%s %s %s".format(fromCell.name, linkType, toCell.name))
+//            }
+//        })
     }
 }

@@ -95,9 +95,9 @@ abstract class BasicFishFinder protected constructor(private val size: Int) : Ba
             val matchingCells = MutableCellSet.empty(grid)
 
             // remove all cells from base sets.
-            for (house in visitedRegions) {
-                affectedCells.andNot(house.cellSet)
-                matchingCells.or(house.cellSet)
+            for (region in visitedRegions) {
+                affectedCells.andNot(region.cellSet)
+                matchingCells.or(region.cellSet)
             }
 
             val excludedValue = MutableValueSet.of(grid, value)

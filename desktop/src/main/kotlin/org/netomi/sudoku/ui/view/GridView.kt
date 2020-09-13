@@ -17,19 +17,19 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
+// Workaround for https://youtrack.jetbrains.com/issue/KT-35343
+@file:Suppress("JAVA_MODULE_DOES_NOT_READ_UNNAMED_MODULE")
+
 package org.netomi.sudoku.ui.view
 
 import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleObjectProperty
-import javafx.scene.Group
 import javafx.scene.layout.*
-import javafx.scene.paint.Color
-import javafx.scene.shape.Line
 import org.netomi.sudoku.model.*
 import org.netomi.sudoku.solver.*
 import org.netomi.sudoku.ui.Styles
 import org.netomi.sudoku.ui.controller.GridController
-import org.netomi.sudoku.ui.model.DisplayOptions
 import tornadofx.*
 
 /**

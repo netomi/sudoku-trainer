@@ -17,20 +17,21 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
+// Workaround for https://youtrack.jetbrains.com/issue/KT-35343
+@file:Suppress("JAVA_MODULE_DOES_NOT_READ_UNNAMED_MODULE")
+
 package org.netomi.sudoku.ui.view
 
 import javafx.application.Platform
 import javafx.beans.binding.Bindings
-import javafx.beans.binding.When
 import javafx.beans.property.SimpleDoubleProperty
 import javafx.collections.FXCollections
-import javafx.event.Event
 import javafx.geometry.Insets
 import javafx.geometry.Side
 import javafx.scene.Scene
 import javafx.scene.control.*
 import javafx.scene.input.MouseButton
-import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Priority
 import org.netomi.sudoku.model.PredefinedType
 import org.netomi.sudoku.solver.Hint
@@ -40,7 +41,6 @@ import org.netomi.sudoku.ui.model.SudokuLibrary
 import org.netomi.sudoku.ui.model.TechniqueCategory
 import org.netomi.sudoku.ui.model.TechniqueCategoryOrLibraryEntry
 import tornadofx.*
-
 
 class MainView : View("Sudoku Trainer") {
     private val gridController: GridController by inject()

@@ -51,7 +51,7 @@ class HintSolver : GridSolver
                 }
             } catch (ex: HintAggregatorExhaustedException) {
                 // do nothing
-            } catch (ex: java.lang.RuntimeException) {
+            } catch (ex: RuntimeException) {
                 ex.printStackTrace()
             }
 

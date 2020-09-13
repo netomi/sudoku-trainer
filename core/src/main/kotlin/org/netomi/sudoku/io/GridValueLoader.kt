@@ -21,13 +21,10 @@ package org.netomi.sudoku.io
 
 import org.netomi.sudoku.model.Grid
 import org.netomi.sudoku.model.GridVisitor
-import java.io.IOException
-import java.io.Reader
-import java.io.StringReader
 
-class GridValueLoader(private val reader: Reader) : GridVisitor<Grid>
+class GridValueLoader(private val iterator: Iterator<Char>) : GridVisitor<Grid>
 {
-    constructor(input: String) : this(StringReader(input))
+    constructor(input: String) : this(input.asSequence().iterator())
 
     override fun visitGrid(grid: Grid): Grid {
         for (cell in grid.cells()) {
@@ -55,15 +52,7 @@ class GridValueLoader(private val reader: Reader) : GridVisitor<Grid>
     }
 
     private fun nextChar(): Char {
-        return try {
-            val ch = reader.read()
-            if (ch == -1) {
-                throw RuntimeException("reader exhausted")
-            }
-            ch.toChar()
-        } catch (ex: IOException) {
-            throw RuntimeException(ex)
-        }
+        return iterator.next()
     }
 
     private fun isGiven(character: Char): Boolean {

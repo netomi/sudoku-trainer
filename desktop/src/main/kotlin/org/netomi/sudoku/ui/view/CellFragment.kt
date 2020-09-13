@@ -17,6 +17,10 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  */
+
+// Workaround for https://youtrack.jetbrains.com/issue/KT-35343
+@file:Suppress("JAVA_MODULE_DOES_NOT_READ_UNNAMED_MODULE")
+
 package org.netomi.sudoku.ui.view
 
 import javafx.beans.binding.Bindings
@@ -36,7 +40,6 @@ import javafx.scene.layout.ColumnConstraints
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.Priority
 import javafx.scene.layout.RowConstraints
-import javafx.scene.shape.Shape
 import org.netomi.sudoku.model.Cell
 import org.netomi.sudoku.model.Conflict
 import org.netomi.sudoku.model.Grid
@@ -323,20 +326,20 @@ class CellFragment(private val cell: Cell) : Fragment()
         return possibleValuesPane.children[candidate - 1]
     }
 
-    fun getArrow(fromCandidate: Int, toFragment: CellFragment, toCandidate: Int, linkType: LinkType): Shape {
+    fun getArrow(fromCandidate: Int, toFragment: CellFragment, toCandidate: Int, linkType: LinkType): Group {
         // FIXME: very simple arrow, improve using cubic curve and dashed lines
         val fromLabel = getCandidateLabel(fromCandidate)
         val toLabel   = toFragment.getCandidateLabel(toCandidate)
 
-        val from = fromLabel.boundsInParent
-        val to   = toLabel.boundsInParent
+        val from = fromLabel.boundsInLocal
+        val to   = toLabel.boundsInLocal
 
-        val arrow = Arrow(root.layoutX + from.centerX, root.layoutY + from.centerY, toFragment.root.layoutX + to.centerX, toFragment.root.layoutY + to.centerY)
-        arrow.strokeWidth = 2.0
+        val arrow = Arrow(root.layoutX + fromLabel.layoutX + from.centerX, root.layoutY + fromLabel.layoutY + from.centerY, toFragment.root.layoutX + toLabel.layoutX + to.centerX, toFragment.root.layoutY + toLabel.layoutY + to.centerY)
+        arrow.draw()
 
-        if (linkType == LinkType.WEAK) {
-            arrow.strokeDashArray.addAll(10.0, 10.0)
-        }
+//        if (linkType == LinkType.WEAK) {
+//            arrow.strokeDashArray.addAll(10.0, 10.0)
+//        }
 
         return arrow
     }
