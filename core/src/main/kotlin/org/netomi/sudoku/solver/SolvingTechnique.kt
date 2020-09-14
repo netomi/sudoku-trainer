@@ -58,6 +58,8 @@ enum class SolvingTechnique(val techniqueName: String, val supplier: () -> HintF
     // Uniqueness tests.
     UNIQUE_RECTANGLE_TYPE_1("Unique Rectangle Type 1", ::UniqueRectangleType1Finder),
     UNIQUE_RECTANGLE_TYPE_2("Unique Rectangle Type 2", ::UniqueRectangleType2Finder),
+    // UNIQUE_RECTANGLE_TYPE_3("Unique Rectangle Type 3", ::UniqueRectangleType3Finder),
+    UNIQUE_RECTANGLE_TYPE_4("Unique Rectangle Type 4", ::UniqueRectangleType4Finder),
 
     // Chains.
     REMOTE_PAIR("Remote Pair", ::RemotePairFinder),

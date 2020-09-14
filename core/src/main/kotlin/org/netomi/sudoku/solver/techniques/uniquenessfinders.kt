@@ -132,6 +132,69 @@ class UniqueRectangleType2Finder : BaseUniqueRectangleHintFinder()
     }
 }
 
+/**
+ * A [HintFinder] implementation ...
+ */
+class UniqueRectangleType4Finder : BaseUniqueRectangleHintFinder()
+{
+    override val solvingTechnique: SolvingTechnique
+        get() = SolvingTechnique.UNIQUE_RECTANGLE_TYPE_4
+
+    override fun foundPossibleUniqueRectangle(grid: Grid, hintAggregator: HintAggregator, ur: UR) {
+        val expectedPossibleValues = ur.cellsInFirstHouse.first().possibleValueSet
+
+        val foundCandidateValues = MutableValueSet.empty(grid)
+
+        for (cell in ur.cellsInSecondHouse) {
+            val possibleValues = cell.possibleValueSet
+
+            // the UR must have at least 1 UR candidate value.
+            var excludedValues = possibleValues.toMutableValueSet()
+            excludedValues.and(expectedPossibleValues)
+            if (excludedValues.cardinality() == 0) return
+            foundCandidateValues.or(excludedValues)
+
+            // the UR cells must have at least 1 extra value.
+            excludedValues = possibleValues.toMutableValueSet()
+            excludedValues.andNot(expectedPossibleValues)
+            if (excludedValues.cardinality() == 0) return
+        }
+
+        if (foundCandidateValues.cardinality() != 2) return
+
+        for (candidate in expectedPossibleValues.allSetBits()) {
+            val cellsWithExtraCandidates = MutableCellSet.of(grid, ur.cellsInSecondHouse.asSequence())
+
+            val column = cellsWithExtraCandidates.getSingleColumn(grid)
+            val row = cellsWithExtraCandidates.getSingleRow(grid)
+            val block = cellsWithExtraCandidates.getSingleBlock(grid)
+
+            val searchPositions: (House) -> Unit = {
+                val potentialPositions = it.getPotentialPositionsAsSet(candidate).toMutableCellSet()
+                potentialPositions.andNot(cellsWithExtraCandidates)
+                if (potentialPositions.cardinality() == 0) {
+                    val matchingCells = MutableCellSet.of(grid, (ur.cellsInFirstHouse + ur.cellsInSecondHouse).asSequence())
+
+                    val excludedValues = expectedPossibleValues.toMutableValueSet()
+                    excludedValues.clear(candidate)
+
+                    eliminateValuesFromCells(grid,
+                                             hintAggregator,
+                                             matchingCells,
+                                             expectedPossibleValues.copy(),
+                                             it.cellSet.copy(),
+                                             cellsWithExtraCandidates,
+                                             excludedValues)
+                }
+            }
+
+            column?.apply(searchPositions)
+            row?.apply(searchPositions)
+            block?.apply(searchPositions)
+        }
+    }
+}
+
 abstract class BaseUniqueRectangleHintFinder : BaseHintFinder
 {
     override fun findHints(grid: Grid, hintAggregator: HintAggregator) {

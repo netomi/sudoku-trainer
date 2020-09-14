@@ -40,3 +40,13 @@ class UniqueRectangleType2Test : BaseHintFinderTest() {
         return testCase.technique.startsWith("0601")
     }
 }
+
+class UniqueRectangleType4Test : BaseHintFinderTest() {
+    override fun createHintFinder(): HintFinder {
+        return UniqueRectangleType4Finder()
+    }
+
+    override fun matches(testCase: TechniqueTestCase): Boolean {
+        return testCase.technique.startsWith("0603")
+    }
+}
