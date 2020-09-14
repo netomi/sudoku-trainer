@@ -30,6 +30,7 @@ import javafx.collections.FXCollections
 import javafx.collections.ObservableIntegerArray
 import javafx.event.EventHandler
 import javafx.geometry.HPos
+import javafx.geometry.Point2D
 import javafx.geometry.VPos
 import javafx.scene.Group
 import javafx.scene.Node
@@ -40,11 +41,13 @@ import javafx.scene.layout.ColumnConstraints
 import javafx.scene.layout.GridPane
 import javafx.scene.layout.Priority
 import javafx.scene.layout.RowConstraints
+import javafx.scene.transform.Transform
 import org.netomi.sudoku.model.Cell
 import org.netomi.sudoku.model.Conflict
 import org.netomi.sudoku.model.Grid
 import org.netomi.sudoku.model.ValueSet
 import org.netomi.sudoku.solver.*
+import org.netomi.sudoku.solver.LinkType.WEAK
 import org.netomi.sudoku.ui.Styles
 import org.netomi.sudoku.ui.model.DisplayOptions
 import tornadofx.*
@@ -326,22 +329,63 @@ class CellFragment(private val cell: Cell) : Fragment()
         return possibleValuesPane.children[candidate - 1]
     }
 
-    fun getArrow(fromCandidate: Int, toFragment: CellFragment, toCandidate: Int, linkType: LinkType): Group {
+    fun getArrow(fromCandidate: Int, toFragment: CellFragment, toCandidate: Int, linkType: LinkType, transform: Transform): Group {
         // FIXME: very simple arrow, improve using cubic curve and dashed lines
         val fromLabel = getCandidateLabel(fromCandidate)
         val toLabel   = toFragment.getCandidateLabel(toCandidate)
 
-        val from = fromLabel.boundsInLocal
-        val to   = toLabel.boundsInLocal
+        val startPoint = getStartPoint(fromLabel, toLabel, transform)
+        val endPoint = getStartPoint(toLabel, fromLabel, transform)
 
-        val arrow = Arrow(root.layoutX + fromLabel.layoutX + from.centerX, root.layoutY + fromLabel.layoutY + from.centerY, toFragment.root.layoutX + toLabel.layoutX + to.centerX, toFragment.root.layoutY + toLabel.layoutY + to.centerY)
+        val arrow = Arrow(startPoint.x, startPoint.y, endPoint.x, endPoint.y)
+
+        arrow.lineStyles.add(Styles.chainLink)
+        if (linkType == WEAK) {
+            arrow.lineStyles.add(Styles.weakChainLink)
+        }
+        arrow.arrowHeadStyles.add(Styles.chainLinkArrow)
+
         arrow.draw()
 
-//        if (linkType == LinkType.WEAK) {
-//            arrow.strokeDashArray.addAll(10.0, 10.0)
-//        }
-
         return arrow
+    }
+
+    private fun getStartPoint(from: Node, to: Node, transform: Transform): Point2D {
+        val fromBounds = from.localToScene(from.boundsInLocal)
+        val toBounds = to.localToScene(to.boundsInLocal)
+
+        val width  = fromBounds.width
+        val height = fromBounds.height
+
+        var startX = fromBounds.centerX
+        var startY = fromBounds.centerY
+
+        val endX = toBounds.centerX
+        val endY = toBounds.centerY
+
+        startX += if (startX < endX) width / 2.0 else if (startX > endX) -width / 2.0 else 0.0
+        startY += if (startY < endY) height / 2.0 else if (startY > endY) -height / 2.0 else 0.0
+
+        return transform.inverseTransform(startX, startY)
+    }
+
+    private fun getEndPoint(from: Node, to: Node, transform: Transform): Point2D {
+        val fromBounds = from.localToScene(from.boundsInLocal)
+        val toBounds = to.localToScene(to.boundsInLocal)
+
+        val width  = toBounds.width
+        val height = toBounds.height
+
+        val startX = fromBounds.centerX
+        val startY = fromBounds.centerY
+
+        var endX = toBounds.centerX
+        var endY = toBounds.centerY
+
+        endX += if (startX > endX || (startX == endX && startY < endY)) width / 2.0 else -width / 2.0
+        endY += if (startY > endY) height / 2.0 else -height / 2.0
+
+        return transform.inverseTransform(endX, endY)
     }
 
     override fun toString(): String {

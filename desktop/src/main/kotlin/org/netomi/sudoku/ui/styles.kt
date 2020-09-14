@@ -41,6 +41,10 @@ class Styles : Stylesheet() {
 
         val cellActiveFilter        by cssclass()
         val cellInactiveFilter      by cssclass()
+
+        val chainLink               by cssclass()
+        val chainLinkArrow          by cssclass()
+        val weakChainLink           by cssclass()
     }
 
     init {
@@ -113,6 +117,22 @@ class Styles : Stylesheet() {
 
         cellInactiveFilter {
             backgroundColor += Color.LIGHTCORAL
+        }
+
+        chainLink {
+            stroke = Color.RED
+            strokeWidth = 2.0.px
+            fill = Color.TRANSPARENT
+        }
+
+        chainLinkArrow {
+            stroke = Color.RED
+            strokeWidth = 2.0.px
+            fill = Color.RED
+        }
+
+        weakChainLink {
+            strokeDashArray = listOf(10.px, 10.px)
         }
 
         listCell and empty {

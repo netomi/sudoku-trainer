@@ -23,14 +23,20 @@
 
 package org.netomi.sudoku.ui.view
 
+import javafx.application.Platform
 import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleObjectProperty
+import javafx.beans.value.ChangeListener
 import javafx.scene.layout.*
-import org.netomi.sudoku.model.*
+import org.netomi.sudoku.model.Cell
+import org.netomi.sudoku.model.Conflict
+import org.netomi.sudoku.model.Grid
+import org.netomi.sudoku.model.ValueSet
 import org.netomi.sudoku.solver.*
 import org.netomi.sudoku.ui.Styles
 import org.netomi.sudoku.ui.controller.GridController
 import tornadofx.*
+
 
 /**
  * The main grid view to visualize the state of a sudoku grid.
@@ -105,7 +111,7 @@ class GridView : View()
 
         model?.let {
             conflicts = when (it.isValid) {
-                true ->  emptyArray()
+                true -> emptyArray()
                 false -> it.conflicts
             }
         }
@@ -117,18 +123,18 @@ class GridView : View()
         }
 
         shapeGroup.children.clear()
-        hint?.accept(object: HintVisitor {
+        hint?.accept(object : HintVisitor {
             override fun visitAnyHint(hint: Hint) {}
 
             override fun visitChainEliminationHint(hint: ChainEliminationHint) {
-                hint.relatedChain.accept(model!!, object: ChainVisitor {
+                hint.relatedChain.accept(model!!, object : ChainVisitor {
                     override fun visitCell(grid: Grid, chain: Chain, cell: Cell, activeValues: ValueSet, inactiveValues: ValueSet) {}
 
                     override fun visitCellLink(grid: Grid, chain: Chain, fromCell: Cell, fromCandidate: Int, toCell: Cell, toCandidate: Int, linkType: LinkType) {
                         val fromFragment = cellFragmentList[fromCell.cellIndex]
                         val toFragment = cellFragmentList[toCell.cellIndex]
 
-                        val arrow = fromFragment.getArrow(fromCandidate, toFragment, toCandidate, linkType)
+                        val arrow = fromFragment.getArrow(fromCandidate, toFragment, toCandidate, linkType, shapeGroup.localToSceneTransform)
                         shapeGroup.add(arrow)
                     }
                 })
@@ -139,5 +145,11 @@ class GridView : View()
     init {
         modelProperty.addListener { _, _, _ -> rebuildViewFromModel() }
         modelProperty.bind(gridController.modelProperty)
+
+        // refresh the grid view in case of a resize event
+        val updater = ChangeListener<Number> { _, _, _ -> Platform.runLater { refreshView() } }
+
+        grid.widthProperty().addListener(updater)
+        grid.heightProperty().addListener(updater)
     }
 }

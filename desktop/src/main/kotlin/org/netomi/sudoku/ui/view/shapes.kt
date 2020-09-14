@@ -24,27 +24,23 @@ import javafx.scene.Group
 import javafx.scene.paint.Color
 import javafx.scene.shape.*
 import javafx.scene.transform.Rotate
+import tornadofx.CssRule
+import tornadofx.addClass
 import java.lang.Math.toDegrees
-import kotlin.math.atan2
-import kotlin.math.ceil
+import kotlin.math.*
 
 /**
  * An arrow shape.
  *
  * This is a [Node] subclass and can be added to the JavaFX scene graph in the usual way. Styling can be achieved
  * via the CSS classes *arrow-line* and *arrow-head*.
- *
- * Example:
- *
- * <pre>
- * `Arrow arrow = new Arrow();
- * arrow.setStart(10, 20);
- * arrow.setEnd(100, 150);
- * arrow.draw();`
- * </pre>
  */
-class Arrow constructor(private var startX: Double = 0.0, private var startY: Double = 0.0, private var endX: Double = 0.0, private var endY: Double = 0.0): Group() {
-    private val line = QuadCurve()
+class Arrow constructor(private var startX: Double = 0.0, private var startY: Double = 0.0, private var endX: Double = 0.0, private var endY: Double = 0.0): Group()
+{
+    var lineStyles: MutableList<CssRule> = mutableListOf()
+    var arrowHeadStyles: MutableList<CssRule> = mutableListOf()
+
+    private val line = Line()
     private val head: ArrowHead = ArrowHead()
 
     /**
@@ -67,11 +63,7 @@ class Arrow constructor(private var startX: Double = 0.0, private var startY: Do
 
     /**
      * Sets the radius of curvature of the [ArcTo] at the base of the arrow-head.
-     *
-     *
-     *
      * If this value is less than or equal to zero, a straight line will be drawn instead. The default is -1.
-     *
      *
      * @param radius the radius of curvature of the arc at the base of the arrow-head
      */
@@ -121,48 +113,33 @@ class Arrow constructor(private var startX: Double = 0.0, private var startY: Do
      * Draws the arrow for its current size and position values.
      */
     fun draw() {
+
+        line.startX = startX
+        line.startY = startY
+        line.endX = endX
+        line.endY = endY
+
+        lineStyles.forEach { line.addClass(it) }
+        arrowHeadStyles.forEach { head.addClass(it) }
+
         val deltaX = endX - startX
         val deltaY = endY - startY
         val angle = atan2(deltaX, deltaY)
-        val headX: Double = endX - head.length / 2 * Math.sin(angle)
-        val headY: Double = endY - head.length / 2 * Math.cos(angle)
-        line.startX = moveOffPixel(startX)
-        line.startY = moveOffPixel(startY)
-        line.endX = moveOffPixel(headX)
-        line.endY = moveOffPixel(headY)
-        line.controlX = (line.startX + line.endX) / 2 - 20
-        line.controlY = (line.startY + line.endY) / 2 - 20
+        val headX: Double = endX - head.length / 2 * sin(angle)
+        val headY: Double = endY - head.length / 2 * cos(angle)
         head.setCenter(headX, headY)
         head.setAngle(toDegrees(-angle))
         head.draw()
     }
 
-    companion object {
-        private const val STYLE_CLASS_LINE = "arrow-line"
-        private const val STYLE_CLASS_HEAD = "arrow-head"
-    }
-
     init {
-        line.styleClass.add(STYLE_CLASS_LINE)
-        head.styleClass.add(STYLE_CLASS_HEAD)
-
-        line.fill = null
-        line.stroke = Color.RED
-        head.fill = Color.RED
-
-        line.strokeWidth = 2.0
-
         children.addAll(line, head)
     }
 }
 
 /**
  * An arrow-head shape.
- *
- *
- *
  * This is used by the [Arrow] class.
- *
  */
 class ArrowHead : Path() {
     private var x = 0.0
@@ -197,11 +174,7 @@ class ArrowHead : Path() {
 
     /**
      * Sets the radius of curvature of the [ArcTo] at the base of the arrow-head.
-     *
-     *
-     *
      * If this value is less than or equal to zero, a straight line will be drawn instead. The default is -1.
-     *
      *
      * @param radius the radius of curvature of the arc at the base of the arrow-head
      */
@@ -245,7 +218,8 @@ class ArrowHead : Path() {
     }
 
     init {
-        fill = Color.BLACK
+        fill = Color.RED
+        stroke = Color.RED
         strokeType = StrokeType.INSIDE
         transforms.add(rotate)
     }
@@ -254,32 +228,23 @@ class ArrowHead : Path() {
 private const val HALF_A_PIXEL = 0.5
 
 /**
- * Moves an x or y position value on-pixel.
- *
- * <p>
- * Lines drawn off-pixel look blurry. They should therefore have integer x and y values.
- * </p>
- *
- * @param position the position to move on-pixel
- *
- * @return the position rounded to the nearest integer
+ * Evaluate the cubic curve at a parameter 0<=t<=1, returns a Point2D
+ * @param c the CubicCurve
+ * @param t param between 0 and 1
+ * @return a Point2D
  */
-fun moveOnPixel(position: Double): Double {
-    return ceil(position)
+private fun eval(c: CubicCurve, t: Float): Point2D {
+    return Point2D((1 - t.toDouble()).pow(3.0) * c.startX + 3 * t * (1 - t.toDouble()).pow(2.0) * c.controlX1 + 3 * (1 - t) * t * t * c.controlX2 + t.toDouble().pow(3.0) * c.endX,
+            (1 - t.toDouble()).pow(3.0) * c.startY + 3 * t * (1 - t.toDouble()).pow(2.0) * c.controlY1 + 3 * (1 - t) * t * t * c.controlY2 + t.toDouble().pow(3.0) * c.endY)
 }
 
 /**
- * Moves an x or y position value off-pixel.
- *
- * <p>
- * This is for example useful for a 1-pixel-wide stroke with a stroke-type of centered. The x and y positions need
- * to be off-pixel so that the stroke is on-pixel.
- * </p>
- *
- * @param position the position to move off-pixel
- *
- * @return the position moved to the nearest value halfway between two integers
+ * Evaluate the tangent of the cubic curve at a parameter 0<=t<=1, returns a Point2D
+ * @param c the CubicCurve
+ * @param t param between 0 and 1
+ * @return a Point2D
  */
-fun moveOffPixel(position: Double): Double {
-    return ceil(position) - HALF_A_PIXEL
+private fun evalDt(c: CubicCurve, t: Float): Point2D {
+    return Point2D(-3 * (1 - t.toDouble()).pow(2.0) * c.startX + 3 * ((1 - t.toDouble()).pow(2.0) - 2 * t * (1 - t)) * c.controlX1 + 3 * ((1 - t) * 2 * t - t * t) * c.controlX2 + 3 * t.toDouble().pow(2.0) * c.endX,
+            -3 * (1 - t.toDouble()).pow(2.0) * c.startY + 3 * ((1 - t.toDouble()).pow(2.0) - 2 * t * (1 - t)) * c.controlY1 + 3 * ((1 - t) * 2 * t - t * t) * c.controlY2 + 3 * t.toDouble().pow(2.0) * c.endY)
 }
