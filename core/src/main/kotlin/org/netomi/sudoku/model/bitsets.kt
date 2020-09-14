@@ -233,6 +233,10 @@ interface ValueSet : SimpleBitSet
         return valueSet
     }
 
+    fun intersects(other: ValueSet): Boolean {
+        return bits.intersects(other.bits)
+    }
+
     fun copy(): ValueSet {
         return toMutableValueSet()
     }
@@ -396,6 +400,10 @@ interface CellSet : SimpleBitSet
 
     fun toCellList(grid: Grid): MutableList<Cell> {
         return allCells(grid).toMutableList()
+    }
+
+    fun intersects(other: CellSet): Boolean {
+        return bits.intersects(other.bits)
     }
 
     fun copy(): CellSet {

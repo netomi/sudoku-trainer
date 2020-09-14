@@ -55,6 +55,10 @@ enum class SolvingTechnique(val techniqueName: String, val supplier: () -> HintF
     SKYSCRAPER("Skyscraper", ::SkyscraperFinder),
     TWO_STRING_KITE("2-String Kite", ::TwoStringKiteFinder),
 
+    // Uniqueness tests.
+    UNIQUE_RECTANGLE_TYPE_1("Unique Rectangle Type 1", ::UniqueRectangleType1Finder),
+    UNIQUE_RECTANGLE_TYPE_2("Unique Rectangle Type 2", ::UniqueRectangleType2Finder),
+
     // Chains.
     REMOTE_PAIR("Remote Pair", ::RemotePairFinder),
     X_CHAIN("X-Chain", ::XChainFinder),
