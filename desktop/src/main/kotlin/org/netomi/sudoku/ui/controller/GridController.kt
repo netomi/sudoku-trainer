@@ -70,17 +70,20 @@ class GridController : Controller()
     }
 
     fun loadModel(entry: LibraryEntry) {
-        val grid = of(PredefinedType.CLASSIC_9x9)
-        grid.accept(GridValueLoader(entry.givens))
+        runAsync {
+            val grid = of(PredefinedType.CLASSIC_9x9)
+            grid.accept(GridValueLoader(entry.givens))
 
-        for (c in entry.getDeletedCandidates()) {
-            val cell = grid.getCell(c.row, c.col)
-            cell.excludePossibleValues(false, c.value)
+            for (c in entry.getDeletedCandidates()) {
+                val cell = grid.getCell(c.row, c.col)
+                cell.excludePossibleValues(false, c.value)
+            }
+
+            grid.updateState()
+            grid
+        } ui {
+            modelProperty.set(it)
         }
-
-        grid.updateState()
-
-        modelProperty.set(grid)
     }
 
     fun loadModelFromClipboard() {

@@ -6,12 +6,11 @@ plugins {
 }
 
 javafx {
-    version = "11.0.2"
-    modules = [ 'javafx.controls', 'javafx.graphics' ]
+    version = "13"
+    modules = [ 'javafx.controls', 'javafx.graphics', 'javafx.fxml', 'javafx.media', 'javafx.swing', 'javafx.web' ]
 }
 
 application {
-    applicationDefaultJvmArgs = ["--add-opens=javafx.graphics/javafx.scene=tornadofx"]
     mainClassName = 'sudoku.desktop/org.netomi.sudoku.ui.SudokuApp'
 }
 
@@ -43,10 +42,14 @@ jar {
     }
 }
 
+repositories {
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+}
+
 dependencies {
     implementation project(':core')
 
-    implementation "no.tornado:tornadofx:1.7.20"
+    implementation "no.tornado:tornadofx:2.0.0-SNAPSHOT"
 
     // junit 5
     testCompile     "org.junit.jupiter:junit-jupiter-api:$junitVersion"
