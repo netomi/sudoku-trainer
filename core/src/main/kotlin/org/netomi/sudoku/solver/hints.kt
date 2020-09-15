@@ -28,7 +28,7 @@ class AssignmentHint(type:             Grid.Type,
                      val value:        Int) : Hint(type, solvingTechnique, relatedCells)
 {
     override val description: String
-        get() = "%s=%d".format(gridType.getCellName(cellIndex), value)
+        get() = "${gridType.getCellName(cellIndex)}=$value"
 
     override fun apply(targetGrid: Grid, updateGrid: Boolean) {
         targetGrid.getCell(cellIndex).setValue(value, updateGrid)
@@ -97,8 +97,8 @@ open class EliminationHint(type:               Grid.Type,
                 eliminations.append(excludedValues[index].toCollection())
                 eliminations.append(", ")
             }
-            eliminations.delete(eliminations.length - 2, eliminations.length)
-            return "%s in %s => %s".format(values, cells, eliminations)
+            eliminations.deleteRange(eliminations.length - 2, eliminations.length)
+            return "$values in $cells => $eliminations"
         }
 
     override fun apply(targetGrid: Grid, updateGrid: Boolean) {
@@ -166,8 +166,8 @@ class ChainEliminationHint(type:             Grid.Type,
                 eliminations.append(excludedValues[index].toCollection())
                 eliminations.append(", ")
             }
-            eliminations.delete(eliminations.length - 2, eliminations.length)
-            return "%s => %s".format(relatedChain.toString(gridType), eliminations)
+            eliminations.deleteRange(eliminations.length - 2, eliminations.length)
+            return "${relatedChain.toString(gridType)} => $eliminations"
         }
 
     override fun accept(visitor: HintVisitor) {
@@ -350,7 +350,7 @@ class ChainLink(val linkType: LinkType,
                 val node:     ChainNode)
 {
     fun toString(type: Grid.Type): String {
-        return " %s %s".format(linkType.symbol, node.toString(type))
+        return " ${linkType.symbol} ${node.toString(type)}"
     }
 }
 

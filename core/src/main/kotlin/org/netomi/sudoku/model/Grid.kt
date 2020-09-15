@@ -304,9 +304,7 @@ class Grid
     }
 
     internal fun throwIfStateIsInvalid() {
-        if (!stateValid) {
-            throw RuntimeException("Cache data is invalidated, need to call refreshCache() before accessing cached data.")
-        }
+        check(stateValid) { "cache data is invalidated, need to call refreshCache() before accessing cached data" }
     }
 
     internal fun getPotentialPositions(value: Int): CellSet {
@@ -392,21 +390,19 @@ class Grid
         }
 
         fun getCellName(cellIndex: Int): String {
-            return "r%dc%d".format(getRowIndex(cellIndex) + 1, getColumnIndex(cellIndex) + 1)
+            return "r${getRowIndex(cellIndex) + 1}c${getColumnIndex(cellIndex) + 1}"
         }
 
         override fun toString(): String {
-            return "%dx%d".format(gridSize, gridSize)
+            return "${gridSize}x${gridSize}"
         }
     }
 
     companion object {
-        @JvmStatic
         fun of(type: PredefinedType): Grid {
             return Grid(Type(type.gridSize, type.blockFunction))
         }
 
-        @JvmStatic
         fun of(gridSize: Int, blockFunction: BlockFunction): Grid {
             return Grid(Type(gridSize, blockFunction))
         }

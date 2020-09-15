@@ -239,7 +239,7 @@ class Row internal constructor(owner: Grid, rowIndex: Int, houseIndex: Int) : Ho
     }
 
     override fun toString(): String {
-        return "r%d = %s".format(rowNumber, _assignedValueSet)
+        return "r$rowNumber = $_assignedValueSet"
     }
 }
 
@@ -260,7 +260,7 @@ class Column internal constructor(owner: Grid, columnIndex: Int, houseIndex: Int
     }
 
     override fun toString(): String {
-        return "c%d = %s".format(columnNumber, _assignedValueSet)
+        return "c$columnNumber = $_assignedValueSet"
     }
 }
 
@@ -281,6 +281,6 @@ class Block internal constructor(owner: Grid, blockIndex: Int, houseIndex: Int) 
     }
 
     override fun toString(): String {
-        return "b%d = %s".format(blockNumber, _assignedValueSet)
+        return "b$blockNumber = $_assignedValueSet"
     }
 }

@@ -97,11 +97,11 @@ class ChainTest
 
 //        chain.accept(grid, object: ChainVisitor {
 //            override fun visitCell(grid: Grid, chain: Chain, cell: Cell, activeValues: ValueSet, inactiveValues: ValueSet) {
-//                println("%s %s %s".format(cell.name, activeValues, inactiveValues))
+//                println("${cell.name} $activeValues $inactiveValues")
 //            }
 //
 //            override fun visitCellLink(grid: Grid, chain: Chain, fromCell: Cell, fromCandidate: Int, toCell: Cell, toCandidate: Int, linkType: LinkType) {
-//                println("%s %s %s".format(fromCell.name, linkType, toCell.name))
+//                println("${fromCell.name} $linkType ${toCell.name}")
 //            }
 //        })
     }

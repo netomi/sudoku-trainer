@@ -124,7 +124,7 @@ abstract class BasicFishFinder protected constructor(private val size: Int) : Ba
         return when (house.type) {
             HouseType.ROW    -> potentialPositions.toColumnSet(grid)
             HouseType.COLUMN -> potentialPositions.toRowSet(grid)
-            else -> throw IllegalArgumentException("unsupported region type " + house.type)
+            else -> error("unsupported region type $house.type")
         }
     }
 

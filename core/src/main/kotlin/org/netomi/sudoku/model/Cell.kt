@@ -22,7 +22,11 @@ package org.netomi.sudoku.model
 /**
  * Represents a cell in a sudoku grid.
  */
-class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowIndex: Int, val columnIndex: Int, val blockIndex: Int)
+class Cell internal constructor(val owner:       Grid,
+                                val cellIndex:   Int,
+                                val rowIndex:    Int,
+                                val columnIndex: Int,
+                                val blockIndex:  Int)
 {
     private var _value : Int = 0
     var value: Int
@@ -36,9 +40,6 @@ class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowInde
          * @throws IllegalStateException if the cell contains a given value (see [.isGiven])
          */
         set(value) {
-            require(!(value < 0 || value > owner.gridSize)) {
-                "invalid value for cell: " + value + " outside allowed range [0," + owner.gridSize + "]"
-            }
             setValue(value, true)
         }
 
@@ -118,7 +119,7 @@ class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowInde
      * respective row and column numbers this cell is contained in.
      */
     val name: String
-        get() = "r%dc%d".format(rowIndex + 1, columnIndex + 1)
+        get() = "r${rowIndex + 1}c${columnIndex + 1}"
 
     /**
      * Assigns the given value to the current cell.
@@ -129,6 +130,9 @@ class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowInde
      * @throws IllegalStateException if the cell contains a given value (see [.isGiven])
      */
     fun setValue(value: Int, updateGrid: Boolean) {
+        require(!(value < 0 || value > owner.gridSize)) {
+            "invalid value for cell: $value outside allowed range [0,${owner.gridSize}]"
+        }
         check(!isGiven) { "cell value is fixed" }
         owner.invalidateState()
         val oldValue = this._value
@@ -145,9 +149,7 @@ class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowInde
      */
     fun excludePossibleValues(updateGrid: Boolean, vararg values: Int) {
         owner.invalidateState()
-        for (value in values) {
-            _excludedValueSet.set(value)
-        }
+        values.forEach { _excludedValueSet.set(it) }
         _possibleValueSet.andNot(_excludedValueSet)
 
         if (updateGrid) {
@@ -185,9 +187,7 @@ class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowInde
 
     fun removeExcludedPossibleValues(updateGrid: Boolean, vararg values: Int) {
         owner.invalidateState()
-        for (value in values) {
-            _excludedValueSet.clear(value)
-        }
+        values.forEach { _excludedValueSet.clear(it) }
 
         resetPossibleValues()
         for (house in arrayOf(row, column, block)) {
@@ -284,6 +284,7 @@ class Cell internal constructor(val owner: Grid, val cellIndex: Int, val rowInde
     }
 
     override fun toString(): String {
-        return "r%dc%d = %d (%s)".format(rowIndex + 1, columnIndex + 1, value, if (isGiven) "given" else _possibleValueSet)
+        val possibleValues = if (isGiven) "given" else _possibleValueSet.toString()
+        return "$name = $value ($possibleValues)"
     }
 }

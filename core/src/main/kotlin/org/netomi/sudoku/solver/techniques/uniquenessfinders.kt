@@ -247,7 +247,7 @@ abstract class BaseUniqueRectangleHintFinder : BaseHintFinder
         return when(house.type) {
             HouseType.ROW    -> grid.rows()
             HouseType.COLUMN -> grid.columns()
-            else             -> throw IllegalArgumentException("unexpected house of type ${house.type}")
+            else             -> error("unexpected house type ${house.type}")
         }.asSequence().filter { it. regionIndex != house.regionIndex }
     }
 
@@ -255,7 +255,7 @@ abstract class BaseUniqueRectangleHintFinder : BaseHintFinder
         return when (house.type) {
             HouseType.ROW    -> house.cells().filter { it.columnIndex == cell.columnIndex }
             HouseType.COLUMN -> house.cells().filter { it.rowIndex == cell.rowIndex }
-            else             -> throw IllegalArgumentException("unexpected house of type ${house.type}")
+            else             -> error("unexpected house type ${house.type}")
         }.first()
     }
 

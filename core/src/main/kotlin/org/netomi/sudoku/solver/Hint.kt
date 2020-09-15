@@ -50,7 +50,7 @@ abstract class Hint protected constructor(val gridType:         Grid.Type,
     }
 
     override fun toString(): String {
-        return "%s: %s".format(solvingTechnique.techniqueName, description)
+        return "${solvingTechnique.techniqueName}: $description"
     }
 }
 

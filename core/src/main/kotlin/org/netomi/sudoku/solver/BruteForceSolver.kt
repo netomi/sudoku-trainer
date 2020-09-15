@@ -139,7 +139,7 @@ class BruteForceSolver : GridSolver
             }
         }
 
-        throw AssertionError("impossible")
+        error("impossible")
     }
 }
 
