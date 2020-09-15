@@ -80,7 +80,8 @@ class Styles : Stylesheet() {
         }
 
         cellFocus {
-            backgroundColor += Color.YELLOW
+            borderColor += box(Color.YELLOW)
+            borderWidth += box(4.px)
         }
 
         cellMatchingCandidate {

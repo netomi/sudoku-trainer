@@ -57,7 +57,7 @@ class GridController : Controller()
     val hintList: ObservableList<Hint>      = FXCollections.observableArrayList()
 
     fun loadModel() {
-        //Grid grid = Grid.of(PredefinedType.JIGSAW_1);
+        //val grid = of(PredefinedType.JIGSAW_1);
         val grid = of(PredefinedType.CLASSIC_9x9)
         //val input = "3.......4..2.6.1...1.9.8.2...5...6...2.....1...9...8...8.3.4.6...4.1.9..5.......7"; // jigsaw
         //val input = "4.....8.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......" // 9x9

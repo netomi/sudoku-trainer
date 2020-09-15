@@ -37,10 +37,6 @@ import javafx.scene.Node
 import javafx.scene.control.ContextMenu
 import javafx.scene.control.Label
 import javafx.scene.input.*
-import javafx.scene.layout.ColumnConstraints
-import javafx.scene.layout.GridPane
-import javafx.scene.layout.Priority
-import javafx.scene.layout.RowConstraints
 import javafx.scene.transform.Transform
 import com.github.netomi.sudoku.model.Cell
 import com.github.netomi.sudoku.model.Conflict
@@ -50,6 +46,7 @@ import com.github.netomi.sudoku.solver.*
 import com.github.netomi.sudoku.solver.LinkType.WEAK
 import com.github.netomi.sudoku.trainer.Styles
 import com.github.netomi.sudoku.trainer.model.DisplayOptions
+import javafx.scene.layout.*
 import tornadofx.*
 import java.lang.RuntimeException
 import java.util.function.Consumer
@@ -64,6 +61,8 @@ class CellFragment(private val cell: Cell) : Fragment()
 
     private val possibleValuesPane: GridPane
     private val assignedValueLabel: Label
+    // a simple pane to easily indicate the currently focused cell.
+    private val selectRectangle:    Pane
 
     override val root = stackpane {}
 
@@ -203,10 +202,10 @@ class CellFragment(private val cell: Cell) : Fragment()
 
             focusedProperty().addListener { _, _, newPropertyValue: Boolean ->
                 if (newPropertyValue) {
-                    removeClass(Styles.cellFocus)
-                    addClass(Styles.cellFocus)
+                    selectRectangle.removeClass(Styles.cellFocus)
+                    selectRectangle.addClass(Styles.cellFocus)
                 } else {
-                    removeClass(Styles.cellFocus)
+                    selectRectangle.removeClass(Styles.cellFocus)
                 }
             }
         }
@@ -329,7 +328,7 @@ class CellFragment(private val cell: Cell) : Fragment()
         return possibleValuesPane.children[candidate - 1]
     }
 
-    fun getArrow(fromCandidate: Int, toFragment: CellFragment, toCandidate: Int, linkType: LinkType, transform: Transform): Group {
+    internal fun getArrow(fromCandidate: Int, toFragment: CellFragment, toCandidate: Int, linkType: LinkType, transform: Transform): Group {
         // FIXME: very simple arrow, improve using cubic curve and dashed lines
         val fromLabel = getCandidateLabel(fromCandidate)
         val toLabel   = toFragment.getCandidateLabel(toCandidate)
@@ -369,25 +368,6 @@ class CellFragment(private val cell: Cell) : Fragment()
         return transform.inverseTransform(startX, startY)
     }
 
-    private fun getEndPoint(from: Node, to: Node, transform: Transform): Point2D {
-        val fromBounds = from.localToScene(from.boundsInLocal)
-        val toBounds = to.localToScene(to.boundsInLocal)
-
-        val width  = toBounds.width
-        val height = toBounds.height
-
-        val startX = fromBounds.centerX
-        val startY = fromBounds.centerY
-
-        var endX = toBounds.centerX
-        var endY = toBounds.centerY
-
-        endX += if (startX > endX || (startX == endX && startY < endY)) width / 2.0 else -width / 2.0
-        endY += if (startY > endY) height / 2.0 else -height / 2.0
-
-        return transform.inverseTransform(endX, endY)
-    }
-
     override fun toString(): String {
         return cell.toString()
     }
@@ -395,6 +375,10 @@ class CellFragment(private val cell: Cell) : Fragment()
     init {
         with(root) {
             addClass(Styles.sudokuCell)
+
+            selectRectangle = pane {
+                useMaxSize = true
+            }
 
             style += getBorderStyle(cell)
 
