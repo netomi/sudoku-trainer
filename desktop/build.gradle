@@ -50,7 +50,7 @@ repositories {
 }
 
 dependencies {
-    implementation "com.github.netomi.sudoku:sudoku-solver-jvm:0.1"
+    implementation "com.github.netomi.sudoku:sudoku-solver-jvm:0.2-SNAPSHOT"
 
     implementation "no.tornado:tornadofx:2.0.0-SNAPSHOT"
 

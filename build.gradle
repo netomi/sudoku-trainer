@@ -4,7 +4,7 @@ plugins {
 }
 
 allprojects {
-    group 'org.netomi.sudoku'
+    group 'com.github.netomi.sudoku'
     version '1.0-SNAPSHOT'
 
     repositories {
