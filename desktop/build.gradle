@@ -47,11 +47,6 @@ dependencies {
     implementation project(':core')
 
     implementation "no.tornado:tornadofx:1.7.20"
-    constraints {
-        implementation("org.jetbrains.kotlin:kotlin-reflect:1.4.10") {
-            because 'version 1.9 pulled from httpclient has bugs affecting this application'
-        }
-    }
 
     // junit 5
     testCompile     "org.junit.jupiter:junit-jupiter-api:$junitVersion"
