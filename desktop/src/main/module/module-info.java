@@ -7,9 +7,9 @@ module sudoku.desktop {
     requires tornadofx;
     requires kotlin.stdlib;
 
-    requires sudoku.core;
+    requires sudoku.solver.jvm;
 
-    opens org.netomi.sudoku.ui            to javafx.graphics, tornadofx;
-    opens org.netomi.sudoku.ui.view       to javafx.graphics, tornadofx;
-    opens org.netomi.sudoku.ui.controller to javafx.graphics, tornadofx;
+    opens com.github.netomi.sudoku.trainer            to javafx.graphics, tornadofx;
+    opens com.github.netomi.sudoku.trainer.view       to javafx.graphics, tornadofx;
+    opens com.github.netomi.sudoku.trainer.controller to javafx.graphics, tornadofx;
 }

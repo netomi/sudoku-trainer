@@ -11,7 +11,7 @@ javafx {
 }
 
 application {
-    mainClassName = 'sudoku.desktop/org.netomi.sudoku.ui.SudokuApp'
+    mainClassName = 'sudoku.desktop/com.github.netomi.sudoku.trainer.SudokuApp'
 }
 
 sourceCompatibility = '11'
@@ -44,10 +44,13 @@ jar {
 
 repositories {
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+    // the sudoku-solver repo.
+    maven { url  "https://dl.bintray.com/netomi/sudoku" }
+    mavenLocal()
 }
 
 dependencies {
-    implementation project(':core')
+    implementation "com.github.netomi.sudoku:sudoku-solver-jvm:0.1"
 
     implementation "no.tornado:tornadofx:2.0.0-SNAPSHOT"
 
