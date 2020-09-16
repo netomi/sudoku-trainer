@@ -81,27 +81,26 @@ class GridController : Controller()
 
             grid.updateState()
             grid
-        } ui {
-            modelProperty.set(it)
-        }
+        } ui { modelProperty.set(it) }
     }
 
     fun loadModelFromClipboard() {
         val data = Clipboard.getSystemClipboard().getContent(DataFormat.PLAIN_TEXT) as String?
-        data?.apply {
-            grid?.apply {
-                try {
-                    val newGrid = copy()
-                    newGrid.clear(true)
-                    newGrid.accept(GridValueLoader(data))
-                    modelProperty.set(newGrid)
-                } catch (ex: RuntimeException) {
-                    ex.printStackTrace()
 
-                    val alert = Alert(Alert.AlertType.ERROR, "failed to load model from clipboard", ButtonType.OK)
-                    alert.showAndWait()
+        data?.apply {
+            runAsync {
+                grid?.let {
+                    try {
+                        val newGrid = it.copy()
+                        newGrid.clear(true)
+                        newGrid.accept(GridValueLoader(data))
+                    } catch (ex: RuntimeException) {
+                        val alert = Alert(Alert.AlertType.ERROR, "failed to load model from clipboard", ButtonType.OK)
+                        alert.showAndWait()
+                        throw ex
+                    }
                 }
-            }
+            } ui { it?.apply { modelProperty.set(it) } }
         }
     }
 
@@ -136,18 +135,18 @@ class GridController : Controller()
     }
 
     fun findHints() {
-        grid?.apply {
-            val hintSolver = HintSolver()
-            val hints = hintSolver.findAllHints(this)
-            hintList.setAll(hints.hints)
+        runAsync {
+            grid?.let { HintSolver().findAllHints(it) }
+        } ui {
+            it?.apply { hintList.setAll(it.hints) }
         }
     }
 
     fun findHintsSingleStep() {
-        grid?.apply {
-            val hintSolver = HintSolver()
-            val hints = hintSolver.findAllHintsSingleStep(this)
-            hintList.setAll(hints.hints)
+        runAsync {
+            grid?.let { HintSolver().findAllHintsSingleStep(it) }
+        } ui {
+            it?.apply { hintList.setAll(it.hints) }
         }
     }
 
