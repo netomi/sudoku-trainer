@@ -124,15 +124,15 @@ class CellFragment(private val cell: Cell) : Fragment()
 
             override fun visitEliminationHint(hint: EliminationHint) {
                 if (hint.matchingCells[cell.cellIndex]) {
-                    for (value in hint.matchingValues.allSetBits()) {
+                    for (value in hint.matchingValues) {
                         getCandidateLabel(value).addClass(Styles.cellMatchingCandidate)
                     }
                 }
 
-                for ((i, cellIndex) in hint.affectedCells.allSetBits().withIndex()) {
+                for ((i, cellIndex) in hint.affectedCells.setBits().withIndex()) {
                     if (cellIndex == cell.cellIndex) {
                         val excludedValues = hint.excludedValues[i]
-                        for (value in excludedValues.allSetBits()) {
+                        for (value in excludedValues) {
                             getCandidateLabel(value).addClass(Styles.cellEliminatedCandidate)
                         }
                     }
@@ -145,11 +145,11 @@ class CellFragment(private val cell: Cell) : Fragment()
                 hint.relatedChain.accept(cell.owner, object: ChainVisitor {
                     override fun visitCell(grid: Grid, chain: Chain, currentCell: Cell, activeValues: ValueSet, inactiveValues: ValueSet) {
                         if (cell.cellIndex == currentCell.cellIndex) {
-                            for (value in activeValues.allSetBits()) {
+                            for (value in activeValues) {
                                 getCandidateLabel(value).addClass(Styles.cellActiveCandidate)
                             }
 
-                            for (value in inactiveValues.allSetBits()) {
+                            for (value in inactiveValues) {
                                 getCandidateLabel(value).addClass(Styles.cellInactiveCandidate)
                             }
                         }
@@ -158,10 +158,10 @@ class CellFragment(private val cell: Cell) : Fragment()
                     override fun visitCellLink(grid: Grid, chain: Chain, fromCell: Cell, fromCandidate: Int, toCell: Cell, toCandidate: Int, linkType: LinkType) {}
                 })
 
-                for ((i, cellIndex) in hint.affectedCells.allSetBits().withIndex()) {
+                for ((i, cellIndex) in hint.affectedCells.setBits().withIndex()) {
                     if (cellIndex == cell.cellIndex) {
                         val excludedValues = hint.excludedValues[i]
-                        for (value in excludedValues.allSetBits()) {
+                        for (value in excludedValues) {
                             getCandidateLabel(value).addClass(Styles.cellEliminatedCandidate)
                         }
                     }
@@ -266,7 +266,7 @@ class CellFragment(private val cell: Cell) : Fragment()
         if (!cell.isAssigned) {
             if (DisplayOptions.displayPossibleValues) {
                 // add assignment items
-                for (value in cell.possibleValueSet.allSetBits()) {
+                for (value in cell.possibleValueSet) {
                     contextMenu.item("Assign $value").action {
                         cell.setValue(value, true)
                     }
@@ -275,7 +275,7 @@ class CellFragment(private val cell: Cell) : Fragment()
                 contextMenu.separator()
 
                 // add exclude possible values items
-                for (value in cell.possibleValueSet.allSetBits()) {
+                for (value in cell.possibleValueSet) {
                     contextMenu.item("Exclude $value").action {
                         cell.excludePossibleValues(true, value)
                     }
@@ -284,14 +284,14 @@ class CellFragment(private val cell: Cell) : Fragment()
                 contextMenu.separator()
 
                 // add include previously excluded value items
-                for (value in cell.excludedValueSet.allSetBits()) {
+                for (value in cell.excludedValueSet) {
                     contextMenu.item("Include $value").action {
                         cell.removeExcludedPossibleValues(true, value)
                     }
                 }
             } else {
                 // add assignment items
-                for (value in cell.excludedValueSet.allUnsetBits()) {
+                for (value in cell.excludedValueSet) {
                     contextMenu.item("Assign $value").action {
                         cell.setValue(value, true)
                     }
@@ -300,7 +300,7 @@ class CellFragment(private val cell: Cell) : Fragment()
                 contextMenu.separator()
 
                 // add exclude possible values items
-                for (value in cell.excludedValueSet.allUnsetBits()) {
+                for (value in cell.excludedValueSet.unsetBits()) {
                     contextMenu.item("Exclude $value").action {
                         cell.excludePossibleValues(true, value)
                     }
@@ -309,7 +309,7 @@ class CellFragment(private val cell: Cell) : Fragment()
                 contextMenu.separator()
 
                 // add include previously excluded value items
-                for (value in cell.excludedValueSet.allSetBits()) {
+                for (value in cell.excludedValueSet) {
                     contextMenu.item("Include $value").action {
                         cell.removeExcludedPossibleValues(true, value)
                     }

@@ -35,6 +35,7 @@ import com.github.netomi.sudoku.io.GridValueLoader
 import com.github.netomi.sudoku.model.Grid
 import com.github.netomi.sudoku.model.Grid.Companion.of
 import com.github.netomi.sudoku.model.PredefinedType
+import com.github.netomi.sudoku.model.assigned
 import com.github.netomi.sudoku.solver.BruteForceSolver
 import com.github.netomi.sudoku.solver.Hint
 import com.github.netomi.sudoku.solver.HintSolver
@@ -116,7 +117,7 @@ class GridController : Controller()
         do {
             val testGrid = fullGrid.copy()
 
-            while (testGrid.assignedCells().count() > 30) {
+            while (testGrid.cells.assigned().count() > 30) {
                 val idx = Random.nextInt(grid.cellCount)
                 testGrid.getCell(idx).setValue(0, false)
             }
@@ -125,7 +126,7 @@ class GridController : Controller()
             val hintSolver = HintSolver()
             val solvedGrid = hintSolver.solve(testGrid)
             if (solvedGrid.isValid && solvedGrid.isSolved) {
-                testGrid.assignedCells().forEach { it.isGiven = true }
+                testGrid.cells.assigned().forEach { it.isGiven = true }
                 modelProperty.set(testGrid)
                 return
             }

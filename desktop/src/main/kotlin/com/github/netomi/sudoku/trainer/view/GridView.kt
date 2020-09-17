@@ -75,7 +75,7 @@ class GridView : View()
         cellFragmentList.clear()
 
         model?.let {
-            for (cell in it.cells()) {
+            for (cell in it.cells) {
                 val cellFragment = CellFragment(cell)
                 cellFragmentList.add(cellFragment)
                 grid.add(cellFragment).apply {
