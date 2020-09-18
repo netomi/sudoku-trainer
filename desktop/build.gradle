@@ -44,8 +44,6 @@ jar {
 
 repositories {
     maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
-    // the sudoku-solver repo.
-    maven { url  "https://dl.bintray.com/netomi/sudoku" }
     mavenLocal()
 }
 
