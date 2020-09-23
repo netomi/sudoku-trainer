@@ -178,10 +178,14 @@ class CellFragment(private val cell: Cell) : Fragment()
 
         valueProperty.set(cell.value)
 
-        if (DisplayOptions.displayPossibleValues) {
-            possibleValuesProperty.setAll(*cell.possibleValueSet.toArray())
+        if (DisplayOptions.showPencilMarks) {
+            if (DisplayOptions.showComputedValues) {
+                possibleValuesProperty.setAll(*cell.possibleValueSet.toArray())
+            } else {
+                possibleValuesProperty.setAll(*cell.excludedValueSet.inverse().toArray())
+            }
         } else {
-            possibleValuesProperty.setAll(*cell.excludedValueSet.inverse().toArray())
+            possibleValuesProperty.clear()
         }
     }
 
@@ -380,16 +384,17 @@ class CellFragment(private val cell: Cell) : Fragment()
                 isVisible = false
             }
 
-            setOnMouseClicked { event: MouseEvent ->
-                if (event.button === MouseButton.PRIMARY &&
-                    event.clickCount == 2) {
-                    if (DisplayOptions.displayPossibleValues) {
-                        if (cell.possibleValueSet.cardinality() == 1) {
-                            cell.setValue(cell.possibleValueSet.firstSetBit(), true)
-                        }
-                    } else {
-                        if (cell.excludedValueSet.cardinality() == cell.owner.gridSize - 1) {
-                            cell.setValue(cell.excludedValueSet.firstUnsetBit(), true)
+            setOnMouseClicked { event ->
+                if (event.button === MouseButton.PRIMARY && event.clickCount == 2) {
+                    if (DisplayOptions.showPencilMarks) {
+                        if (DisplayOptions.showComputedValues) {
+                            if (cell.possibleValueSet.cardinality() == 1) {
+                                cell.setValue(cell.possibleValueSet.firstSetBit(), true)
+                            }
+                        } else {
+                            if (cell.excludedValueSet.cardinality() == cell.owner.gridSize - 1) {
+                                cell.setValue(cell.excludedValueSet.firstUnsetBit(), true)
+                            }
                         }
                     }
                 }

@@ -176,7 +176,20 @@ class MainView : View("Sudoku Trainer") {
                                 field("Show pencil marks") {
                                     checkbox {
                                         selectedProperty().set(true)
-                                        selectedProperty().bindBidirectional(DisplayOptions.displayPossibleValuesProperty)
+                                        selectedProperty().bindBidirectional(DisplayOptions.showPencilMarksProperty)
+                                        action {
+                                            gridView.refreshView()
+                                        }
+                                    }
+                                }
+                                field("Show computed values") {
+                                    disableProperty().bind(DisplayOptions.showPencilMarksProperty.not())
+
+                                    checkbox {
+                                        selectedProperty().set(true)
+                                        selectedProperty().bindBidirectional(DisplayOptions.showComputedValuesProperty)
+                                        disableProperty().bind(DisplayOptions.showPencilMarksProperty.not())
+
                                         action {
                                             gridView.refreshView()
                                         }

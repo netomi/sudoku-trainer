@@ -21,7 +21,9 @@ package com.github.netomi.sudoku.trainer.view
 
 import com.github.netomi.sudoku.model.Cell
 import com.github.netomi.sudoku.model.Grid
+import com.github.netomi.sudoku.model.MutableValueSet
 import com.github.netomi.sudoku.trainer.Styles
+import com.github.netomi.sudoku.trainer.model.DisplayOptions
 import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.event.EventHandler
@@ -77,7 +79,7 @@ class CellEditView : View()
                     }
                 }
 
-                valueFragment.root.onMouseClicked = EventHandler { event ->
+                valueFragment.root.onMouseClicked = EventHandler {
                     cell?.apply {
                         if (!valueFragment.root.isDisable) {
                             if (this.isAssigned && !this.isGiven) {
@@ -99,7 +101,7 @@ class CellEditView : View()
                     }
                 }
 
-                candidateFragment.root.onMouseClicked = EventHandler { event ->
+                candidateFragment.root.onMouseClicked = EventHandler {
                     cell?.apply {
                         if (!candidateFragment.root.isDisable) {
                             val value = candidateFragment.value
@@ -150,17 +152,37 @@ class CellEditView : View()
                     addClass(Styles.selectAssignedValue)
                 }
             } else {
-                for (candidate in cell.possibleValueSet) {
-                    valueFragments[candidate - 1].root.isDisable = false
+                if (DisplayOptions.showPencilMarks) {
+                    if (DisplayOptions.showComputedValues) {
+                        for (candidate in cell.possibleValueSet) {
+                            valueFragments[candidate - 1].root.isDisable = false
 
-                    candidateFragments[candidate - 1].root.apply {
-                        this.isDisable = false
-                        this.addClass(Styles.selectPossibleCandidate)
+                            candidateFragments[candidate - 1].root.apply {
+                                this.isDisable = false
+                                this.addClass(Styles.selectPossibleCandidate)
+                            }
+                        }
+
+                        for (candidate in cell.excludedValueSet) {
+                            candidateFragments[candidate - 1].root.isDisable = false
+                        }
+                    } else {
+                        for (candidate in cell.excludedValueSet.inverse()) {
+                            valueFragments[candidate - 1].root.isDisable = false
+
+                            candidateFragments[candidate - 1].root.apply {
+                                this.isDisable = false
+                                this.addClass(Styles.selectPossibleCandidate)
+                            }
+                        }
+
+                        for (candidate in cell.excludedValueSet) {
+                            candidateFragments[candidate - 1].root.isDisable = false
+                        }
                     }
-                }
-
-                for (candidate in cell.excludedValueSet) {
-                    candidateFragments[candidate - 1].root.isDisable = false
+                } else {
+                    valueFragments.forEach { it.root.isDisable = false }
+                    candidateFragments.forEach { it.root.isDisable = true }
                 }
             }
         }

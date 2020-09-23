@@ -24,9 +24,13 @@ import javafx.beans.property.SimpleIntegerProperty
 
 object DisplayOptions
 {
-    val displayPossibleValuesProperty = SimpleBooleanProperty(true)
-    val displayPossibleValues
-        get() = displayPossibleValuesProperty.get()
+    val showPencilMarksProperty = SimpleBooleanProperty(true)
+    val showPencilMarks
+        get() = showPencilMarksProperty.get()
+
+    val showComputedValuesProperty = SimpleBooleanProperty(true)
+    val showComputedValues
+        get() = showComputedValuesProperty.get()
 
     val possibleValueFilterProperty = SimpleIntegerProperty(0)
     val possibleValueFilter
