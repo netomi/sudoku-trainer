@@ -269,70 +269,6 @@ class CellFragment(private val cell: Cell) : Fragment()
                    adjacentCellIndex < cell.owner.cellCount) { cell.owner.getCell(adjacentCellIndex) } else null
     }
 
-    private fun buildAndDisplayContextMenu(event: ContextMenuEvent) {
-        val contextMenu = ContextMenu()
-
-        if (!cell.isAssigned) {
-            if (DisplayOptions.displayPossibleValues) {
-                // add assignment items
-                for (value in cell.possibleValueSet) {
-                    contextMenu.item("Assign $value").action {
-                        cell.setValue(value, true)
-                    }
-                }
-
-                contextMenu.separator()
-
-                // add exclude possible values items
-                for (value in cell.possibleValueSet) {
-                    contextMenu.item("Exclude $value").action {
-                        cell.excludePossibleValues(true, value)
-                    }
-                }
-
-                contextMenu.separator()
-
-                // add include previously excluded value items
-                for (value in cell.excludedValueSet) {
-                    contextMenu.item("Include $value").action {
-                        cell.removeExcludedPossibleValues(true, value)
-                    }
-                }
-            } else {
-                // add assignment items
-                for (value in cell.excludedValueSet) {
-                    contextMenu.item("Assign $value").action {
-                        cell.setValue(value, true)
-                    }
-                }
-
-                contextMenu.separator()
-
-                // add exclude possible values items
-                for (value in cell.excludedValueSet.unsetBits()) {
-                    contextMenu.item("Exclude $value").action {
-                        cell.excludePossibleValues(true, value)
-                    }
-                }
-
-                contextMenu.separator()
-
-                // add include previously excluded value items
-                for (value in cell.excludedValueSet) {
-                    contextMenu.item("Include $value").action {
-                        cell.removeExcludedPossibleValues(true, value)
-                    }
-                }
-            }
-        } else if (!cell.isGiven) {
-            contextMenu.item("Delete value from cell").action {
-                cell.setValue(0, true)
-            }
-        }
-
-        contextMenu.show(root, event.screenX, event.screenY)
-    }
-
     internal fun getCandidateLabel(candidate: Int): Node {
         return possibleValuesPane.children[candidate - 1]
     }
@@ -442,10 +378,6 @@ class CellFragment(private val cell: Cell) : Fragment()
                     addClass(Styles.cellAssignedValue)
                 }
                 isVisible = false
-            }
-
-            setOnContextMenuRequested {
-                buildAndDisplayContextMenu(it)
             }
 
             setOnMouseClicked { event: MouseEvent ->

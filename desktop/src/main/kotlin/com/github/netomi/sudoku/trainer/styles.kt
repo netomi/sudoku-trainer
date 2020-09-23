@@ -44,6 +44,7 @@ class Styles : Stylesheet() {
 
         val selectBox               by cssclass()
         val selectAssignedValue     by cssclass()
+        val selectPossibleCandidate by cssclass()
         val selectValue             by cssclass()
         val selectCandidate         by cssclass()
 
@@ -152,6 +153,10 @@ class Styles : Stylesheet() {
         }
 
         selectAssignedValue {
+            backgroundColor += Color.CORNFLOWERBLUE
+        }
+
+        selectPossibleCandidate {
             backgroundColor += Color.CORNFLOWERBLUE
         }
 

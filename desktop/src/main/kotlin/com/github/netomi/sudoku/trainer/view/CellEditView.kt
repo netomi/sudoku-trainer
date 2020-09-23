@@ -102,7 +102,12 @@ class CellEditView : View()
                 candidateFragment.root.onMouseClicked = EventHandler { event ->
                     cell?.apply {
                         if (!candidateFragment.root.isDisable) {
-                            this.excludePossibleValues(true, candidateFragment.value)
+                            val value = candidateFragment.value
+                            if (this.excludedValueSet[value]) {
+                                this.removeExcludedPossibleValues(true, value)
+                            } else {
+                                this.excludePossibleValues(true, value)
+                            }
                         }
                     }
                 }
@@ -134,6 +139,7 @@ class CellEditView : View()
         valuesPane.children.forEach { it.isDisable = true }
 
         valueFragments.forEach { it.root.removeClass(Styles.selectAssignedValue) }
+        candidateFragments.forEach { it.root.removeClass(Styles.selectPossibleCandidate) }
 
         cell?.apply {
             if (this.isAssigned) {
@@ -146,6 +152,14 @@ class CellEditView : View()
             } else {
                 for (candidate in cell.possibleValueSet) {
                     valueFragments[candidate - 1].root.isDisable = false
+
+                    candidateFragments[candidate - 1].root.apply {
+                        this.isDisable = false
+                        this.addClass(Styles.selectPossibleCandidate)
+                    }
+                }
+
+                for (candidate in cell.excludedValueSet) {
                     candidateFragments[candidate - 1].root.isDisable = false
                 }
             }
