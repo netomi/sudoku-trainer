@@ -21,7 +21,6 @@ package com.github.netomi.sudoku.trainer.view
 
 import com.github.netomi.sudoku.model.Cell
 import com.github.netomi.sudoku.model.Grid
-import com.github.netomi.sudoku.model.MutableValueSet
 import com.github.netomi.sudoku.trainer.Styles
 import com.github.netomi.sudoku.trainer.model.DisplayOptions
 import javafx.beans.property.ObjectProperty

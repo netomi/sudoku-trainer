@@ -34,7 +34,6 @@ import javafx.geometry.Point2D
 import javafx.geometry.VPos
 import javafx.scene.Group
 import javafx.scene.Node
-import javafx.scene.control.ContextMenu
 import javafx.scene.control.Label
 import javafx.scene.input.*
 import javafx.scene.transform.Transform
@@ -45,7 +44,6 @@ import com.github.netomi.sudoku.model.ValueSet
 import com.github.netomi.sudoku.solver.*
 import com.github.netomi.sudoku.solver.LinkType.WEAK
 import com.github.netomi.sudoku.trainer.Styles
-import com.github.netomi.sudoku.trainer.controller.GridController
 import com.github.netomi.sudoku.trainer.model.DisplayOptions
 import javafx.beans.property.BooleanProperty
 import javafx.beans.property.SimpleBooleanProperty

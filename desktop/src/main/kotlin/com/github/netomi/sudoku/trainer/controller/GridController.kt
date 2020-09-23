@@ -32,7 +32,6 @@ import javafx.scene.control.ButtonType
 import javafx.scene.input.Clipboard
 import javafx.scene.input.DataFormat
 import com.github.netomi.sudoku.io.GridValueLoader
-import com.github.netomi.sudoku.model.Cell
 import com.github.netomi.sudoku.model.Grid
 import com.github.netomi.sudoku.model.Grid.Companion.of
 import com.github.netomi.sudoku.model.PredefinedType

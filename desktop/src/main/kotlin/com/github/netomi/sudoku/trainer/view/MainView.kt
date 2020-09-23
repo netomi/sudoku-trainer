@@ -34,7 +34,6 @@ import com.github.netomi.sudoku.trainer.model.TechniqueCategory
 import com.github.netomi.sudoku.trainer.model.TechniqueCategoryOrLibraryEntry
 import javafx.application.Platform
 import javafx.beans.InvalidationListener
-import javafx.beans.Observable
 import javafx.beans.binding.Bindings
 import javafx.beans.binding.When
 import javafx.beans.property.SimpleDoubleProperty
