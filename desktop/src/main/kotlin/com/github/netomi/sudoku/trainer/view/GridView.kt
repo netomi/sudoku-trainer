@@ -61,7 +61,11 @@ class GridView : View()
 
     override val root =
         borderpane {
+            useMaxSize = true
+
             center = stackpane {
+                useMaxSize = true
+
                 grid = gridpane {
                     useMaxSize = true
                     addClass(Styles.sudokuGrid)

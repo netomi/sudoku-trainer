@@ -137,7 +137,6 @@ class MainView : View("Sudoku Trainer") {
 
             borderpane {
                 useMaxSize = true
-                vgrow = Priority.ALWAYS
 
                 center = gridView.root
 
@@ -147,8 +146,6 @@ class MainView : View("Sudoku Trainer") {
                 }
 
                 right = drawer(side = Side.RIGHT, multiselect = true) {
-                    minWidth = 350.0
-
                     item("Layout", expanded = false) {
                         form {
                             fieldset("Layout settings") {
@@ -199,6 +196,8 @@ class MainView : View("Sudoku Trainer") {
                     }
                     item("Solver", expanded = true) {
                         vbox {
+                            minWidth = 350.0
+
                             hbox {
                                 padding = Insets(2.0, 2.0, 2.0, 2.0)
                                 spacing = 4.0
@@ -240,6 +239,8 @@ class MainView : View("Sudoku Trainer") {
 
                     item("Library", expanded = true) {
                         treeview<TechniqueCategoryOrLibraryEntry> {
+                            minWidth = 350.0
+
                             root = TreeItem(TechniqueCategory.All)
 
                             cellFormat { text = it.toDisplayString() }

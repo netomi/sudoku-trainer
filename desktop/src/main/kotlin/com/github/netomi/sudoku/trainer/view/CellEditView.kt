@@ -50,6 +50,7 @@ class CellEditView : View()
 
     override val root =
         vbox {
+            useMaxSize = true
             padding = Insets(15.0, 30.0, 15.0, 30.0)
 
             gridpane {
