@@ -23,6 +23,7 @@
 
 package com.github.netomi.sudoku.trainer.view
 
+import com.github.netomi.sudoku.model.Grid
 import javafx.application.Platform
 import javafx.beans.binding.Bindings
 import javafx.beans.property.SimpleDoubleProperty
@@ -34,13 +35,16 @@ import javafx.scene.control.*
 import javafx.scene.input.MouseButton
 import javafx.scene.layout.Priority
 import com.github.netomi.sudoku.model.PredefinedType
+import com.github.netomi.sudoku.solver.GridRater
 import com.github.netomi.sudoku.solver.Hint
 import com.github.netomi.sudoku.trainer.controller.GridController
 import com.github.netomi.sudoku.trainer.model.DisplayOptions
 import com.github.netomi.sudoku.trainer.model.SudokuLibrary
 import com.github.netomi.sudoku.trainer.model.TechniqueCategory
 import com.github.netomi.sudoku.trainer.model.TechniqueCategoryOrLibraryEntry
+import org.controlsfx.control.StatusBar
 import tornadofx.*
+import tornadofx.controlsfx.statusbar
 
 class MainView : View("Sudoku Trainer") {
     private val gridController: GridController by inject()
@@ -51,6 +55,7 @@ class MainView : View("Sudoku Trainer") {
 
     private lateinit var hintListView:     ListView<Hint>
     private lateinit var gridTypeComboBox: ComboBox<PredefinedType>
+    private lateinit var statusBar:        StatusBar
 
     override val root =
         vbox {
@@ -131,6 +136,11 @@ class MainView : View("Sudoku Trainer") {
                 vgrow = Priority.ALWAYS
 
                 center = gridView.root
+
+                bottom = statusbar {
+                    statusBar = this
+                    text = ""
+                }
 
                 right = drawer(side = Side.RIGHT, multiselect = true) {
                     minWidth = 350.0
@@ -303,6 +313,21 @@ class MainView : View("Sudoku Trainer") {
             val filterValue = newValue?.let { newValue.userData as Int } ?: 0
             DisplayOptions.possibleValueFilterProperty.set(filterValue)
             gridView.refreshView()
+        }
+
+        gridController.modelProperty.onChange { grid ->
+            val statusBarUpdater: (Grid) -> Unit = {
+                runAsync {
+                    GridRater.rate(it)
+                } ui {
+                    statusBar.text = "%s (%d)".format(it.first.toString().toLowerCase().capitalize(), it.second)
+                }
+            }
+
+            grid?.apply {
+                this.onUpdate { statusBarUpdater }
+                statusBarUpdater.invoke(this)
+            }
         }
 
         initializeFontSizeManager()

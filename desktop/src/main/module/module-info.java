@@ -5,6 +5,9 @@ module sudoku.desktop {
     requires java.logging;
 
     requires tornadofx;
+    requires tornadofx.controlsfx;
+    requires controlsfx;
+
     requires kotlin.stdlib;
 
     requires sudoku.solver.jvm;

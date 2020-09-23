@@ -11,6 +11,10 @@ javafx {
 }
 
 application {
+    applicationDefaultJvmArgs = ["--add-exports=javafx.base/com.sun.javafx.runtime=controlsfx",
+                                 "--add-opens=javafx.graphics/com.sun.javafx.css=controlsfx",
+                                 "--add-opens=javafx.graphics/javafx.scene=tornadofx"]
+
     mainClassName = 'sudoku.desktop/com.github.netomi.sudoku.trainer.SudokuApp'
 }
 
@@ -43,14 +47,15 @@ jar {
 }
 
 repositories {
-    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
     mavenLocal()
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
 }
 
 dependencies {
     implementation "com.github.netomi.sudoku:sudoku-solver-jvm:0.2-SNAPSHOT"
 
     implementation "no.tornado:tornadofx:2.0.0-SNAPSHOT"
+    implementation "no.tornado:tornadofx-controlsfx:0.1"
 
     // junit 5
     testCompile     "org.junit.jupiter:junit-jupiter-api:$junitVersion"
