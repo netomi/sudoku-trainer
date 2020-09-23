@@ -37,7 +37,7 @@ To run the app, simply type:
 
 ## Screenshots
 
-![Screenshot](https://raw.githubusercontent.com/netomi/sudoku-trainer/master/images/sudoku-trainer-screenshot.png)
+![Screenshot](https://raw.githubusercontent.com/netomi/sudoku-trainer/master/screenshots/sudoku-trainer-screenshot.png)
 
 Copyright (c) 2020 Thomas Neidhart
 
