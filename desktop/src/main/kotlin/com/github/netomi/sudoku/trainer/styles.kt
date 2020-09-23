@@ -45,6 +45,11 @@ class Styles : Stylesheet() {
         val chainLink               by cssclass()
         val chainLinkArrow          by cssclass()
         val weakChainLink           by cssclass()
+
+        val medium  by csspseudoclass("medium")
+        val hard    by csspseudoclass("hard")
+        val unfair  by csspseudoclass("unfair")
+        val extreme by csspseudoclass("extreme")
     }
 
     init {
@@ -139,6 +144,22 @@ class Styles : Stylesheet() {
         listCell and empty {
             backgroundColor += Color.WHITE
             borderColor     += box(Color.WHITE)
+        }
+
+        listCell and medium {
+            backgroundColor += Color.LIGHTGREEN
+        }
+
+        listCell and hard {
+            backgroundColor += Color.YELLOW
+        }
+
+        listCell and unfair {
+            backgroundColor += Color.LIGHTCORAL
+        }
+
+        listCell and extreme {
+            backgroundColor += Color.CORAL
         }
     }
 }

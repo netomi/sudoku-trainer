@@ -23,18 +23,8 @@
 
 package com.github.netomi.sudoku.trainer.view
 
-import com.github.netomi.sudoku.model.Grid
-import javafx.application.Platform
-import javafx.beans.binding.Bindings
-import javafx.beans.property.SimpleDoubleProperty
-import javafx.collections.FXCollections
-import javafx.geometry.Insets
-import javafx.geometry.Side
-import javafx.scene.Scene
-import javafx.scene.control.*
-import javafx.scene.input.MouseButton
-import javafx.scene.layout.Priority
 import com.github.netomi.sudoku.model.PredefinedType
+import com.github.netomi.sudoku.solver.DifficultyLevel
 import com.github.netomi.sudoku.solver.GridRater
 import com.github.netomi.sudoku.solver.Hint
 import com.github.netomi.sudoku.trainer.controller.GridController
@@ -42,9 +32,24 @@ import com.github.netomi.sudoku.trainer.model.DisplayOptions
 import com.github.netomi.sudoku.trainer.model.SudokuLibrary
 import com.github.netomi.sudoku.trainer.model.TechniqueCategory
 import com.github.netomi.sudoku.trainer.model.TechniqueCategoryOrLibraryEntry
+import javafx.application.Platform
+import javafx.beans.InvalidationListener
+import javafx.beans.Observable
+import javafx.beans.binding.Bindings
+import javafx.beans.binding.When
+import javafx.beans.property.SimpleDoubleProperty
+import javafx.collections.FXCollections
+import javafx.css.PseudoClass
+import javafx.geometry.Insets
+import javafx.geometry.Side
+import javafx.scene.Scene
+import javafx.scene.control.*
+import javafx.scene.input.MouseEvent
+import javafx.scene.layout.Priority
 import org.controlsfx.control.StatusBar
 import tornadofx.*
 import tornadofx.controlsfx.statusbar
+
 
 class MainView : View("Sudoku Trainer") {
     private val gridController: GridController by inject()
@@ -159,8 +164,10 @@ class MainView : View("Sudoku Trainer") {
 
                                 button("Reset") {
                                     action {
-                                        gridController.resetModel(gridTypeComboBox.selectedItem
-                                                ?: PredefinedType.CLASSIC_9x9)
+                                        gridController.resetModel(
+                                            gridTypeComboBox.selectedItem
+                                                ?: PredefinedType.CLASSIC_9x9
+                                        )
                                     }
                                 }
                             }
@@ -260,11 +267,13 @@ class MainView : View("Sudoku Trainer") {
         root.sceneProperty().addListener(ChangeListener { _, oldScene: Scene?, newScene: Scene? ->
             if (oldScene == null && newScene != null) {
                 val fontSize = SimpleDoubleProperty(0.0)
-                fontSize.bind(newScene.widthProperty().add(newScene.heightProperty())
+                fontSize.bind(
+                    newScene.widthProperty().add(newScene.heightProperty())
                         .divide(1400 + 900)
-                        .multiply(100))
+                        .multiply(100)
+                )
                 gridView.root.styleProperty()
-                        .bind(Bindings.concat("-fx-font-size: ", fontSize.asString("%.0f")).concat("%;"))
+                    .bind(Bindings.concat("-fx-font-size: ", fontSize.asString("%.0f")).concat("%;"))
             }
         })
     }
@@ -277,36 +286,44 @@ class MainView : View("Sudoku Trainer") {
             gridView.refreshView()
         }
 
-        hintListView.setOnMouseClicked { mouseEvent ->
-            if (mouseEvent.button === MouseButton.PRIMARY &&
-                mouseEvent.clickCount == 2) {
-                hintListView.selectedItem?.apply {
-                    gridController.applyHint(this)
-                    gridView.refreshView()
+        hintListView.setCellFactory { lv ->
+            val selectionModel = lv.selectionModel
+            val cell = ListCell<Hint>()
+
+            cell.textProperty().bind(
+                When(cell.itemProperty().isNotNull).then(cell.itemProperty().asString()).otherwise(
+                    ""
+                )
+            )
+            cell.addEventFilter(MouseEvent.MOUSE_PRESSED) { event ->
+                if (event.isPrimaryButtonDown && !cell.isEmpty) {
+                    val index = cell.index
+                    if (selectionModel.selectedIndices.contains(index) && lv.isFocused) {
+                        selectionModel.clearSelection(index)
+                    } else {
+                        selectionModel.select(index)
+                    }
+                    lv.requestFocus()
+                    event.consume()
                 }
             }
+
+            val difficultyListener: InvalidationListener = InvalidationListener {
+                for (difficultyLevel in DifficultyLevel.values()) {
+                    // use pseudo classes to style list cells based on hint difficulty
+                    val pseudoClass = PseudoClass.getPseudoClass(difficultyLevel.name.toLowerCase())
+
+                    val active = cell.item != null &&
+                                 cell.item.solvingTechnique.difficultyLevel == difficultyLevel
+
+                    cell.pseudoClassStateChanged(pseudoClass, active)
+                }
+            }
+
+            cell.itemProperty().addListener(difficultyListener)
+
+            cell
         }
-
-//        hintListView.setCellFactory { lv ->
-//            val selectionModel = lv.selectionModel
-//            val cell = ListCell<Hint>()
-//            cell.textProperty().bind(When(cell.itemProperty().isNotNull).then(cell.itemProperty().asString()).otherwise(""))
-//            cell.addEventFilter(MouseEvent.MOUSE_PRESSED) { event: Event ->
-//                if (!cell.isEmpty) {
-//                    val index = cell.index
-//                    if (selectionModel.selectedIndices.contains(index) && lv.isFocused) {
-//                        selectionModel.clearSelection(index)
-//                    } else {
-//                        selectionModel.select(index)
-//                    }
-//                    lv.requestFocus()
-//                    event.consume()
-//                }
-//            }
-//            cell
-//        }
-
-        hintListView.focusedProperty().onChange { focused -> if (!focused) hintListView.selectionModel.clearSelection() }
 
         filterToggleGroup.selectToggle(null)
         filterToggleGroup.selectedToggleProperty().addListener { _, _, newValue: Toggle? ->
@@ -316,17 +333,12 @@ class MainView : View("Sudoku Trainer") {
         }
 
         gridController.modelProperty.onChange { grid ->
-            val statusBarUpdater: (Grid) -> Unit = {
+            grid?.apply {
                 runAsync {
-                    GridRater.rate(it)
+                    GridRater.rate(this@apply)
                 } ui {
                     statusBar.text = "%s (%d)".format(it.first.toString().toLowerCase().capitalize(), it.second)
                 }
-            }
-
-            grid?.apply {
-                //this.onUpdate(statusBarUpdater)
-                statusBarUpdater.invoke(this)
             }
         }
 
