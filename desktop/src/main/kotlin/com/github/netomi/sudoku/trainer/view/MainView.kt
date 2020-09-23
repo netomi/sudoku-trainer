@@ -325,7 +325,7 @@ class MainView : View("Sudoku Trainer") {
             }
 
             grid?.apply {
-                this.onUpdate { statusBarUpdater }
+                //this.onUpdate(statusBarUpdater)
                 statusBarUpdater.invoke(this)
             }
         }
