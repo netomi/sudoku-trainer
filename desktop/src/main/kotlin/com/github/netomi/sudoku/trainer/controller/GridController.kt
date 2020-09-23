@@ -32,6 +32,7 @@ import javafx.scene.control.ButtonType
 import javafx.scene.input.Clipboard
 import javafx.scene.input.DataFormat
 import com.github.netomi.sudoku.io.GridValueLoader
+import com.github.netomi.sudoku.model.Cell
 import com.github.netomi.sudoku.model.Grid
 import com.github.netomi.sudoku.model.Grid.Companion.of
 import com.github.netomi.sudoku.model.PredefinedType
@@ -51,11 +52,8 @@ class GridController : Controller()
     private val grid: Grid?
         get() = modelProperty.get()
 
-    val hintProperty:  ObjectProperty<Hint> = SimpleObjectProperty()
-    private val hint: Hint?
-        get() = hintProperty.get()
-
-    val hintList: ObservableList<Hint>      = FXCollections.observableArrayList()
+    val hintProperty: ObjectProperty<Hint> = SimpleObjectProperty()
+    val hintList: ObservableList<Hint>     = FXCollections.observableArrayList()
 
     fun loadModel() {
         //val grid = of(PredefinedType.JIGSAW_1);

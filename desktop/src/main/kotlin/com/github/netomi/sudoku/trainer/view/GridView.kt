@@ -48,24 +48,33 @@ class GridView : View()
     private lateinit var grid: GridPane
     private lateinit var shapeGroup: Pane
 
+    private val cellEditView by inject<CellEditView>()
+
     private val modelProperty: ObjectProperty<Grid?> = SimpleObjectProperty()
-    private val cellFragmentList: ArrayList<CellFragment> = ArrayList()
+    private val cellFragmentList: MutableList<CellFragment> = ArrayList()
+
+    private val selectedCellFragmentProperty: ObjectProperty<CellFragment?> = SimpleObjectProperty()
+    private val selectedCellProperty: ObjectProperty<Cell?> = SimpleObjectProperty()
 
     private val model: Grid?
         get() = modelProperty.get()
 
     override val root =
-        stackpane {
-            grid = gridpane {
-                useMaxSize = true
-                addClass(Styles.sudokuGrid)
+        borderpane {
+            center = stackpane {
+                grid = gridpane {
+                    useMaxSize = true
+                    addClass(Styles.sudokuGrid)
+                }
+
+                shapeGroup = pane {
+                    managedProperty().set(false)
+                    useMaxSize = true
+                    isMouseTransparent = true
+                }
             }
 
-            shapeGroup = pane {
-                managedProperty().set(false)
-                useMaxSize = true
-                isMouseTransparent = true
-            }
+            bottom = cellEditView.root
         }
 
     private fun rebuildViewFromModel() {
@@ -81,6 +90,14 @@ class GridView : View()
                 grid.add(cellFragment).apply {
                     cellFragment.root.gridpaneConstraints {
                         columnRowIndex(cell.columnIndex, cell.rowIndex)
+                    }
+                }
+
+                cellFragment.selectedProperty.onChange { selected ->
+                    if (selected) {
+                        selectedCellFragmentProperty.get()?.selectedProperty?.set(false)
+                        selectedCellFragmentProperty.set(cellFragment)
+                        selectedCellProperty.set(cell)
                     }
                 }
             }
@@ -122,6 +139,8 @@ class GridView : View()
             child.refreshView(conflicts, hint)
         }
 
+        cellEditView.refreshView()
+
         shapeGroup.children.clear()
         hint?.accept(object : HintVisitor {
             override fun visitAnyHint(hint: Hint) {}
@@ -145,6 +164,10 @@ class GridView : View()
     init {
         modelProperty.addListener { _, _, _ -> rebuildViewFromModel() }
         modelProperty.bind(gridController.modelProperty)
+
+        // bind the current model and selected cell to the cell edit view
+        cellEditView.modelProperty.bind(gridController.modelProperty)
+        cellEditView.cellProperty.bind(selectedCellProperty)
 
         // refresh the grid view in case of a resize event
         val updater = ChangeListener<Number> { _, _, _ -> Platform.runLater { refreshView() } }

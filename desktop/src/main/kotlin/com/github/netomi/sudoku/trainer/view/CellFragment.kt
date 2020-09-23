@@ -45,7 +45,10 @@ import com.github.netomi.sudoku.model.ValueSet
 import com.github.netomi.sudoku.solver.*
 import com.github.netomi.sudoku.solver.LinkType.WEAK
 import com.github.netomi.sudoku.trainer.Styles
+import com.github.netomi.sudoku.trainer.controller.GridController
 import com.github.netomi.sudoku.trainer.model.DisplayOptions
+import javafx.beans.property.BooleanProperty
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.scene.layout.*
 import tornadofx.*
 import java.lang.RuntimeException
@@ -63,6 +66,8 @@ class CellFragment(private val cell: Cell) : Fragment()
     private val assignedValueLabel: Label
     // a simple pane to easily indicate the currently focused cell.
     private val selectRectangle:    Pane
+
+    val selectedProperty: BooleanProperty = SimpleBooleanProperty(false)
 
     override val root = stackpane {}
 
@@ -183,7 +188,7 @@ class CellFragment(private val cell: Cell) : Fragment()
     private fun setupEventListeners() {
         with(root) {
             onMousePressed = EventHandler { requestFocus() }
-            onKeyPressed = EventHandler setOnKeyPressed@{ event: KeyEvent ->
+            onKeyPressed = EventHandler setOnKeyPressed@{ event ->
                 if (cell.isGiven) {
                     return@setOnKeyPressed
                 }
@@ -200,12 +205,16 @@ class CellFragment(private val cell: Cell) : Fragment()
                 }
             }
 
-            focusedProperty().addListener { _, _, newPropertyValue: Boolean ->
-                if (newPropertyValue) {
-                    selectRectangle.removeClass(Styles.cellFocus)
+            focusedProperty().addListener { _, _, newValue ->
+                if (newValue) {
+                    selectedProperty.set(true)
+                }
+            }
+
+            selectedProperty.onChange { selected ->
+                selectRectangle.removeClass(Styles.cellFocus)
+                if (selected) {
                     selectRectangle.addClass(Styles.cellFocus)
-                } else {
-                    selectRectangle.removeClass(Styles.cellFocus)
                 }
             }
         }
@@ -472,6 +481,7 @@ class CellFragment(private val cell: Cell) : Fragment()
                 children[value - 1].isVisible = true
             }
         }
+
         setupEventListeners()
     }
 }

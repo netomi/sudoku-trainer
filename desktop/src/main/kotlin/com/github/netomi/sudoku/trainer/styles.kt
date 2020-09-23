@@ -42,6 +42,11 @@ class Styles : Stylesheet() {
         val cellActiveFilter        by cssclass()
         val cellInactiveFilter      by cssclass()
 
+        val selectBox               by cssclass()
+        val selectAssignedValue     by cssclass()
+        val selectValue             by cssclass()
+        val selectCandidate         by cssclass()
+
         val chainLink               by cssclass()
         val chainLinkArrow          by cssclass()
         val weakChainLink           by cssclass()
@@ -139,6 +144,25 @@ class Styles : Stylesheet() {
 
         weakChainLink {
             strokeDashArray = listOf(10.px, 10.px)
+        }
+
+        selectBox {
+            borderColor += box(Color.GRAY)
+            borderWidth += box(1.px)
+        }
+
+        selectAssignedValue {
+            backgroundColor += Color.CORNFLOWERBLUE
+        }
+
+        selectValue {
+            textFill = Color.BLACK
+            fontSize = 3.em
+        }
+
+        selectCandidate {
+            textFill = Color.BLACK
+            fontSize = 1.5.em
         }
 
         listCell and empty {
