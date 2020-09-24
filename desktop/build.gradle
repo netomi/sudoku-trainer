@@ -5,10 +5,15 @@ plugins {
     id 'org.openjfx.javafxplugin' version '0.0.9'
 }
 
+archivesBaseName = 'sudoku-trainer'
+
 javafx {
     version = "13"
     modules = [ 'javafx.controls', 'javafx.graphics', 'javafx.fxml', 'javafx.media', 'javafx.swing', 'javafx.web' ]
 }
+
+sourceCompatibility = '11'
+targetCompatibility = '11'
 
 application {
     applicationDefaultJvmArgs = ["--add-opens=javafx.graphics/javafx.scene=tornadofx"]
@@ -16,8 +21,11 @@ application {
     mainClassName = 'sudoku.desktop/com.github.netomi.sudoku.trainer.SudokuApp'
 }
 
-sourceCompatibility = '11'
-targetCompatibility = '11'
+distributions {
+    main {
+        distributionBaseName = 'sudoku-trainer'
+    }
+}
 
 compileKotlin {
     kotlinOptions.jvmTarget = "1.8"
