@@ -34,7 +34,7 @@ import javafx.scene.input.DataFormat
 import com.github.netomi.sudoku.io.GridValueLoader
 import com.github.netomi.sudoku.model.Grid
 import com.github.netomi.sudoku.model.Grid.Companion.of
-import com.github.netomi.sudoku.model.PredefinedType
+import com.github.netomi.sudoku.model.GridType
 import com.github.netomi.sudoku.model.assigned
 import com.github.netomi.sudoku.solver.BruteForceSolver
 import com.github.netomi.sudoku.solver.Hint
@@ -47,7 +47,7 @@ import kotlin.random.Random
 
 class GridController : Controller()
 {
-    val modelProperty: ObjectProperty<Grid> = SimpleObjectProperty(of(PredefinedType.CLASSIC_9x9))
+    val modelProperty: ObjectProperty<Grid> = SimpleObjectProperty(of(GridType.CLASSIC_9x9))
     private val grid: Grid
         get() = modelProperty.get()
 
@@ -55,8 +55,8 @@ class GridController : Controller()
     val hintList: ObservableList<Hint>     = FXCollections.observableArrayList()
 
     fun loadModel() {
-        //val grid = of(PredefinedType.JIGSAW_1);
-        val grid = of(PredefinedType.CLASSIC_9x9)
+        //val grid = of(GridType.JIGSAW_1);
+        val grid = of(GridType.CLASSIC_9x9)
         //val input = "3.......4..2.6.1...1.9.8.2...5...6...2.....1...9...8...8.3.4.6...4.1.9..5.......7"; // jigsaw
         //val input = "4.....8.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......" // 9x9
         //val input = "000000010400000000020000000000050407008000300001090000300400200050100000000806000"; // 9x9
@@ -69,7 +69,7 @@ class GridController : Controller()
 
     fun loadModel(entry: LibraryEntry) {
         runAsync {
-            val grid = of(PredefinedType.CLASSIC_9x9)
+            val grid = of(GridType.CLASSIC_9x9)
             grid.accept(GridValueLoader(entry.givens))
 
             for (c in entry.getDeletedCandidates()) {
@@ -100,13 +100,21 @@ class GridController : Controller()
         }
     }
 
-    fun resetModel(type: PredefinedType) {
-        val grid = of(type)
+    fun resetModel(type: GridType) {
+        if (grid.type == type) {
+            grid.clear(true)
+        } else {
+            val newGrid = of(type)
+            modelProperty.set(newGrid)
+        }
+    }
 
-        grid.clear(true)
+    // TODO: this is very naive and not working well.
+    fun generateSudoku(type: GridType) {
+        val emptyGrid = of(type)
 
         val solver = BruteForceSolver()
-        val fullGrid = solver.solve(grid, ValueSelection.RANDOM)
+        val fullGrid = solver.solve(emptyGrid, ValueSelection.RANDOM)
 
         var count = 0
         do {

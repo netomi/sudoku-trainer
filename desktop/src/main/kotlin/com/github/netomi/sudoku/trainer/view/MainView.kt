@@ -23,7 +23,7 @@
 
 package com.github.netomi.sudoku.trainer.view
 
-import com.github.netomi.sudoku.model.PredefinedType
+import com.github.netomi.sudoku.model.GridType
 import com.github.netomi.sudoku.solver.DifficultyLevel
 import com.github.netomi.sudoku.solver.GridRater
 import com.github.netomi.sudoku.solver.Hint
@@ -59,7 +59,7 @@ class MainView : View("Sudoku Trainer") {
     private val filterToggleGroup = ToggleGroup()
 
     private lateinit var hintListView:     ListView<Hint>
-    private lateinit var gridTypeComboBox: ComboBox<PredefinedType>
+    private lateinit var gridTypeComboBox: ComboBox<GridType>
     private lateinit var statusBar:        Label
 
     override val root =
@@ -113,17 +113,17 @@ class MainView : View("Sudoku Trainer") {
                         form {
                             fieldset("Layout settings") {
                                 field("Grid Layout") {
-                                    jfxcombobox<PredefinedType> {
+                                    jfxcombobox<GridType> {
                                         gridTypeComboBox = this
 
-                                        items = FXCollections.observableArrayList(*PredefinedType.values())
-                                        selectionModel.select(PredefinedType.CLASSIC_9x9)
+                                        items = FXCollections.observableArrayList(*GridType.values())
+                                        selectionModel.select(GridType.CLASSIC_9x9)
                                     }
                                 }
 
                                 jfxbutton("Reset", RAISED) {
                                     action {
-                                        gridController.resetModel(gridTypeComboBox.selectedItem ?: PredefinedType.CLASSIC_9x9)
+                                        gridController.resetModel(gridTypeComboBox.selectedItem ?: GridType.CLASSIC_9x9)
                                     }
                                 }
                             }
@@ -270,7 +270,7 @@ class MainView : View("Sudoku Trainer") {
                 }
             }
 
-            val difficultyListener: InvalidationListener = InvalidationListener {
+            val difficultyListener = InvalidationListener {
                 for (difficultyLevel in DifficultyLevel.values()) {
                     // use pseudo classes to style list cells based on hint difficulty
                     val pseudoClass = PseudoClass.getPseudoClass(difficultyLevel.name.toLowerCase())
