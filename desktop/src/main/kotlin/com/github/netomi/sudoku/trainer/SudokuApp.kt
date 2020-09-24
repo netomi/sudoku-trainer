@@ -23,6 +23,7 @@ import com.github.netomi.sudoku.trainer.controller.GridController
 import com.github.netomi.sudoku.trainer.view.MainView
 import com.jfoenix.assets.JFoenixResources
 import javafx.application.Application
+import javafx.stage.Stage
 import kfoenix.jfxdecorator
 import tornadofx.App
 import tornadofx.View
@@ -40,6 +41,14 @@ class SudokuApp : App(Main::class, Styles::class)
 
         override fun onBeforeShow() {
             gridController.loadModel()
+        }
+    }
+
+    override fun start(stage: Stage) {
+        with(stage) {
+            minWidth  = 600.0
+            minHeight = 600.0
+            super.start(this)
         }
     }
 

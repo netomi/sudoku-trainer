@@ -151,7 +151,8 @@ class MainView : View("Sudoku Trainer") {
                     }
                     item("Solver", expanded = true) {
                         vbox {
-                            minWidth = 350.0
+                            minWidth  = 150.0
+                            prefWidth = 350.0
 
                             jfxtoolbar {
                                 vboxConstraints { margin = Insets(5.0) }
@@ -192,7 +193,8 @@ class MainView : View("Sudoku Trainer") {
 
                     item("Library", expanded = true) {
                         treeview<TechniqueCategoryOrLibraryEntry> {
-                            minWidth = 350.0
+                            minWidth  = 150.0
+                            prefWidth = 350.0
 
                             root = TreeItem(TechniqueCategory.All)
 

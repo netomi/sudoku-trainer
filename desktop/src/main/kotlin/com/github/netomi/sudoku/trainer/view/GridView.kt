@@ -107,13 +107,13 @@ class GridView : View()
             }
 
             for (i in 0 until it.gridSize) {
-                val row = RowConstraints(3.0, 100.0, Double.MAX_VALUE)
+                val row = RowConstraints(40.0, 100.0, Double.MAX_VALUE)
                 row.vgrow = Priority.ALWAYS
                 grid.rowConstraints.add(row)
             }
 
             for (i in 0 until it.gridSize) {
-                val col = ColumnConstraints(3.0, 100.0, Double.MAX_VALUE)
+                val col = ColumnConstraints(40.0, 100.0, Double.MAX_VALUE)
                 col.hgrow = Priority.ALWAYS
                 grid.columnConstraints.add(col)
             }

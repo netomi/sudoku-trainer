@@ -183,7 +183,7 @@ class Styles : JFXStylesheet() {
 
         cellPossibleValue {
             textFill  = Color.GRAY
-            fontSize  = 1.em
+            fontSize  = 1.5.em
             alignment = Pos.CENTER
         }
 

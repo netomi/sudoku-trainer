@@ -118,13 +118,13 @@ class CellEditView : View()
             }
 
             for (i in 0..1) {
-                val row = RowConstraints(10.0, 50.0, 100.0)
-                row.vgrow = Priority.NEVER
+                val row = RowConstraints(20.0, 30.0, 100.0)
+                row.vgrow = Priority.ALWAYS
                 valuesPane.rowConstraints.add(row)
             }
 
             for (i in 0 until it.gridSize) {
-                val col = ColumnConstraints(10.0, 50.0, Double.MAX_VALUE)
+                val col = ColumnConstraints(20.0, 30.0, Double.MAX_VALUE)
                 col.hgrow = Priority.ALWAYS
                 valuesPane.columnConstraints.add(col)
             }
