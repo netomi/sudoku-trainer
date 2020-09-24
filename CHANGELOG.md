@@ -1,5 +1,8 @@
 # Change Log
 
+## [unreleased] - yyyy-mm-dd
+
+
 ## [0.1] - 2020-09-24
 
 First release of the sudoku trainer desktop application.
