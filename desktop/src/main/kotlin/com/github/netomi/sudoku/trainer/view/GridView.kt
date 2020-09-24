@@ -50,13 +50,13 @@ class GridView : View()
 
     private val cellEditView by inject<CellEditView>()
 
-    private val modelProperty: ObjectProperty<Grid?> = SimpleObjectProperty()
+    private val modelProperty: ObjectProperty<Grid> = SimpleObjectProperty()
     private val cellFragmentList: MutableList<CellFragment> = ArrayList()
 
     private val selectedCellFragmentProperty: ObjectProperty<CellFragment?> = SimpleObjectProperty()
     private val selectedCellProperty: ObjectProperty<Cell?> = SimpleObjectProperty()
 
-    private val model: Grid?
+    private val model: Grid
         get() = modelProperty.get()
 
     override val root =
@@ -87,7 +87,7 @@ class GridView : View()
         grid.columnConstraints.clear()
         cellFragmentList.clear()
 
-        model?.let {
+        model.let {
             for (cell in it.cells) {
                 val cellFragment = CellFragment(cell)
                 cellFragmentList.add(cellFragment)
@@ -124,13 +124,13 @@ class GridView : View()
     }
 
     fun resetGrid() {
-        model?.clear(true)
+        model.clear(true)
     }
 
     fun refreshView() {
-        var conflicts = emptyArray<Conflict>()
+        var conflicts: Array<Conflict>
 
-        model?.let {
+        model.let {
             conflicts = when (it.isValid) {
                 true -> emptyArray()
                 false -> it.conflicts
@@ -150,7 +150,7 @@ class GridView : View()
             override fun visitAnyHint(hint: Hint) {}
 
             override fun visitChainEliminationHint(hint: ChainEliminationHint) {
-                hint.relatedChain.accept(model!!, object : ChainVisitor {
+                hint.relatedChain.accept(model, object : ChainVisitor {
                     override fun visitCell(grid: Grid, chain: Chain, cell: Cell, activeValues: ValueSet, inactiveValues: ValueSet) {}
 
                     override fun visitCellLink(grid: Grid, chain: Chain, fromCell: Cell, fromCandidate: Int, toCell: Cell, toCandidate: Int, linkType: LinkType) {

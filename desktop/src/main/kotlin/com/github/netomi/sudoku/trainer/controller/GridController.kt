@@ -47,8 +47,8 @@ import kotlin.random.Random
 
 class GridController : Controller()
 {
-    val modelProperty: ObjectProperty<Grid?> = SimpleObjectProperty()
-    private val grid: Grid?
+    val modelProperty: ObjectProperty<Grid> = SimpleObjectProperty(of(PredefinedType.CLASSIC_9x9))
+    private val grid: Grid
         get() = modelProperty.get()
 
     val hintProperty: ObjectProperty<Hint> = SimpleObjectProperty()
@@ -87,18 +87,16 @@ class GridController : Controller()
 
         data?.apply {
             runAsync {
-                grid?.let {
-                    try {
-                        val newGrid = it.copy()
-                        newGrid.clear(true)
-                        newGrid.accept(GridValueLoader(data))
-                    } catch (ex: RuntimeException) {
-                        val alert = Alert(Alert.AlertType.ERROR, "failed to load model from clipboard", ButtonType.OK)
-                        alert.showAndWait()
-                        throw ex
-                    }
+                try {
+                    val newGrid = grid.copy()
+                    newGrid.clear(true)
+                    newGrid.accept(GridValueLoader(data))
+                } catch (ex: RuntimeException) {
+                    val alert = Alert(Alert.AlertType.ERROR, "failed to load model from clipboard", ButtonType.OK)
+                    alert.showAndWait()
+                    throw ex
                 }
-            } ui { it?.apply { modelProperty.set(it) } }
+            } ui { it.apply { modelProperty.set(it) } }
         }
     }
 
@@ -134,28 +132,26 @@ class GridController : Controller()
 
     fun findHints() {
         runAsync {
-            grid?.let { HintSolver().findAllHints(it) }
+            HintSolver().findAllHints(grid)
         } ui {
-            it?.apply { hintList.setAll(it.hints) }
+            it.apply { hintList.setAll(it.hints) }
         }
     }
 
     fun findHintsSingleStep() {
         runAsync {
-            grid?.let { HintSolver().findAllHintsSingleStep(it) }
+            HintSolver().findAllHintsSingleStep(grid)
         } ui {
-            it?.apply { hintList.setAll(it.hints) }
+            it.apply { hintList.setAll(it.hints) }
         }
     }
 
     fun applyHint(hint: Hint) {
-        grid?.apply {
-            hint.apply(this, true)
-        }
+        hint.apply(grid, true)
     }
 
     fun applyHints(from: Int, to: Int) {
-        grid?.apply {
+        grid.apply {
             for (i in from..to) {
                 val hint = hintList[i]
                 hint.apply(this, false)

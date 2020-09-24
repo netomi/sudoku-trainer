@@ -35,10 +35,10 @@ import tornadofx.*
 
 class CellEditView : View()
 {
-    val modelProperty: ObjectProperty<Grid?> = SimpleObjectProperty()
-    val cellProperty: ObjectProperty<Cell?>  = SimpleObjectProperty()
+    val modelProperty: ObjectProperty<Grid> = SimpleObjectProperty()
+    val cellProperty: ObjectProperty<Cell?> = SimpleObjectProperty()
 
-    private val model: Grid?
+    private val model: Grid
         get() = modelProperty.get()
 
     private val cell: Cell?
@@ -69,7 +69,7 @@ class CellEditView : View()
         valueFragments.clear()
         candidateFragments.clear()
 
-        model?.let {
+        model.let {
             for (i in 0 until it.gridSize) {
                 val valueFragment = CellValueFragment(i + 1, Styles.selectValue)
                 valueFragments.add(valueFragment)

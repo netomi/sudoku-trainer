@@ -19,16 +19,33 @@
  */
 package com.github.netomi.sudoku.trainer
 
-import javafx.application.Application
+import com.github.netomi.sudoku.trainer.controller.GridController
 import com.github.netomi.sudoku.trainer.view.MainView
+import com.jfoenix.assets.JFoenixResources
+import javafx.application.Application
+import kfoenix.jfxdecorator
 import tornadofx.App
+import tornadofx.View
 import tornadofx.importStylesheet
 
-class SudokuApp : App() {
-    override val primaryView = MainView::class
+
+class SudokuApp : App(Main::class, Styles::class)
+{
+    class Main: View() {
+        private val gridController: GridController by inject()
+
+        override val root = jfxdecorator(MainView::class) {
+            title = "Sudoku Trainer"
+        }
+
+        override fun onBeforeShow() {
+            gridController.loadModel()
+        }
+    }
 
     init {
-        importStylesheet(Styles::class)
+        importStylesheet(JFoenixResources.load("css/jfoenix-fonts.css").toExternalForm())
+        importStylesheet(JFoenixResources.load("css/jfoenix-design.css").toExternalForm())
     }
 }
 

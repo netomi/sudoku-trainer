@@ -19,11 +19,21 @@
  */
 package com.github.netomi.sudoku.trainer
 
+import com.jfoenix.assets.JFoenixResources
 import javafx.geometry.Pos
 import javafx.scene.paint.Color
+import javafx.scene.paint.Color.WHITE
+import javafx.scene.text.FontPosture
+import javafx.scene.text.FontSmoothingType
+import javafx.scene.text.FontWeight
+import kfoenix.JFXStylesheet
 import tornadofx.*
+import tornadofx.DrawerStyles.Companion.buttonArea
+import tornadofx.DrawerStyles.Companion.contentArea
+import tornadofx.DrawerStyles.Companion.drawer
+import tornadofx.DrawerStyles.Companion.drawerItem
 
-class Styles : Stylesheet() {
+class Styles : JFXStylesheet() {
     companion object {
         val sudokuGrid by cssclass()
         val sudokuCell by cssclass()
@@ -56,9 +66,100 @@ class Styles : Stylesheet() {
         val hard    by csspseudoclass("hard")
         val unfair  by csspseudoclass("unfair")
         val extreme by csspseudoclass("extreme")
+
+        val jfxToolBar      by cssclass()
+        val toolBarRightBox by cssclass()
+        val toolBarLeftBox  by cssclass()
+        val statusBar       by cssclass()
+
+        val defaultColor: Color   = Color.web("#4059a9")
+        val decoratorColor: Color = Color.web("#5264AE").derive(-0.2)
     }
 
     init {
+        root {
+            fontFamily = "Roboto"
+            fontSmoothingType = FontSmoothingType.GRAY
+            backgroundColor += WHITE
+        }
+
+        // overwrite styles for jfx components
+
+        jfxDecoratorButtonsContainer {
+            backgroundColor += decoratorColor
+        }
+
+        jfxDecorator {
+            s(".resize-border") {
+                borderColor += box(decoratorColor)
+                borderWidth += box(0.0.px, 4.0.px, 4.0.px, 4.0.px)
+            }
+        }
+
+        jfxDecoratorTitleContainer {
+            s(".jfx-decorator-text") {
+                fill = WHITE
+                fontSize = 16.px
+            }
+        }
+
+        jfxButton {
+            backgroundColor += defaultColor
+            textFill = WHITE
+        }
+
+        jfxToolBar {
+            toolBarLeftBox {
+                spacing = 10.px
+            }
+            toolBarRightBox {
+                spacing = 10.px
+            }
+        }
+
+        statusBar {
+            backgroundColor += decoratorColor
+            padding = box(4.px)
+            label {
+                textFill = WHITE
+            }
+        }
+
+        // overwrite default style for drawer component
+
+        contentArea {
+            backgroundColor += Color.TRANSPARENT
+        }
+
+        buttonArea {
+            backgroundColor += Color.TRANSPARENT
+        }
+
+        drawerItem {
+            backgroundColor += Color.TRANSPARENT
+        }
+
+        drawer {
+            contentArea {
+                backgroundColor += Color.TRANSPARENT
+            }
+        }
+
+        drawerItem child titledPane {
+            textFill = WHITE
+            fontSize = 1.5.em
+
+            title {
+                backgroundColor += defaultColor
+            }
+
+            content {
+                backgroundColor += Color.TRANSPARENT
+            }
+        }
+
+        // custom application styles
+
         sudokuGrid {
             borderColor += box(Color.BLACK)
             borderWidth += box(2.px)
@@ -82,7 +183,7 @@ class Styles : Stylesheet() {
 
         cellPossibleValue {
             textFill  = Color.GRAY
-            fontSize  = 1.5.em
+            fontSize  = 1.em
             alignment = Pos.CENTER
         }
 
@@ -96,25 +197,25 @@ class Styles : Stylesheet() {
         }
 
         cellMatchingCandidate {
-            backgroundRadius += box(2.em)
+            backgroundRadius += box(1.5.em)
             backgroundColor  += Color.LIMEGREEN
             textFill = Color.BLACK
         }
 
         cellEliminatedCandidate {
-            backgroundRadius += box(2.em)
+            backgroundRadius += box(1.5.em)
             backgroundColor  += Color.CORAL
             textFill = Color.BLACK
         }
 
         cellActiveCandidate {
-            backgroundRadius += box(2.em)
+            backgroundRadius += box(1.5.em)
             backgroundColor  += Color.LIMEGREEN
             textFill = Color.BLACK
         }
 
         cellInactiveCandidate {
-            backgroundRadius += box(2.em)
+            backgroundRadius += box(1.5.em)
             backgroundColor  += Color.CORNFLOWERBLUE
             textFill = Color.BLACK
         }
@@ -170,9 +271,13 @@ class Styles : Stylesheet() {
             fontSize = 1.5.em
         }
 
+        listCell {
+            fontWeight = FontWeight.BOLD
+        }
+
         listCell and empty {
-            backgroundColor += Color.WHITE
-            borderColor     += box(Color.WHITE)
+            backgroundColor += WHITE
+            borderColor     += box(WHITE)
         }
 
         listCell and medium {
@@ -189,6 +294,10 @@ class Styles : Stylesheet() {
 
         listCell and extreme {
             backgroundColor += Color.CORAL
+        }
+
+        treeCell {
+            fontWeight = FontWeight.BOLD
         }
     }
 }

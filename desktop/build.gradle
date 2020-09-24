@@ -11,9 +11,7 @@ javafx {
 }
 
 application {
-    applicationDefaultJvmArgs = ["--add-exports=javafx.base/com.sun.javafx.runtime=controlsfx",
-                                 "--add-opens=javafx.graphics/com.sun.javafx.css=controlsfx",
-                                 "--add-opens=javafx.graphics/javafx.scene=tornadofx"]
+    applicationDefaultJvmArgs = ["--add-opens=javafx.graphics/javafx.scene=tornadofx"]
 
     mainClassName = 'sudoku.desktop/com.github.netomi.sudoku.trainer.SudokuApp'
 }
@@ -55,7 +53,8 @@ dependencies {
     implementation "com.github.netomi.sudoku:sudoku-solver-jvm:0.2-SNAPSHOT"
 
     implementation "no.tornado:tornadofx:2.0.0-SNAPSHOT"
-    implementation "no.tornado:tornadofx-controlsfx:0.1"
+    implementation "com.github.bkenn:kfoenix:0.1.3"
+    implementation "com.jfoenix:jfoenix:9.0.10"
 
     // junit 5
     testCompile     "org.junit.jupiter:junit-jupiter-api:$junitVersion"

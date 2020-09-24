@@ -47,6 +47,7 @@ import com.github.netomi.sudoku.trainer.Styles
 import com.github.netomi.sudoku.trainer.model.DisplayOptions
 import javafx.beans.property.BooleanProperty
 import javafx.beans.property.SimpleBooleanProperty
+import javafx.geometry.Insets
 import javafx.scene.layout.*
 import tornadofx.*
 import java.lang.RuntimeException
@@ -369,6 +370,7 @@ class CellFragment(private val cell: Cell) : Fragment()
                         maxWidth     = 36.0
                         addClass(Styles.cellPossibleValue)
                     }
+                    possibleValueLabel.gridpaneConstraints { margin = Insets(3.0) }
                     possibleValuesPane.add(possibleValueLabel, j, i)
                 }
             }

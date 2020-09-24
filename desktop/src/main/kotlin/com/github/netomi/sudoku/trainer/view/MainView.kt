@@ -27,11 +27,13 @@ import com.github.netomi.sudoku.model.PredefinedType
 import com.github.netomi.sudoku.solver.DifficultyLevel
 import com.github.netomi.sudoku.solver.GridRater
 import com.github.netomi.sudoku.solver.Hint
+import com.github.netomi.sudoku.trainer.Styles
 import com.github.netomi.sudoku.trainer.controller.GridController
 import com.github.netomi.sudoku.trainer.model.DisplayOptions
 import com.github.netomi.sudoku.trainer.model.SudokuLibrary
 import com.github.netomi.sudoku.trainer.model.TechniqueCategory
 import com.github.netomi.sudoku.trainer.model.TechniqueCategoryOrLibraryEntry
+import com.jfoenix.controls.JFXButton.ButtonType.*
 import javafx.application.Platform
 import javafx.beans.InvalidationListener
 import javafx.beans.binding.Bindings
@@ -45,9 +47,8 @@ import javafx.scene.Scene
 import javafx.scene.control.*
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Priority
-import org.controlsfx.control.StatusBar
+import kfoenix.*
 import tornadofx.*
-import tornadofx.controlsfx.statusbar
 
 
 class MainView : View("Sudoku Trainer") {
@@ -59,7 +60,7 @@ class MainView : View("Sudoku Trainer") {
 
     private lateinit var hintListView:     ListView<Hint>
     private lateinit var gridTypeComboBox: ComboBox<PredefinedType>
-    private lateinit var statusBar:        StatusBar
+    private lateinit var statusBar:        Label
 
     override val root =
         vbox {
@@ -84,54 +85,16 @@ class MainView : View("Sudoku Trainer") {
                 }
             }
 
-            hbox {
-                padding = Insets(2.0, 2.0, 2.0, 2.0)
-                spacing = 2.0
-
-                togglebutton("1", filterToggleGroup) {
-                    isFocusTraversable = false
-                    userData = 1
-                    setMinSize(40.0, 40.0)
-                }
-                togglebutton("2", filterToggleGroup) {
-                    isFocusTraversable = false
-                    userData = 2
-                    setMinSize(40.0, 40.0)
-                }
-                togglebutton("3", filterToggleGroup) {
-                    isFocusTraversable = false
-                    userData = 3
-                    setMinSize(40.0, 40.0)
-                }
-                togglebutton("4", filterToggleGroup) {
-                    isFocusTraversable = false
-                    userData = 4
-                    setMinSize(40.0, 40.0)
-                }
-                togglebutton("5", filterToggleGroup) {
-                    isFocusTraversable = false
-                    userData = 5
-                    setMinSize(40.0, 40.0)
-                }
-                togglebutton("6", filterToggleGroup) {
-                    isFocusTraversable = false
-                    userData = 6
-                    setMinSize(40.0, 40.0)
-                }
-                togglebutton("7", filterToggleGroup) {
-                    isFocusTraversable = false
-                    userData = 7
-                    setMinSize(40.0, 40.0)
-                }
-                togglebutton("8", filterToggleGroup) {
-                    isFocusTraversable = false
-                    userData = 8
-                    setMinSize(40.0, 40.0)
-                }
-                togglebutton("9", filterToggleGroup) {
-                    isFocusTraversable = false
-                    userData = 9
-                    setMinSize(40.0, 40.0)
+            jfxtoolbar {
+                vboxConstraints { margin = Insets(5.0) }
+                leftSide {
+                    (1..9).forEach { value ->
+                        togglebutton(value.toString(), filterToggleGroup) {
+                            isFocusTraversable = false
+                            userData = value
+                            setMinSize(40.0, 40.0)
+                        }
+                    }
                 }
             }
 
@@ -140,9 +103,9 @@ class MainView : View("Sudoku Trainer") {
 
                 center = gridView.root
 
-                bottom = statusbar {
-                    statusBar = this
-                    text = ""
+                bottom = hbox {
+                    addClass(Styles.statusBar)
+                    statusBar = label("") {}
                 }
 
                 right = drawer(side = Side.RIGHT, multiselect = true) {
@@ -150,7 +113,7 @@ class MainView : View("Sudoku Trainer") {
                         form {
                             fieldset("Layout settings") {
                                 field("Grid Layout") {
-                                    combobox<PredefinedType> {
+                                    jfxcombobox<PredefinedType> {
                                         gridTypeComboBox = this
 
                                         items = FXCollections.observableArrayList(*PredefinedType.values())
@@ -158,21 +121,16 @@ class MainView : View("Sudoku Trainer") {
                                     }
                                 }
 
-                                button("Reset") {
+                                jfxbutton("Reset", RAISED) {
                                     action {
-                                        gridController.resetModel(
-                                            gridTypeComboBox.selectedItem
-                                                ?: PredefinedType.CLASSIC_9x9
-                                        )
+                                        gridController.resetModel(gridTypeComboBox.selectedItem ?: PredefinedType.CLASSIC_9x9)
                                     }
                                 }
                             }
 
                             fieldset("Display settings") {
                                 field("Show pencil marks") {
-                                    checkbox {
-                                        selectedProperty().set(true)
-                                        selectedProperty().bindBidirectional(DisplayOptions.showPencilMarksProperty)
+                                    jfxcheckbox(DisplayOptions.showPencilMarksProperty) {
                                         action {
                                             gridView.refreshView()
                                         }
@@ -181,11 +139,8 @@ class MainView : View("Sudoku Trainer") {
                                 field("Show computed values") {
                                     disableProperty().bind(DisplayOptions.showPencilMarksProperty.not())
 
-                                    checkbox {
-                                        selectedProperty().set(true)
-                                        selectedProperty().bindBidirectional(DisplayOptions.showComputedValuesProperty)
+                                    jfxcheckbox(DisplayOptions.showComputedValuesProperty) {
                                         disableProperty().bind(DisplayOptions.showPencilMarksProperty.not())
-
                                         action {
                                             gridView.refreshView()
                                         }
@@ -198,18 +153,16 @@ class MainView : View("Sudoku Trainer") {
                         vbox {
                             minWidth = 350.0
 
-                            hbox {
-                                padding = Insets(2.0, 2.0, 2.0, 2.0)
-                                spacing = 4.0
-
-                                button("Full") {
-                                    action { gridController.findHints() }
+                            jfxtoolbar {
+                                vboxConstraints { margin = Insets(5.0) }
+                                leftSide {
+                                    jfxbutton("Full", RAISED) {
+                                        action { gridController.findHints() }
+                                    }
+                                    jfxbutton("Single Step", RAISED) {
+                                        action { gridController.findHintsSingleStep() }
+                                    }
                                 }
-
-                                button("Single Step") {
-                                    action { gridController.findHintsSingleStep() }
-                                }
-
                             }
 
                             listview<Hint> {
@@ -270,10 +223,6 @@ class MainView : View("Sudoku Trainer") {
                 }
             }
         }
-
-    override fun onBeforeShow() {
-        gridController.loadModel()
-    }
 
     private fun initializeFontSizeManager() {
         // Cf. https://stackoverflow.com/questions/13246211/javafx-how-to-get-stage-from-controller-during-initialization
