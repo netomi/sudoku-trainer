@@ -263,7 +263,7 @@ class Styles : JFXStylesheet() {
 
         selectValue {
             textFill = Color.BLACK
-            fontSize = 3.em
+            fontSize = 2.5.em
         }
 
         selectCandidate {

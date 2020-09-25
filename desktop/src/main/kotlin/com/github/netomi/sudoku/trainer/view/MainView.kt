@@ -108,11 +108,6 @@ class MainView : View("Sudoku Trainer") {
 
                 center = gridView.root
 
-                bottom = hbox {
-                    addClass(Styles.statusBar)
-                    statusBar = label("") {}
-                }
-
                 right = drawer(side = Side.RIGHT, multiselect = true) {
                     item("Layout", expanded = false) {
                         form {
@@ -227,6 +222,11 @@ class MainView : View("Sudoku Trainer") {
                             }
                         }
                     }
+                }
+
+                bottom = hbox {
+                    addClass(Styles.statusBar)
+                    statusBar = label("") {}
                 }
             }
         }
