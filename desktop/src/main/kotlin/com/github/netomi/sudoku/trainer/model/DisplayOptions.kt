@@ -19,8 +19,9 @@
  */
 package com.github.netomi.sudoku.trainer.model
 
+import com.github.netomi.sudoku.model.ValueSet
 import javafx.beans.property.SimpleBooleanProperty
-import javafx.beans.property.SimpleIntegerProperty
+import javafx.beans.property.SimpleObjectProperty
 
 object DisplayOptions
 {
@@ -32,7 +33,7 @@ object DisplayOptions
     val showComputedValues
         get() = showComputedValuesProperty.get()
 
-    val possibleValueFilterProperty = SimpleIntegerProperty(0)
-    val possibleValueFilter
-        get() = possibleValueFilterProperty.get()
+    val pencilMarkFilterProperty = SimpleObjectProperty<(ValueSet) -> Boolean>(null)
+    val pencilMarkFilter
+        get() = pencilMarkFilterProperty.get()
 }

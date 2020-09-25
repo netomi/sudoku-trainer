@@ -24,6 +24,7 @@
 package com.github.netomi.sudoku.trainer.view
 
 import com.github.netomi.sudoku.model.GridType
+import com.github.netomi.sudoku.model.ValueSet
 import com.github.netomi.sudoku.solver.DifficultyLevel
 import com.github.netomi.sudoku.solver.GridRater
 import com.github.netomi.sudoku.solver.Hint
@@ -89,11 +90,15 @@ class MainView : View("Sudoku Trainer") {
                 vboxConstraints { margin = Insets(5.0) }
                 leftSide {
                     (1..9).forEach { value ->
-                        togglebutton(value.toString(), filterToggleGroup) {
+                        togglebutton(value.toString(), filterToggleGroup, false, { valueSet: ValueSet -> valueSet[value] }) {
                             isFocusTraversable = false
-                            userData = value
                             setMinSize(40.0, 40.0)
                         }
+                    }
+
+                    togglebutton("x/y", filterToggleGroup, false, ValueSet::isBiValue) {
+                        isFocusTraversable = false
+                        setMinSize(40.0, 40.0)
                     }
                 }
             }
@@ -289,10 +294,8 @@ class MainView : View("Sudoku Trainer") {
             cell
         }
 
-        filterToggleGroup.selectToggle(null)
-        filterToggleGroup.selectedToggleProperty().addListener { _, _, newValue: Toggle? ->
-            val filterValue = newValue?.let { newValue.userData as Int } ?: 0
-            DisplayOptions.possibleValueFilterProperty.set(filterValue)
+        DisplayOptions.pencilMarkFilterProperty.bind(filterToggleGroup.selectedValueProperty<(ValueSet) -> Boolean>())
+        filterToggleGroup.selectedToggleProperty().onChange {
             gridView.refreshView()
         }
 

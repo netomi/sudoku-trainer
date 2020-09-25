@@ -82,9 +82,10 @@ class CellFragment(private val cell: Cell) : Fragment()
         // possible value filter
         root.removeClass(Styles.cellActiveFilter)
         root.removeClass(Styles.cellInactiveFilter)
-        val possibleValueFilter = DisplayOptions.possibleValueFilter
-        if (possibleValueFilter != 0) {
-            if (cell.possibleValueSet[possibleValueFilter]) {
+
+        DisplayOptions.pencilMarkFilter?.apply {
+            // TODO: properly apply filter to non-computer values if specified in the display options.
+            if (invoke(cell.possibleValueSet)) {
                 root.addClass(Styles.cellActiveFilter)
             }
         }
@@ -386,14 +387,18 @@ class CellFragment(private val cell: Cell) : Fragment()
 
             setOnMouseClicked { event ->
                 if (event.button === MouseButton.PRIMARY && event.clickCount == 2) {
-                    if (DisplayOptions.showPencilMarks) {
-                        if (DisplayOptions.showComputedValues) {
-                            if (cell.possibleValueSet.cardinality() == 1) {
-                                cell.setValue(cell.possibleValueSet.firstSetBit(), true)
-                            }
-                        } else {
-                            if (cell.excludedValueSet.cardinality() == cell.owner.gridSize - 1) {
-                                cell.setValue(cell.excludedValueSet.firstUnsetBit(), true)
+                    if (cell.isAssigned && !cell.isGiven) {
+                        cell.value = 0
+                    } else {
+                        if (DisplayOptions.showPencilMarks) {
+                            if (DisplayOptions.showComputedValues) {
+                                if (cell.possibleValueSet.cardinality() == 1) {
+                                    cell.setValue(cell.possibleValueSet.firstSetBit(), true)
+                                }
+                            } else {
+                                if (cell.excludedValueSet.cardinality() == cell.owner.gridSize - 1) {
+                                    cell.setValue(cell.excludedValueSet.firstUnsetBit(), true)
+                                }
                             }
                         }
                     }
