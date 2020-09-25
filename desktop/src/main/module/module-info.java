@@ -8,6 +8,8 @@ module sudoku.desktop {
     requires com.jfoenix;
     requires kfoenix;
 
+    requires de.jensd.fx.glyphs.fontawesome;
+
     requires kotlin.stdlib;
 
     requires sudoku.solver.jvm;

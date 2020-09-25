@@ -34,7 +34,9 @@ import com.github.netomi.sudoku.trainer.model.DisplayOptions
 import com.github.netomi.sudoku.trainer.model.SudokuLibrary
 import com.github.netomi.sudoku.trainer.model.TechniqueCategory
 import com.github.netomi.sudoku.trainer.model.TechniqueCategoryOrLibraryEntry
-import com.jfoenix.controls.JFXButton.ButtonType.*
+import com.jfoenix.controls.JFXButton.ButtonType.RAISED
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.application.Platform
 import javafx.beans.InvalidationListener
 import javafx.beans.binding.Bindings
@@ -89,8 +91,28 @@ class MainView : View("Sudoku Trainer") {
             jfxtoolbar {
                 vboxConstraints { margin = Insets(5.0) }
                 leftSide {
+                    button {
+                        isFocusTraversable = false
+                        setMinSize(40.0, 40.0)
+
+                        contentDisplay = ContentDisplay.GRAPHIC_ONLY
+                        graphic = FontAwesomeIconView(FontAwesomeIcon.UNDO)
+                    }
+
+                    button {
+                        isFocusTraversable = false
+                        setMinSize(40.0, 40.0)
+
+                        contentDisplay = ContentDisplay.GRAPHIC_ONLY
+                        graphic = FontAwesomeIconView(FontAwesomeIcon.REPEAT)
+                    }
+
                     (1..9).forEach { value ->
-                        togglebutton(value.toString(), filterToggleGroup, false, { valueSet: ValueSet -> valueSet[value] }) {
+                        togglebutton(
+                            value.toString(),
+                            filterToggleGroup,
+                            false,
+                            { valueSet: ValueSet -> valueSet[value] }) {
                             isFocusTraversable = false
                             setMinSize(40.0, 40.0)
                         }
