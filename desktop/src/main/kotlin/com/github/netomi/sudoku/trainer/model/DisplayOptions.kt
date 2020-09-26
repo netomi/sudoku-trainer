@@ -23,17 +23,17 @@ import com.github.netomi.sudoku.model.ValueSet
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
 
+import tornadofx.getValue
+import tornadofx.setValue
+
 object DisplayOptions
 {
     val showPencilMarksProperty = SimpleBooleanProperty(true)
-    val showPencilMarks
-        get() = showPencilMarksProperty.get()
+    var showPencilMarks by showPencilMarksProperty
 
     val showComputedValuesProperty = SimpleBooleanProperty(true)
-    val showComputedValues
-        get() = showComputedValuesProperty.get()
+    var showComputedValues by showComputedValuesProperty
 
     val pencilMarkFilterProperty = SimpleObjectProperty<(ValueSet) -> Boolean>(null)
-    val pencilMarkFilter
-        get() = pencilMarkFilterProperty.get()
+    var pencilMarkFilter: ((ValueSet) -> Boolean)? by pencilMarkFilterProperty
 }

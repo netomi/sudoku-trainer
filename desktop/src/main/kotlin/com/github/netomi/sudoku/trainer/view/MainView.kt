@@ -153,19 +153,14 @@ class MainView : View("Sudoku Trainer") {
                             fieldset("Display settings") {
                                 field("Show pencil marks") {
                                     jfxcheckbox(DisplayOptions.showPencilMarksProperty) {
-                                        action {
-                                            gridView.refreshView()
-                                        }
+                                        action { gridView.refreshView() }
                                     }
                                 }
                                 field("Show computed values") {
                                     disableProperty().bind(DisplayOptions.showPencilMarksProperty.not())
 
                                     jfxcheckbox(DisplayOptions.showComputedValuesProperty) {
-                                        disableProperty().bind(DisplayOptions.showPencilMarksProperty.not())
-                                        action {
-                                            gridView.refreshView()
-                                        }
+                                        action { gridView.refreshView() }
                                     }
                                 }
                             }

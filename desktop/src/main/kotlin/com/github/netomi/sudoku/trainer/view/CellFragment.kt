@@ -84,7 +84,7 @@ class CellFragment(private val cell: Cell) : Fragment()
         root.removeClass(Styles.cellInactiveFilter)
 
         DisplayOptions.pencilMarkFilter?.apply {
-            // TODO: properly apply filter to non-computer values if specified in the display options.
+            // TODO: properly apply filter to non-computed values if specified in the display options.
             if (invoke(cell.possibleValueSet)) {
                 root.addClass(Styles.cellActiveFilter)
             }
