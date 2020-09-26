@@ -69,7 +69,9 @@ class CellEditView : View()
 
         grid.let {
             for (i in 0 until it.gridSize) {
-                val valueFragment = CellValueFragment(i + 1, Styles.selectValue)
+                val valueFragment = CellValueFragment(i + 1)
+                valueFragment.labelStyle = Styles.selectValue
+
                 valueFragments.add(valueFragment)
                 valueFragment.root.apply {
                     gridpaneConstraints {
@@ -91,7 +93,9 @@ class CellEditView : View()
 
                 valuesPane.add(valueFragment)
 
-                val candidateFragment = CellValueFragment(i + 1, Styles.selectCandidate)
+                val candidateFragment = CellValueFragment(i + 1)
+                candidateFragment.labelStyle = Styles.selectCandidate
+
                 candidateFragments.add(candidateFragment)
                 candidateFragment.root.apply {
                     gridpaneConstraints {

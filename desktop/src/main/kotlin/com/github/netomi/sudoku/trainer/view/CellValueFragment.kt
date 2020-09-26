@@ -20,17 +20,37 @@
 package com.github.netomi.sudoku.trainer.view
 
 import com.github.netomi.sudoku.trainer.Styles
+import javafx.beans.property.*
+import javafx.scene.control.Label
 import tornadofx.*
 
-class CellValueFragment(val value: Int, labelStyle: CssRule) : Fragment()
+class CellValueFragment(valueArg: Int = 0) : Fragment()
 {
-    private val valueText = value.toString()
+    val valueProperty: IntegerProperty = SimpleIntegerProperty(valueArg)
+    var value: Int by valueProperty
+
+    private val textProperty: StringProperty = SimpleStringProperty()
+
+    val labelStyleProperty: ObjectProperty<CssRule?> = SimpleObjectProperty()
+    var labelStyle: CssRule? by labelStyleProperty
+
+    private var valueLabel by singleAssign<Label>()
 
     override val root = stackpane {
         addClass(Styles.selectBox)
 
-        label(valueText) {
-            addClass(labelStyle)
+        label {
+            valueLabel = this
+            textProperty().bind(textProperty)
         }
+    }
+
+    init {
+        textProperty.bind(valueProperty.asString())
+
+        labelStyleProperty.addListener(ChangeListener { _, oldValue, newValue ->
+            oldValue?.apply { valueLabel.removeClass(this) }
+            newValue?.apply { valueLabel.addClass(this) }
+        })
     }
 }
