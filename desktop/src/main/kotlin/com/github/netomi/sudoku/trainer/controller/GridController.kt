@@ -41,12 +41,8 @@ import com.github.netomi.sudoku.solver.Hint
 import com.github.netomi.sudoku.solver.HintSolver
 import com.github.netomi.sudoku.solver.ValueSelection
 import com.github.netomi.sudoku.trainer.model.LibraryEntry
-import tornadofx.Controller
-import tornadofx.onChange
+import tornadofx.*
 import kotlin.random.Random
-
-import tornadofx.getValue
-import tornadofx.setValue
 
 class GridController : Controller()
 {
@@ -90,16 +86,14 @@ class GridController : Controller()
 
         data?.apply {
             runAsync {
-                try {
-                    val newGrid = grid.copy()
-                    newGrid.clear(true)
-                    newGrid.accept(GridValueLoader(data))
-                } catch (ex: RuntimeException) {
-                    val alert = Alert(Alert.AlertType.ERROR, "failed to load model from clipboard", ButtonType.OK)
-                    alert.showAndWait()
-                    throw ex
-                }
-            } ui { grid = it }
+                val newGrid = grid.copy()
+                newGrid.clear(true)
+                newGrid.accept(GridValueLoader(data))
+            } ui {
+                grid = it
+            } fail {
+                alert(Alert.AlertType.ERROR, "Loading error", "Failure while trying to load sudoku values from the clipboard.", ButtonType.OK)
+            }
         }
     }
 

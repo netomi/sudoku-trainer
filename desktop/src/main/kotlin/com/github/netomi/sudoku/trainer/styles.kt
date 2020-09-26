@@ -89,6 +89,10 @@ class Styles : JFXStylesheet() {
             backgroundColor += WHITE
         }
 
+        mnemonicUnderline {
+            unsafe("-fx-stroke", raw("-fx-text-fill"))
+        }
+
         // overwrite styles for jfx components
 
         jfxDecoratorButtonsContainer {

@@ -48,6 +48,9 @@ import javafx.geometry.Insets
 import javafx.geometry.Side
 import javafx.scene.Scene
 import javafx.scene.control.*
+import javafx.scene.input.Clipboard
+import javafx.scene.input.DataFormat
+import javafx.scene.input.KeyCombination
 import javafx.scene.input.MouseEvent
 import javafx.scene.layout.Priority
 import kfoenix.*
@@ -68,23 +71,46 @@ class MainView : View("Sudoku Trainer") {
     override val root =
         vbox {
             menubar {
-                menu("File") {
+                menu("_File") {
+                    isMnemonicParsing = true
+
                     item("New sudoku").action {
                         log.info("Creating new sudoku")
                     }
                     separator()
-                    item("Exit").action {
+                    item("E_xit").action {
                         log.info("Exiting application")
                         Platform.exit()
                     }
                 }
-                menu("Edit") {
-                    item("Paste values").action {
-                        gridController.loadModelFromClipboard()
+                menu("_Edit") {
+                    isMnemonicParsing = true
+
+                    // TODO: support undo / redo
+                    item("Undo", KeyCombination.keyCombination("Ctrl+Z")) {
+                        isDisable = true
                     }
+                    item("Redo", KeyCombination.keyCombination("Ctrl+Shift+Z")) {
+                        isDisable = true
+                    }
+
+                    separator()
+
+                    val pasteItem = item("Paste", KeyCombination.keyCombination("Ctrl+V")) {
+                        action { gridController.loadModelFromClipboard() }
+                    }
+
+                    setOnShowing { pasteItem.isDisable = !Clipboard.getSystemClipboard().hasContent(DataFormat.PLAIN_TEXT) }
                 }
-                menu("Help") {
-                    item("About...")
+                menu("_Help") {
+                    isMnemonicParsing = true
+
+                    item("Report an issue...") {
+                        action { hostServices.showDocument("https://github.com/netomi/sudoku-trainer/issues") }
+                    }
+
+                    item("About...") {
+                    }
                 }
             }
 
