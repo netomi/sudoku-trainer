@@ -45,8 +45,7 @@ import tornadofx.setValue
  */
 class GridView : View()
 {
-    private val gridController: GridController by inject()
-
+    private val gridController by inject<GridController>()
     private val grid by gridController.gridProperty
 
     private var gridPane: GridPane by singleAssign()
@@ -121,10 +120,6 @@ class GridView : View()
             it.onUpdate { refreshView() }
             refreshView()
         }
-    }
-
-    fun resetGrid() {
-        grid.clear(true)
     }
 
     fun refreshView() {
