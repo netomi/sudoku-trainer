@@ -31,8 +31,8 @@ class CellValueFragment(valueArg: Int = 0) : Fragment()
 
     private val textProperty: StringProperty = SimpleStringProperty()
 
-    val labelStyleProperty: ObjectProperty<CssRule?> = SimpleObjectProperty()
-    var labelStyle: CssRule? by labelStyleProperty
+    val labelIdProperty: ObjectProperty<String?> = SimpleObjectProperty()
+    var labelId: String? by labelIdProperty
 
     private var valueLabel by singleAssign<Label>()
 
@@ -48,9 +48,6 @@ class CellValueFragment(valueArg: Int = 0) : Fragment()
     init {
         textProperty.bind(valueProperty.asString())
 
-        labelStyleProperty.addListener(ChangeListener { _, oldValue, newValue ->
-            oldValue?.apply { valueLabel.removeClass(this) }
-            newValue?.apply { valueLabel.addClass(this) }
-        })
+        labelIdProperty.onChange { newId -> valueLabel.id = newId }
     }
 }

@@ -99,7 +99,7 @@ class GridView : View()
 
                 cellFragment.selectedProperty.onChange { selected ->
                     if (selected) {
-                        selectedCellFragmentProperty.get()?.selectedProperty?.set(false)
+                        selectedCellFragmentProperty.get()?.selected = false
                         selectedCellFragmentProperty.set(cellFragment)
                         selectedCellProperty.set(cell)
                     }

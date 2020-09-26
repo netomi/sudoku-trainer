@@ -25,9 +25,7 @@ import com.jfoenix.assets.JFoenixResources
 import javafx.application.Application
 import javafx.stage.Stage
 import kfoenix.jfxdecorator
-import tornadofx.App
-import tornadofx.View
-import tornadofx.importStylesheet
+import tornadofx.*
 
 
 class SudokuApp : App(Main::class, Styles::class)

@@ -70,7 +70,7 @@ class CellEditView : View()
         grid.let {
             for (i in 0 until it.gridSize) {
                 val valueFragment = CellValueFragment(i + 1)
-                valueFragment.labelStyle = Styles.selectValue
+                valueFragment.labelId = Styles.editValue.name
 
                 valueFragments.add(valueFragment)
                 valueFragment.root.apply {
@@ -94,7 +94,7 @@ class CellEditView : View()
                 valuesPane.add(valueFragment)
 
                 val candidateFragment = CellValueFragment(i + 1)
-                candidateFragment.labelStyle = Styles.selectCandidate
+                candidateFragment.labelId = Styles.editCandidate.name
 
                 candidateFragments.add(candidateFragment)
                 candidateFragment.root.apply {

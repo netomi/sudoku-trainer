@@ -19,11 +19,10 @@
  */
 package com.github.netomi.sudoku.trainer
 
-import com.jfoenix.assets.JFoenixResources
+import javafx.css.PseudoClass
 import javafx.geometry.Pos
 import javafx.scene.paint.Color
 import javafx.scene.paint.Color.WHITE
-import javafx.scene.text.FontPosture
 import javafx.scene.text.FontSmoothingType
 import javafx.scene.text.FontWeight
 import kfoenix.JFXStylesheet
@@ -38,34 +37,41 @@ class Styles : JFXStylesheet() {
         val sudokuGrid by cssclass()
         val sudokuCell by cssclass()
 
-        val cellAssignedValue       by cssclass()
-        val cellGivenValue          by cssclass()
-        val cellPossibleValue       by cssclass()
-        val cellFocus               by cssclass()
-        val cellValueConflict       by cssclass()
-        val cellMatchingCandidate   by cssclass()
-        val cellEliminatedCandidate by cssclass()
-        val cellActiveCandidate     by cssclass()
-        val cellInactiveCandidate   by cssclass()
-        val cellHighlight           by cssclass()
+        val cellValue      by cssid()
+        val cellCandidate  by cssid()
+        val cellSelectPane by cssid()
 
-        val cellActiveFilter        by cssclass()
-        val cellInactiveFilter      by cssclass()
+        val editValue             by cssid()
+        val editCandidate         by cssid()
 
         val selectBox               by cssclass()
         val selectAssignedValue     by cssclass()
         val selectPossibleCandidate by cssclass()
-        val selectValue             by cssclass()
-        val selectCandidate         by cssclass()
 
         val chainLink               by cssclass()
         val chainLinkArrow          by cssclass()
         val weakChainLink           by cssclass()
 
+        // pseudo classes
+
+        val selected by csspseudoclass("selected")
+        val assigned by csspseudoclass("assigned")
+        val given    by csspseudoclass("given")
+        val conflict by csspseudoclass("conflict")
+
+        val matched     by csspseudoclass("matching")
+        val eliminated  by csspseudoclass("eliminated")
+        val highlighted by csspseudoclass("highlighted")
+
+        val active   by csspseudoclass("active")
+        val inactive by csspseudoclass("inactive")
+
         val medium  by csspseudoclass("medium")
         val hard    by csspseudoclass("hard")
         val unfair  by csspseudoclass("unfair")
         val extreme by csspseudoclass("extreme")
+
+        // jfoenix overrides
 
         val jfxToolBar      by cssclass()
         val toolBarRightBox by cssclass()
@@ -169,67 +175,69 @@ class Styles : JFXStylesheet() {
         sudokuCell {
             borderColor += box(Color.GRAY)
             borderWidth += box(1.px)
+
+            and(active) {
+                backgroundColor += Color.LIGHTGREEN
+            }
+
+            and(inactive) {
+                backgroundColor += Color.LIGHTCORAL
+            }
+
+            and(highlighted) {
+                backgroundColor += Color.LIGHTSTEELBLUE
+            }
         }
 
-        cellAssignedValue {
-            textFill = Color.BLUE
+        cellValue {
             fontSize = 3.em
+
+            and(assigned) {
+                textFill = Color.BLUE
+            }
+
+            and(given) {
+                textFill = Color.BLACK
+            }
+
+            and(conflict) {
+                textFill = Color.RED
+            }
         }
 
-        cellGivenValue {
-            textFill = Color.BLACK
-            fontSize = 3.em
-        }
-
-        cellPossibleValue {
+        cellCandidate {
             textFill  = Color.GRAY
             fontSize  = 1.5.em
             alignment = Pos.CENTER
+
+            and(matched) {
+                backgroundRadius += box(1.5.em)
+                backgroundColor  += Color.LIMEGREEN
+                textFill = Color.BLACK
+            }
+
+            and(eliminated) {
+                backgroundRadius += box(1.5.em)
+                backgroundColor  += Color.CORAL
+                textFill = Color.BLACK
+            }
+
+            and(active) {
+                backgroundRadius += box(1.5.em)
+                backgroundColor  += Color.LIMEGREEN
+                textFill = Color.BLACK
+            }
+
+            and(inactive) {
+                backgroundRadius += box(1.5.em)
+                backgroundColor  += Color.CORNFLOWERBLUE
+                textFill = Color.BLACK
+            }
         }
 
-        cellValueConflict {
-            textFill = Color.RED
-        }
-
-        cellFocus {
+        cellSelectPane and selected {
             borderColor += box(Color.YELLOW)
             borderWidth += box(4.px)
-        }
-
-        cellMatchingCandidate {
-            backgroundRadius += box(1.5.em)
-            backgroundColor  += Color.LIMEGREEN
-            textFill = Color.BLACK
-        }
-
-        cellEliminatedCandidate {
-            backgroundRadius += box(1.5.em)
-            backgroundColor  += Color.CORAL
-            textFill = Color.BLACK
-        }
-
-        cellActiveCandidate {
-            backgroundRadius += box(1.5.em)
-            backgroundColor  += Color.LIMEGREEN
-            textFill = Color.BLACK
-        }
-
-        cellInactiveCandidate {
-            backgroundRadius += box(1.5.em)
-            backgroundColor  += Color.CORNFLOWERBLUE
-            textFill = Color.BLACK
-        }
-
-        cellHighlight {
-            backgroundColor += Color.LIGHTSTEELBLUE
-        }
-
-        cellActiveFilter {
-            backgroundColor += Color.LIGHTGREEN
-        }
-
-        cellInactiveFilter {
-            backgroundColor += Color.LIGHTCORAL
         }
 
         chainLink {
@@ -261,12 +269,12 @@ class Styles : JFXStylesheet() {
             backgroundColor += Color.CORNFLOWERBLUE
         }
 
-        selectValue {
+        editValue {
             textFill = Color.BLACK
             fontSize = 2.5.em
         }
 
-        selectCandidate {
+        editCandidate {
             textFill = Color.BLACK
             fontSize = 1.5.em
         }
@@ -301,3 +309,6 @@ class Styles : JFXStylesheet() {
         }
     }
 }
+
+val CssRule.pseudoClass: PseudoClass
+    get() = PseudoClass.getPseudoClass(this.name)

@@ -23,7 +23,6 @@
 
 package com.github.netomi.sudoku.trainer.view
 
-import javafx.beans.binding.Bindings
 import javafx.beans.property.IntegerProperty
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.collections.FXCollections
@@ -45,13 +44,14 @@ import com.github.netomi.sudoku.solver.*
 import com.github.netomi.sudoku.solver.LinkType.WEAK
 import com.github.netomi.sudoku.trainer.Styles
 import com.github.netomi.sudoku.trainer.model.DisplayOptions
+import com.github.netomi.sudoku.trainer.pseudoClass
 import javafx.beans.property.BooleanProperty
 import javafx.beans.property.SimpleBooleanProperty
+import javafx.css.PseudoClass
 import javafx.geometry.Insets
 import javafx.scene.layout.*
 import tornadofx.*
-import java.lang.RuntimeException
-import java.util.function.Consumer
+import kotlin.math.sign
 
 /**
  * The view to display the state of an individual cell within a sudoku grid.
@@ -59,124 +59,47 @@ import java.util.function.Consumer
 class CellFragment(private val cell: Cell) : Fragment()
 {
     private val valueProperty: IntegerProperty = SimpleIntegerProperty(0)
-    private val possibleValuesProperty         = FXCollections.observableIntegerArray()
+    private var value by valueProperty
 
-    private val possibleValuesPane: GridPane
-    private val assignedValueLabel: Label
-    // a simple pane to easily indicate the currently focused cell.
-    private val selectRectangle:    Pane
+    private val possibleValuesProperty = FXCollections.observableIntegerArray()
 
     val selectedProperty: BooleanProperty = SimpleBooleanProperty(false)
+    var selected by selectedProperty
+
+    private val candidatesPane: GridPane
+    private val assignedValueLabel: Label
+    // a simple pane to easily indicate the currently focused cell.
+    private val selectPane: Pane
 
     override val root = stackpane {}
 
     fun refreshView(conflicts: Array<Conflict>, displayedHint: Hint?) {
         assignedValueLabel.apply {
-            if (cell.isGiven) {
-                addClass(Styles.cellGivenValue)
-            } else {
-                addClass(Styles.cellAssignedValue)
+            pseudoClassStateChanged(Styles.assigned.pseudoClass, cell.isAssigned)
+            pseudoClassStateChanged(Styles.given.pseudoClass, cell.isGiven)
+
+            val foundConflict = conflicts.any { conflict -> conflict.contains(cell) }
+            pseudoClassStateChanged(Styles.conflict.pseudoClass, foundConflict)
+        }
+
+        // pencil mark filter
+        val cellActiveFiltered = DisplayOptions.pencilMarkFilter?.invoke(cell.possibleValueSet) ?: false
+        root.pseudoClassStateChanged(Styles.active.pseudoClass, cellActiveFiltered)
+
+        val cellHighlighted = displayedHint?.relatedCells?.get(cell.cellIndex) ?: false
+        root.pseudoClassStateChanged(Styles.highlighted.pseudoClass, cellHighlighted)
+
+        val candidatePseudoStates = processHint(displayedHint)
+        candidatesPane.children.forEachIndexed { index, node ->
+            val displayState = candidatePseudoStates[index + 1]
+            for (state in CandidateState.values()) {
+                state.pseudoClass?.let { pseudoClass ->
+                    node.pseudoClassStateChanged(pseudoClass, state == displayState)
+                }
             }
         }
 
-        // possible value filter
-        root.removeClass(Styles.cellActiveFilter)
-        root.removeClass(Styles.cellInactiveFilter)
-
-        DisplayOptions.pencilMarkFilter?.apply {
-            // TODO: properly apply filter to non-computed values if specified in the display options.
-            if (invoke(cell.possibleValueSet)) {
-                root.addClass(Styles.cellActiveFilter)
-            }
-        }
-
-        var foundConflict = false
-        for (conflict in conflicts) {
-            if (conflict.contains(cell)) {
-                foundConflict = true
-                break
-            }
-        }
-
-        if (foundConflict) {
-            assignedValueLabel.removeClass(Styles.cellValueConflict)
-            assignedValueLabel.addClass(Styles.cellValueConflict)
-        } else {
-            assignedValueLabel.removeClass(Styles.cellValueConflict)
-        }
-
-        // TODO: investigate how this can be improved using properties that bind style classes.
-        possibleValuesPane.children.forEach(Consumer { child: Node -> child.removeClass(Styles.cellMatchingCandidate) })
-        possibleValuesPane.children.forEach(Consumer { child: Node -> child.removeClass(Styles.cellEliminatedCandidate) })
-        possibleValuesPane.children.forEach(Consumer { child: Node -> child.removeClass(Styles.cellActiveCandidate) })
-        possibleValuesPane.children.forEach(Consumer { child: Node -> child.removeClass(Styles.cellInactiveCandidate) })
-
-        root.removeClass(Styles.cellHighlight)
-        displayedHint?.accept(object : HintVisitor {
-            override fun visitAnyHint(hint: Hint) {
-                if (hint.relatedCells[cell.cellIndex]) {
-                    root.addClass(Styles.cellHighlight)
-                }
-            }
-
-            override fun visitAssignmentHint(hint: AssignmentHint) {
-                if (hint.cellIndex == cell.cellIndex) {
-                    getCandidateLabel(hint.value).addClass(Styles.cellMatchingCandidate)
-                }
-
-                visitAnyHint(hint)
-            }
-
-            override fun visitEliminationHint(hint: EliminationHint) {
-                if (hint.matchingCells[cell.cellIndex]) {
-                    for (value in hint.matchingValues) {
-                        getCandidateLabel(value).addClass(Styles.cellMatchingCandidate)
-                    }
-                }
-
-                for ((i, cellIndex) in hint.affectedCells.setBits().withIndex()) {
-                    if (cellIndex == cell.cellIndex) {
-                        val excludedValues = hint.excludedValues[i]
-                        for (value in excludedValues) {
-                            getCandidateLabel(value).addClass(Styles.cellEliminatedCandidate)
-                        }
-                    }
-                }
-
-                visitAnyHint(hint)
-            }
-
-            override fun visitChainEliminationHint(hint: ChainEliminationHint) {
-                hint.relatedChain.accept(cell.owner, object: ChainVisitor {
-                    override fun visitCell(grid: Grid, chain: Chain, currentCell: Cell, activeValues: ValueSet, inactiveValues: ValueSet) {
-                        if (cell.cellIndex == currentCell.cellIndex) {
-                            for (value in activeValues) {
-                                getCandidateLabel(value).addClass(Styles.cellActiveCandidate)
-                            }
-
-                            for (value in inactiveValues) {
-                                getCandidateLabel(value).addClass(Styles.cellInactiveCandidate)
-                            }
-                        }
-                    }
-
-                    override fun visitCellLink(grid: Grid, chain: Chain, fromCell: Cell, fromCandidate: Int, toCell: Cell, toCandidate: Int, linkType: LinkType) {}
-                })
-
-                for ((i, cellIndex) in hint.affectedCells.setBits().withIndex()) {
-                    if (cellIndex == cell.cellIndex) {
-                        val excludedValues = hint.excludedValues[i]
-                        for (value in excludedValues) {
-                            getCandidateLabel(value).addClass(Styles.cellEliminatedCandidate)
-                        }
-                    }
-                }
-
-                visitAnyHint(hint)
-            }
-        })
-
-        valueProperty.set(cell.value)
+        value = cell.value
 
         if (DisplayOptions.showPencilMarks) {
             if (DisplayOptions.showComputedValues) {
@@ -189,39 +112,64 @@ class CellFragment(private val cell: Cell) : Fragment()
         }
     }
 
-    private fun setupEventListeners() {
-        with(root) {
-            onMousePressed = EventHandler { requestFocus() }
-            onKeyPressed = EventHandler setOnKeyPressed@{ event ->
-                if (cell.isGiven) {
-                    return@setOnKeyPressed
-                }
-                if (event.code == KeyCode.DELETE ||
-                    event.code == KeyCode.BACK_SPACE) {
-                    cell.value = 0
-                    valueProperty.value = 0
-                } else {
-                    try {
-                        val newValue = event.text.toInt()
-                        cell.value = newValue
-                        valueProperty.value = newValue
-                    } catch (ex: NumberFormatException) {}
+    private fun processHint(hint: Hint?): Array<CandidateState> {
+        val result = Array(cell.owner.gridSize + 1) { _ -> CandidateState.NONE }
+
+        hint?.accept(object : HintVisitor {
+            override fun visitAnyHint(hint: Hint) {}
+
+            override fun visitAssignmentHint(hint: AssignmentHint) {
+                if (hint.cellIndex == cell.cellIndex) {
+                    result[hint.value] += CandidateState.MATCHED
                 }
             }
 
-            focusedProperty().addListener { _, _, newValue ->
-                if (newValue) {
-                    selectedProperty.set(true)
+            override fun visitEliminationHint(hint: EliminationHint) {
+                if (hint.matchingCells[cell.cellIndex]) {
+                    for (value in hint.matchingValues) {
+                        result[value] += CandidateState.MATCHED
+                    }
+                }
+
+                for ((i, cellIndex) in hint.affectedCells.setBits().withIndex()) {
+                    if (cellIndex == cell.cellIndex) {
+                        val excludedValues = hint.excludedValues[i]
+                        for (value in excludedValues) {
+                            result[value] += CandidateState.ELIMINATED
+                        }
+                    }
                 }
             }
 
-            selectedProperty.onChange { selected ->
-                selectRectangle.removeClass(Styles.cellFocus)
-                if (selected) {
-                    selectRectangle.addClass(Styles.cellFocus)
+            override fun visitChainEliminationHint(hint: ChainEliminationHint) {
+                hint.relatedChain.accept(cell.owner, object: ChainVisitor {
+                    override fun visitCell(grid: Grid, chain: Chain, currentCell: Cell, activeValues: ValueSet, inactiveValues: ValueSet) {
+                        if (cell.cellIndex == currentCell.cellIndex) {
+                            for (value in activeValues) {
+                                result[value] += CandidateState.ACTIVE
+                            }
+
+                            for (value in inactiveValues) {
+                                result[value] += CandidateState.INACTIVE
+                            }
+                        }
+                    }
+
+                    override fun visitCellLink(grid: Grid, chain: Chain, fromCell: Cell, fromCandidate: Int, toCell: Cell, toCandidate: Int, linkType: LinkType) {}
+                })
+
+                for ((i, cellIndex) in hint.affectedCells.setBits().withIndex()) {
+                    if (cellIndex == cell.cellIndex) {
+                        val excludedValues = hint.excludedValues[i]
+                        for (value in excludedValues) {
+                            result[value] += CandidateState.ELIMINATED
+                        }
+                    }
                 }
             }
-        }
+        })
+
+        return result
     }
 
     private fun getBorderStyle(cell: Cell): String {
@@ -273,8 +221,8 @@ class CellFragment(private val cell: Cell) : Fragment()
                    adjacentCellIndex < cell.owner.cellCount) { cell.owner.getCell(adjacentCellIndex) } else null
     }
 
-    internal fun getCandidateLabel(candidate: Int): Node {
-        return possibleValuesPane.children[candidate - 1]
+    private fun getCandidateLabel(candidate: Int): Node {
+        return candidatesPane.children[candidate - 1]
     }
 
     internal fun getArrow(fromCandidate: Int, toFragment: CellFragment, toCandidate: Int, linkType: LinkType, transform: Transform): Group {
@@ -317,6 +265,50 @@ class CellFragment(private val cell: Cell) : Fragment()
         return transform.inverseTransform(startX, startY)
     }
 
+    private fun setupEventListeners() {
+        with(root) {
+            onMousePressed = EventHandler { requestFocus() }
+            onKeyPressed = EventHandler setOnKeyPressed@{ event ->
+                if (cell.isGiven) {
+                    return@setOnKeyPressed
+                }
+                if (event.code == KeyCode.DELETE ||
+                    event.code == KeyCode.BACK_SPACE) {
+                    cell.value = 0
+                } else {
+                    try {
+                        val newValue = event.text.toInt()
+                        cell.value = newValue
+                    } catch (ex: NumberFormatException) {}
+                }
+            }
+
+            setOnMouseClicked { event ->
+                if (event.button === MouseButton.PRIMARY && event.clickCount == 2) {
+                    if (cell.isAssigned && !cell.isGiven) {
+                        cell.value = 0
+                    } else {
+                        if (DisplayOptions.showPencilMarks) {
+                            if (DisplayOptions.showComputedValues) {
+                                if (cell.possibleValueSet.cardinality() == 1) {
+                                    cell.value = cell.possibleValueSet.firstSetBit()
+                                }
+                            } else {
+                                if (cell.excludedValueSet.cardinality() == cell.owner.gridSize - 1) {
+                                    cell.value = cell.excludedValueSet.firstUnsetBit()
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            focusedProperty().onChange { focused -> if (focused) selected = true }
+
+            selectedProperty.onChange { selected -> selectPane.pseudoClassStateChanged(Styles.selected.pseudoClass, selected) }
+        }
+    }
+
     override fun toString(): String {
         return cell.toString()
     }
@@ -325,8 +317,9 @@ class CellFragment(private val cell: Cell) : Fragment()
         with(root) {
             addClass(Styles.sudokuCell)
 
-            selectRectangle = pane {
+            selectPane = pane {
                 useMaxSize = true
+                id = Styles.cellSelectPane.name
             }
 
             style += getBorderStyle(cell)
@@ -338,14 +331,33 @@ class CellFragment(private val cell: Cell) : Fragment()
                 4    -> 2
                 6    -> 2
                 9    -> 3
-                else -> throw RuntimeException("unexpected grid size " + cell.owner.gridSize)
+                else -> kotlin.error("unexpected grid size $cell.owner.gridSize")
             }
             val cols = cell.owner.gridSize / rows
 
             val percentageRow = 100.0 / rows
             val percentageCol = 100.0 / cols
 
-            possibleValuesPane = gridpane {
+            candidatesPane = gridpane {
+                var possibleValue = 1
+                for (i in 0 until rows) {
+                    for (j in 0 until cols) {
+                        label {
+                            useMaxHeight = true
+                            maxWidth     = 36.0
+
+                            id = Styles.cellCandidate.name
+                            text = possibleValue.toString()
+
+                            gridpaneConstraints {
+                                margin = Insets(3.0)
+                                columnRowIndex(j, i)
+                            }
+                        }
+                        possibleValue++
+                    }
+                }
+
                 for (i in 0 until rows) {
                     val row = RowConstraints(10.0, 20.0, Double.MAX_VALUE)
                     row.vgrow         = Priority.ALWAYS
@@ -363,58 +375,21 @@ class CellFragment(private val cell: Cell) : Fragment()
                 }
             }
 
-            var possibleValue = 1
-            for (i in 0 until rows) {
-                for (j in 0 until cols) {
-                    val possibleValueLabel = label((possibleValue++).toString()) {
-                        useMaxHeight = true
-                        maxWidth     = 36.0
-                        addClass(Styles.cellPossibleValue)
-                    }
-                    possibleValueLabel.gridpaneConstraints { margin = Insets(3.0) }
-                    possibleValuesPane.add(possibleValueLabel, j, i)
-                }
-            }
-
             assignedValueLabel = label {
-                if (cell.isGiven) {
-                    addClass(Styles.cellGivenValue)
-                } else {
-                    addClass(Styles.cellAssignedValue)
-                }
+                id = Styles.cellValue.name
                 isVisible = false
-            }
-
-            setOnMouseClicked { event ->
-                if (event.button === MouseButton.PRIMARY && event.clickCount == 2) {
-                    if (cell.isAssigned && !cell.isGiven) {
-                        cell.value = 0
-                    } else {
-                        if (DisplayOptions.showPencilMarks) {
-                            if (DisplayOptions.showComputedValues) {
-                                if (cell.possibleValueSet.cardinality() == 1) {
-                                    cell.setValue(cell.possibleValueSet.firstSetBit(), true)
-                                }
-                            } else {
-                                if (cell.excludedValueSet.cardinality() == cell.owner.gridSize - 1) {
-                                    cell.setValue(cell.excludedValueSet.firstUnsetBit(), true)
-                                }
-                            }
-                        }
-                    }
-                }
             }
         }
 
-        assignedValueLabel.textProperty().bind(Bindings.createStringBinding({ valueProperty.value.toString() }, valueProperty))
+        assignedValueLabel.textProperty().bind(valueProperty.asString())
 
-        valueProperty.addListener { _, _, newValue: Number ->
-            possibleValuesPane.isVisible = newValue.toInt() == 0
-            assignedValueLabel.isVisible = newValue.toInt() != 0
+        valueProperty.onChange { newValue ->
+            candidatesPane.isVisible     = newValue == 0
+            assignedValueLabel.isVisible = newValue != 0
         }
 
         possibleValuesProperty.addListener { observableArray: ObservableIntegerArray, _, from: Int, to: Int ->
-            val children = possibleValuesPane.children
+            val children = candidatesPane.children
             for (node in children) {
                 node.isVisible = false
             }
@@ -425,5 +400,22 @@ class CellFragment(private val cell: Cell) : Fragment()
         }
 
         setupEventListeners()
+    }
+}
+
+private enum class CandidateState(val pseudoClass: PseudoClass?)
+{
+    NONE      (null),
+    ACTIVE    (Styles.active.pseudoClass),
+    INACTIVE  (Styles.inactive.pseudoClass),
+    MATCHED   (Styles.matched.pseudoClass),
+    ELIMINATED(Styles.eliminated.pseudoClass);
+
+    operator fun plus(other: CandidateState): CandidateState {
+        return when ((this.ordinal - other.ordinal).sign) {
+            +1   -> this
+            -1   -> other
+            else -> this
+        }
     }
 }
