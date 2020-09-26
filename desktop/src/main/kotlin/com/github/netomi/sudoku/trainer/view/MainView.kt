@@ -214,6 +214,7 @@ class MainView : View("Sudoku Trainer") {
                             prefWidth = 350.0
 
                             root = TreeItem(TechniqueCategory.All)
+                            isShowRoot = false
 
                             cellFormat { text = it.toDisplayString() }
 
