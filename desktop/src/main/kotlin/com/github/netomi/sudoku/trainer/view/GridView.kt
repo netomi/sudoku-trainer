@@ -52,7 +52,10 @@ class GridView : View()
     private val cellFragmentList = ArrayList<CellFragment>()
 
     private val selectedCellFragmentProperty: ObjectProperty<CellFragment?> = SimpleObjectProperty()
+    private var selectedCellFragment: CellFragment? by selectedCellFragmentProperty
+
     private val selectedCellProperty: ObjectProperty<Cell?> = SimpleObjectProperty()
+    private var selectedCell: Cell? by selectedCellProperty
 
     override val root =
         borderpane {
@@ -76,7 +79,22 @@ class GridView : View()
             bottom = cellEditView.root
         }
 
-    private fun rebuildViewFromModel() {
+    private fun rebuildViewFromModel(oldGrid: Grid?, newGrid: Grid) {
+        selectedCellFragment = null
+        selectedCell = null
+
+        if (oldGrid?.type == newGrid.type && cellFragmentList.isNotEmpty()) {
+            newGrid.cells.forEachIndexed { index, cell ->
+                cellFragmentList[index].apply {
+                    this.cell = cell
+                    this.resetView()
+                }
+            }
+            newGrid.onUpdate { refreshView() }
+            refreshView()
+            return
+        }
+
         gridPane.children.clear()
         gridPane.rowConstraints.clear()
         gridPane.columnConstraints.clear()
@@ -94,9 +112,9 @@ class GridView : View()
 
                 cellFragment.selectedProperty.onChange { selected ->
                     if (selected) {
-                        selectedCellFragmentProperty.get()?.selected = false
-                        selectedCellFragmentProperty.set(cellFragment)
-                        selectedCellProperty.set(cell)
+                        selectedCellFragment?.selected = false
+                        selectedCellFragment = cellFragment
+                        selectedCell = cellFragment.cell
                     }
                 }
             }
@@ -157,7 +175,7 @@ class GridView : View()
     }
 
     init {
-        gridController.gridProperty.onChange { rebuildViewFromModel() }
+        gridController.gridProperty.addListener(ChangeListener { _, oldGrid: Grid?, newGrid: Grid -> rebuildViewFromModel(oldGrid, newGrid) })
 
         // bind the current model and selected cell to the cell edit view
         cellEditView.gridProperty.bind(gridController.gridProperty)

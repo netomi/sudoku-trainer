@@ -23,8 +23,6 @@
 
 package com.github.netomi.sudoku.trainer.view
 
-import javafx.beans.property.IntegerProperty
-import javafx.beans.property.SimpleIntegerProperty
 import javafx.collections.FXCollections
 import javafx.collections.ObservableIntegerArray
 import javafx.event.EventHandler
@@ -45,8 +43,7 @@ import com.github.netomi.sudoku.solver.LinkType.WEAK
 import com.github.netomi.sudoku.trainer.Styles
 import com.github.netomi.sudoku.trainer.model.DisplayOptions
 import com.github.netomi.sudoku.trainer.pseudoClass
-import javafx.beans.property.BooleanProperty
-import javafx.beans.property.SimpleBooleanProperty
+import javafx.beans.property.*
 import javafx.css.PseudoClass
 import javafx.geometry.Insets
 import javafx.scene.layout.*
@@ -56,8 +53,11 @@ import kotlin.math.sign
 /**
  * The view to display the state of an individual cell within a sudoku grid.
  */
-class CellFragment(private val cell: Cell) : Fragment()
+class CellFragment(cellArgument: Cell) : Fragment()
 {
+    private val cellProperty: ObjectProperty<Cell> = SimpleObjectProperty(cellArgument)
+    var cell: Cell by cellProperty
+
     private val valueProperty: IntegerProperty = SimpleIntegerProperty(0)
     private var value by valueProperty
 
@@ -66,12 +66,77 @@ class CellFragment(private val cell: Cell) : Fragment()
     val selectedProperty: BooleanProperty = SimpleBooleanProperty(false)
     var selected by selectedProperty
 
-    private val candidatesPane: GridPane
-    private val assignedValueLabel: Label
+    private var candidatesPane     by singleAssign<GridPane>()
+    private var assignedValueLabel by singleAssign<Label>()
     // a simple pane to easily indicate the currently focused cell.
-    private val selectPane: Pane
+    private var selectPane         by singleAssign<Pane>()
 
-    override val root = stackpane {}
+    override val root = stackpane {
+        addClass(Styles.sudokuCell)
+
+        selectPane = pane {
+            useMaxSize = true
+            id = Styles.cellSelectPane.name
+        }
+
+        setMinSize(30.0, 30.0)
+        useMaxSize = true
+
+        val rows = when (cell.owner.gridSize) {
+            4    -> 2
+            6    -> 2
+            9    -> 3
+            else -> kotlin.error("unexpected grid size ${cell.owner.gridSize}")
+        }
+        val cols = cell.owner.gridSize / rows
+
+        val percentageRow = 100.0 / rows
+        val percentageCol = 100.0 / cols
+
+        candidatesPane = gridpane {
+            var possibleValue = 1
+            for (i in 0 until rows) {
+                for (j in 0 until cols) {
+                    label {
+                        useMaxHeight = true
+                        maxWidth     = 36.0
+
+                        id = Styles.cellCandidate.name
+                        text = possibleValue.toString()
+
+                        gridpaneConstraints {
+                            margin = Insets(3.0)
+                            columnRowIndex(j, i)
+                        }
+                    }
+                    possibleValue++
+                }
+            }
+
+            for (i in 0 until rows) {
+                val row = RowConstraints(10.0, 20.0, Double.MAX_VALUE)
+                row.vgrow         = Priority.ALWAYS
+                row.valignment    = VPos.CENTER
+                row.percentHeight = percentageRow
+                rowConstraints.add(row)
+            }
+
+            for (i in 0 until cols) {
+                val col = ColumnConstraints(10.0, 20.0, Double.MAX_VALUE)
+                col.hgrow        = Priority.ALWAYS
+                col.halignment   = HPos.CENTER
+                col.percentWidth = percentageCol
+                columnConstraints.add(col)
+            }
+        }
+
+        assignedValueLabel = label {
+            id = Styles.cellValue.name
+            isVisible = false
+
+            textProperty().bind(valueProperty.asString())
+        }
+    }
 
     fun refreshView(conflicts: Array<Conflict>, displayedHint: Hint?) {
         assignedValueLabel.apply {
@@ -110,6 +175,12 @@ class CellFragment(private val cell: Cell) : Fragment()
         } else {
             possibleValuesProperty.clear()
         }
+    }
+
+    fun resetView() {
+        selected = false
+        value    = 0
+        possibleValuesProperty.clear()
     }
 
     private fun processHint(hint: Hint?): Array<CandidateState> {
@@ -314,74 +385,9 @@ class CellFragment(private val cell: Cell) : Fragment()
     }
 
     init {
-        with(root) {
-            addClass(Styles.sudokuCell)
-
-            selectPane = pane {
-                useMaxSize = true
-                id = Styles.cellSelectPane.name
-            }
-
-            style += getBorderStyle(cell)
-
-            setMinSize(30.0, 30.0)
-            useMaxSize = true
-
-            val rows = when (cell.owner.gridSize) {
-                4    -> 2
-                6    -> 2
-                9    -> 3
-                else -> kotlin.error("unexpected grid size $cell.owner.gridSize")
-            }
-            val cols = cell.owner.gridSize / rows
-
-            val percentageRow = 100.0 / rows
-            val percentageCol = 100.0 / cols
-
-            candidatesPane = gridpane {
-                var possibleValue = 1
-                for (i in 0 until rows) {
-                    for (j in 0 until cols) {
-                        label {
-                            useMaxHeight = true
-                            maxWidth     = 36.0
-
-                            id = Styles.cellCandidate.name
-                            text = possibleValue.toString()
-
-                            gridpaneConstraints {
-                                margin = Insets(3.0)
-                                columnRowIndex(j, i)
-                            }
-                        }
-                        possibleValue++
-                    }
-                }
-
-                for (i in 0 until rows) {
-                    val row = RowConstraints(10.0, 20.0, Double.MAX_VALUE)
-                    row.vgrow         = Priority.ALWAYS
-                    row.valignment    = VPos.CENTER
-                    row.percentHeight = percentageRow
-                    rowConstraints.add(row)
-                }
-
-                for (i in 0 until cols) {
-                    val col = ColumnConstraints(10.0, 20.0, Double.MAX_VALUE)
-                    col.hgrow        = Priority.ALWAYS
-                    col.halignment   = HPos.CENTER
-                    col.percentWidth = percentageCol
-                    columnConstraints.add(col)
-                }
-            }
-
-            assignedValueLabel = label {
-                id = Styles.cellValue.name
-                isVisible = false
-            }
-        }
-
-        assignedValueLabel.textProperty().bind(valueProperty.asString())
+        val updateStyle: (Cell) -> Unit = { root.style = getBorderStyle(it) }
+        cellProperty.onChange { it?.let(updateStyle) }
+        updateStyle.invoke(cell)
 
         valueProperty.onChange { newValue ->
             candidatesPane.isVisible     = newValue == 0

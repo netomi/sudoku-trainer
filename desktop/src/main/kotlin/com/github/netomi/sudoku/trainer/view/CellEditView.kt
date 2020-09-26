@@ -59,7 +59,10 @@ class CellEditView : View()
             }
         }
 
-    private fun rebuildViewFromModel() {
+    private fun rebuildViewFromModel(oldGrid: Grid?, newGrid: Grid) {
+        // if the grid size has not changed, we dont have to change anything
+        if (oldGrid?.gridSize == newGrid.gridSize) return
+
         valuesPane.children.clear()
         valuesPane.rowConstraints.clear()
         valuesPane.columnConstraints.clear()
@@ -188,7 +191,8 @@ class CellEditView : View()
 
     init {
         // rebuild the view when the model has changed
-        gridProperty.onChange { rebuildViewFromModel() }
+        gridProperty.addListener(ChangeListener { _, oldGrid: Grid?, newGrid: Grid -> rebuildViewFromModel(oldGrid, newGrid) })
+
         cellProperty.onChange {
             valuesPane.children.forEach { it.isDisable = true }
             refreshView()
