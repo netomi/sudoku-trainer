@@ -45,41 +45,44 @@ import tornadofx.Controller
 import tornadofx.onChange
 import kotlin.random.Random
 
+import tornadofx.getValue
+import tornadofx.setValue
+
 class GridController : Controller()
 {
-    val modelProperty: ObjectProperty<Grid> = SimpleObjectProperty(of(GridType.CLASSIC_9x9))
-    private val grid: Grid
-        get() = modelProperty.get()
+    val gridProperty: ObjectProperty<Grid> = SimpleObjectProperty(of(GridType.CLASSIC_9x9))
+    private var grid: Grid by gridProperty
 
     val hintProperty: ObjectProperty<Hint> = SimpleObjectProperty()
     val hintList: ObservableList<Hint>     = FXCollections.observableArrayList()
 
     fun loadModel() {
-        //val grid = of(GridType.JIGSAW_1);
-        val grid = of(GridType.CLASSIC_9x9)
+        val newGrid = of(GridType.CLASSIC_9x9)
+        //val newGrid = of(GridType.JIGSAW_1);
         //val input = "3.......4..2.6.1...1.9.8.2...5...6...2.....1...9...8...8.3.4.6...4.1.9..5.......7"; // jigsaw
         //val input = "4.....8.5.3..........7......2.....6.....8.4......1.......6.3.7.5..2.....1.4......" // 9x9
         //val input = "000000010400000000020000000000050407008000300001090000300400200050100000000806000"; // 9x9
+
         val input = "..+1.+4+9+2+636+3.21+7+9+4.942+63..+7.2634.+17.98.+4.+9..2...+9.+6+2.+34..7..4.9.+4..9+7631..+9+6.+2.+4.7"
 
-        grid.accept(GridValueLoader(input))
+        newGrid.accept(GridValueLoader(input))
 
-        modelProperty.set(grid)
+        grid = newGrid
     }
 
     fun loadModel(entry: LibraryEntry) {
         runAsync {
-            val grid = of(GridType.CLASSIC_9x9)
-            grid.accept(GridValueLoader(entry.givens))
+            val newGrid = of(GridType.CLASSIC_9x9)
+            newGrid.accept(GridValueLoader(entry.givens))
 
             for (c in entry.getDeletedCandidates()) {
-                val cell = grid.getCell(c.row, c.col)
+                val cell = newGrid.getCell(c.row, c.col)
                 cell.excludePossibleValues(false, c.value)
             }
 
-            grid.updateState()
-            grid
-        } ui { modelProperty.set(it) }
+            newGrid.updateState()
+            newGrid
+        } ui { grid = it }
     }
 
     fun loadModelFromClipboard() {
@@ -96,16 +99,18 @@ class GridController : Controller()
                     alert.showAndWait()
                     throw ex
                 }
-            } ui { it.apply { modelProperty.set(it) } }
+            } ui { grid = it }
         }
     }
 
     fun resetModel(type: GridType) {
         if (grid.type == type) {
             grid.clear(true)
+            // TODO: fire an event
+            hintList.clear()
         } else {
             val newGrid = of(type)
-            modelProperty.set(newGrid)
+            grid = newGrid
         }
     }
 
@@ -130,12 +135,12 @@ class GridController : Controller()
             val solvedGrid = hintSolver.solve(testGrid)
             if (solvedGrid.isValid && solvedGrid.isSolved) {
                 testGrid.cells.assigned().forEach { it.isGiven = true }
-                modelProperty.set(testGrid)
+                grid = testGrid
                 return
             }
         } while(count++ < 1000)
 
-        modelProperty.set(of(type))
+        grid = of(type)
     }
 
     fun findHints() {
@@ -169,6 +174,8 @@ class GridController : Controller()
     }
 
     init {
-        modelProperty.onChange { hintList.clear() }
+        gridProperty.onChange {
+            hintList.clear()
+        }
     }
 }

@@ -37,6 +37,8 @@ import com.github.netomi.sudoku.trainer.Styles
 import com.github.netomi.sudoku.trainer.controller.GridController
 import tornadofx.*
 
+import tornadofx.getValue
+import tornadofx.setValue
 
 /**
  * The main grid view to visualize the state of a sudoku grid.
@@ -45,19 +47,17 @@ class GridView : View()
 {
     private val gridController: GridController by inject()
 
-    private lateinit var grid: GridPane
-    private lateinit var shapeGroup: Pane
+    private val grid by gridController.gridProperty
+
+    private var gridPane: GridPane by singleAssign()
+    private var shapeGroup: Pane   by singleAssign()
 
     private val cellEditView by inject<CellEditView>()
 
-    private val modelProperty: ObjectProperty<Grid> = SimpleObjectProperty()
-    private val cellFragmentList: MutableList<CellFragment> = ArrayList()
+    private val cellFragmentList = ArrayList<CellFragment>()
 
     private val selectedCellFragmentProperty: ObjectProperty<CellFragment?> = SimpleObjectProperty()
     private val selectedCellProperty: ObjectProperty<Cell?> = SimpleObjectProperty()
-
-    private val model: Grid
-        get() = modelProperty.get()
 
     override val root =
         borderpane {
@@ -66,7 +66,7 @@ class GridView : View()
             center = stackpane {
                 useMaxSize = true
 
-                grid = gridpane {
+                gridPane = gridpane {
                     useMaxSize = true
                     addClass(Styles.sudokuGrid)
                 }
@@ -82,16 +82,16 @@ class GridView : View()
         }
 
     private fun rebuildViewFromModel() {
-        grid.children.clear()
-        grid.rowConstraints.clear()
-        grid.columnConstraints.clear()
+        gridPane.children.clear()
+        gridPane.rowConstraints.clear()
+        gridPane.columnConstraints.clear()
         cellFragmentList.clear()
 
-        model.let {
+        grid.let {
             for (cell in it.cells) {
                 val cellFragment = CellFragment(cell)
                 cellFragmentList.add(cellFragment)
-                grid.add(cellFragment).apply {
+                gridPane.add(cellFragment).apply {
                     cellFragment.root.gridpaneConstraints {
                         columnRowIndex(cell.columnIndex, cell.rowIndex)
                     }
@@ -109,13 +109,13 @@ class GridView : View()
             for (i in 0 until it.gridSize) {
                 val row = RowConstraints(40.0, 100.0, Double.MAX_VALUE)
                 row.vgrow = Priority.ALWAYS
-                grid.rowConstraints.add(row)
+                gridPane.rowConstraints.add(row)
             }
 
             for (i in 0 until it.gridSize) {
                 val col = ColumnConstraints(40.0, 100.0, Double.MAX_VALUE)
                 col.hgrow = Priority.ALWAYS
-                grid.columnConstraints.add(col)
+                gridPane.columnConstraints.add(col)
             }
 
             it.onUpdate { refreshView() }
@@ -124,13 +124,13 @@ class GridView : View()
     }
 
     fun resetGrid() {
-        model.clear(true)
+        grid.clear(true)
     }
 
     fun refreshView() {
         var conflicts: Array<Conflict>
 
-        model.let {
+        grid.let {
             conflicts = when (it.isValid) {
                 true -> emptyArray()
                 false -> it.conflicts
@@ -150,7 +150,7 @@ class GridView : View()
             override fun visitAnyHint(hint: Hint) {}
 
             override fun visitChainEliminationHint(hint: ChainEliminationHint) {
-                hint.relatedChain.accept(model, object : ChainVisitor {
+                hint.relatedChain.accept(grid, object : ChainVisitor {
                     override fun visitCell(grid: Grid, chain: Chain, cell: Cell, activeValues: ValueSet, inactiveValues: ValueSet) {}
 
                     override fun visitCellLink(grid: Grid, chain: Chain, fromCell: Cell, fromCandidate: Int, toCell: Cell, toCandidate: Int, linkType: LinkType) {
@@ -166,17 +166,16 @@ class GridView : View()
     }
 
     init {
-        modelProperty.addListener { _, _, _ -> rebuildViewFromModel() }
-        modelProperty.bind(gridController.modelProperty)
+        gridController.gridProperty.onChange { rebuildViewFromModel() }
 
         // bind the current model and selected cell to the cell edit view
-        cellEditView.modelProperty.bind(gridController.modelProperty)
+        cellEditView.gridProperty.bind(gridController.gridProperty)
         cellEditView.cellProperty.bind(selectedCellProperty)
 
         // refresh the grid view in case of a resize event
-        val updater = ChangeListener<Number> { _, _, _ -> Platform.runLater { refreshView() } }
+        val updater: (Double) -> Unit = { Platform.runLater { refreshView() } }
 
-        grid.widthProperty().addListener(updater)
-        grid.heightProperty().addListener(updater)
+        gridPane.widthProperty().onChange(updater)
+        gridPane.heightProperty().onChange(updater)
     }
 }

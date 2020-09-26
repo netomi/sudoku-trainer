@@ -35,18 +35,16 @@ import tornadofx.*
 
 class CellEditView : View()
 {
-    val modelProperty: ObjectProperty<Grid> = SimpleObjectProperty()
+    val gridProperty: ObjectProperty<Grid> = SimpleObjectProperty()
+    private val grid: Grid by gridProperty
+
     val cellProperty: ObjectProperty<Cell?> = SimpleObjectProperty()
+    private val cell: Cell? by cellProperty
 
-    private val model: Grid
-        get() = modelProperty.get()
+    private var valuesPane: GridPane by singleAssign()
 
-    private val cell: Cell?
-        get() = cellProperty.get()
-
-    private lateinit var valuesPane: GridPane
-    private val valueFragments: MutableList<CellValueFragment> = ArrayList()
-    private val candidateFragments: MutableList<CellValueFragment> = ArrayList()
+    private val valueFragments     = ArrayList<CellValueFragment>()
+    private val candidateFragments = ArrayList<CellValueFragment>()
 
     override val root =
         vbox {
@@ -69,7 +67,7 @@ class CellEditView : View()
         valueFragments.clear()
         candidateFragments.clear()
 
-        model.let {
+        grid.let {
             for (i in 0 until it.gridSize) {
                 val valueFragment = CellValueFragment(i + 1, Styles.selectValue)
                 valueFragments.add(valueFragment)
@@ -134,10 +132,6 @@ class CellEditView : View()
     }
 
     fun refreshView() {
-        refreshView(cellProperty.get())
-    }
-
-    private fun refreshView(cell: Cell?) {
         valuesPane.children.forEach { it.isDisable = true }
 
         valueFragments.forEach { it.root.removeClass(Styles.selectAssignedValue) }
@@ -154,7 +148,7 @@ class CellEditView : View()
             } else {
                 if (DisplayOptions.showPencilMarks) {
                     if (DisplayOptions.showComputedValues) {
-                        for (candidate in cell.possibleValueSet) {
+                        for (candidate in this.possibleValueSet) {
                             valueFragments[candidate - 1].root.isDisable = false
 
                             candidateFragments[candidate - 1].root.apply {
@@ -163,11 +157,11 @@ class CellEditView : View()
                             }
                         }
 
-                        for (candidate in cell.excludedValueSet) {
+                        for (candidate in this.excludedValueSet) {
                             candidateFragments[candidate - 1].root.isDisable = false
                         }
                     } else {
-                        for (candidate in cell.excludedValueSet.inverse()) {
+                        for (candidate in this.excludedValueSet.inverse()) {
                             valueFragments[candidate - 1].root.isDisable = false
 
                             candidateFragments[candidate - 1].root.apply {
@@ -176,7 +170,7 @@ class CellEditView : View()
                             }
                         }
 
-                        for (candidate in cell.excludedValueSet) {
+                        for (candidate in this.excludedValueSet) {
                             candidateFragments[candidate - 1].root.isDisable = false
                         }
                     }
@@ -189,11 +183,11 @@ class CellEditView : View()
     }
 
     init {
-        modelProperty.addListener { _, _, _ -> rebuildViewFromModel() }
-
-        cellProperty.onChange { cell ->
+        // rebuild the view when the model has changed
+        gridProperty.onChange { rebuildViewFromModel() }
+        cellProperty.onChange {
             valuesPane.children.forEach { it.isDisable = true }
-            cell?.apply { refreshView(this) }
+            refreshView()
         }
     }
 }

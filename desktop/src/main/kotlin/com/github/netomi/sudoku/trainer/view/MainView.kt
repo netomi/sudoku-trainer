@@ -61,9 +61,9 @@ class MainView : View("Sudoku Trainer") {
 
     private val filterToggleGroup = ToggleGroup()
 
-    private lateinit var hintListView:     ListView<Hint>
-    private lateinit var gridTypeComboBox: ComboBox<GridType>
-    private lateinit var statusBar:        Label
+    private var hintListView:     ListView<Hint>     by singleAssign()
+    private var gridTypeComboBox: ComboBox<GridType> by singleAssign()
+    private var statusBar:        Label              by singleAssign()
 
     override val root =
         vbox {
@@ -317,7 +317,7 @@ class MainView : View("Sudoku Trainer") {
             gridView.refreshView()
         }
 
-        gridController.modelProperty.onChange { grid ->
+        gridController.gridProperty.onChange { grid ->
             grid?.apply {
                 runAsync {
                     GridRater.rate(this@apply)
