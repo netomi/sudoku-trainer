@@ -26,7 +26,6 @@ package com.github.netomi.sudoku.trainer.view
 import javafx.application.Platform
 import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleObjectProperty
-import javafx.beans.value.ChangeListener
 import javafx.scene.layout.*
 import com.github.netomi.sudoku.model.Cell
 import com.github.netomi.sudoku.model.Conflict
@@ -36,9 +35,6 @@ import com.github.netomi.sudoku.solver.*
 import com.github.netomi.sudoku.trainer.Styles
 import com.github.netomi.sudoku.trainer.controller.GridController
 import tornadofx.*
-
-import tornadofx.getValue
-import tornadofx.setValue
 
 /**
  * The main grid view to visualize the state of a sudoku grid.
