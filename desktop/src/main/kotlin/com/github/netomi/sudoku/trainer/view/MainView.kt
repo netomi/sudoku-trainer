@@ -268,7 +268,7 @@ class MainView : View("Sudoku Trainer") {
     init {
         hintListView.items = gridController.hintList
 
-        hintListView.selectionModel.selectedItemProperty().addListener { _, _, newValue: Hint? ->
+        hintListView.selectionModel.selectedItemProperty().onChange { newValue ->
             gridController.hintProperty.set(newValue)
             gridView.refreshView()
         }
@@ -277,15 +277,12 @@ class MainView : View("Sudoku Trainer") {
             val selectionModel = lv.selectionModel
             val cell = ListCell<Hint>()
 
-            cell.textProperty().bind(
-                When(cell.itemProperty().isNotNull).then(cell.itemProperty().asString()).otherwise(
-                    ""
-                )
-            )
+            cell.textProperty().bind(When(cell.itemProperty().isNotNull).then(cell.itemProperty().asString()).otherwise(""))
+
             cell.addEventFilter(MouseEvent.MOUSE_PRESSED) { event ->
                 if (event.isPrimaryButtonDown && !cell.isEmpty) {
                     val index = cell.index
-                    if (selectionModel.selectedIndices.contains(index) && lv.isFocused) {
+                    if (selectionModel.selectedIndices.contains(index)) {
                         selectionModel.clearSelection(index)
                     } else {
                         selectionModel.select(index)
