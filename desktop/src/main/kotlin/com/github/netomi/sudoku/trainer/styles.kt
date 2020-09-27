@@ -22,7 +22,6 @@ package com.github.netomi.sudoku.trainer
 import javafx.css.PseudoClass
 import javafx.geometry.Pos
 import javafx.scene.paint.Color
-import javafx.scene.paint.Color.WHITE
 import javafx.scene.text.FontSmoothingType
 import javafx.scene.text.FontWeight
 import kfoenix.JFXStylesheet
@@ -71,6 +70,19 @@ class Styles : JFXStylesheet() {
         val unfair  by csspseudoclass("unfair")
         val extreme by csspseudoclass("extreme")
 
+        val evenBlock by csspseudoclass("evenBlock")
+        val oddBlock  by csspseudoclass("oddBlock")
+
+        val block1 by csspseudoclass("block1")
+        val block2 by csspseudoclass("block2")
+        val block3 by csspseudoclass("block3")
+        val block4 by csspseudoclass("block4")
+        val block5 by csspseudoclass("block5")
+        val block6 by csspseudoclass("block6")
+        val block7 by csspseudoclass("block7")
+        val block8 by csspseudoclass("block8")
+        val block9 by csspseudoclass("block9")
+
         // jfoenix overrides
 
         val jfxToolBar      by cssclass()
@@ -86,7 +98,7 @@ class Styles : JFXStylesheet() {
         root {
             fontFamily = "Roboto"
             fontSmoothingType = FontSmoothingType.GRAY
-            backgroundColor += WHITE
+            backgroundColor += Color.WHITE
         }
 
         mnemonicUnderline {
@@ -108,14 +120,14 @@ class Styles : JFXStylesheet() {
 
         jfxDecoratorTitleContainer {
             s(".jfx-decorator-text") {
-                fill = WHITE
+                fill = Color.WHITE
                 fontSize = 16.px
             }
         }
 
         jfxButton {
             backgroundColor += defaultColor
-            textFill = WHITE
+            textFill = Color.WHITE
         }
 
         jfxToolBar {
@@ -131,7 +143,7 @@ class Styles : JFXStylesheet() {
             backgroundColor += decoratorColor
             padding = box(4.px)
             label {
-                textFill = WHITE
+                textFill = Color.WHITE
             }
         }
 
@@ -156,7 +168,7 @@ class Styles : JFXStylesheet() {
         }
 
         drawerItem child titledPane {
-            textFill = WHITE
+            textFill = Color.WHITE
             fontSize = 1.5.em
 
             title {
@@ -288,8 +300,8 @@ class Styles : JFXStylesheet() {
         }
 
         listCell and empty {
-            backgroundColor += WHITE
-            borderColor     += box(WHITE)
+            backgroundColor += Color.WHITE
+            borderColor     += box(Color.WHITE)
         }
 
         listCell and medium {
@@ -310,6 +322,31 @@ class Styles : JFXStylesheet() {
 
         treeCell {
             fontWeight = FontWeight.BOLD
+        }
+    }
+}
+
+class EvenOddStyle : JFXStylesheet() {
+    init {
+        Styles.sudokuCell {
+            and(Styles.evenBlock) {}
+            and(Styles.oddBlock) { backgroundColor += Color.LIGHTGRAY }
+        }
+    }
+}
+
+class JigsawStyle : JFXStylesheet() {
+    init {
+        Styles.sudokuCell {
+            and(Styles.block1) { backgroundColor += Color.web("#cdcdff") }
+            and(Styles.block2) { backgroundColor += Color.web("#ffb1b6") }
+            and(Styles.block3) { backgroundColor += Color.web("#ffcdaa") }
+            and(Styles.block4) { backgroundColor += Color.web("#fffdb0") }
+            and(Styles.block5) { backgroundColor += Color.web("#cdffff") }
+            and(Styles.block6) { backgroundColor += Color.web("#ffcdff") }
+            and(Styles.block7) { backgroundColor += Color.web("#f1f1f1") }
+            and(Styles.block8) { backgroundColor += Color.web("#cdfeac") }
+            and(Styles.block9) { backgroundColor += Color.web("#dddddd") }
         }
     }
 }

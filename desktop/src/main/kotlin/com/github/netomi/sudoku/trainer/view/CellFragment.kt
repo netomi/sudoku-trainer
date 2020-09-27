@@ -243,6 +243,19 @@ class CellFragment(cellArgument: Cell) : Fragment()
         return result
     }
 
+    private fun refreshStyle(cell: Cell) {
+        root.pseudoClassStateChanged(Styles.evenBlock.pseudoClass, cell.blockIndex % 2 == 0)
+        root.pseudoClassStateChanged(Styles.oddBlock.pseudoClass, cell.blockIndex % 2 == 1)
+
+        val blockIndex = cell.blockIndex + 1
+        (1..9).forEach {
+            val pseudoClass = PseudoClass.getPseudoClass("block$it")
+            root.pseudoClassStateChanged(pseudoClass, blockIndex == it)
+        }
+
+        root.style = getBorderStyle(cell)
+    }
+
     private fun getBorderStyle(cell: Cell): String {
         val borderStyle = StringBuilder()
         val borderColor = StringBuilder()
@@ -385,7 +398,7 @@ class CellFragment(cellArgument: Cell) : Fragment()
     }
 
     init {
-        val updateStyle: (Cell) -> Unit = { root.style = getBorderStyle(it) }
+        val updateStyle: (Cell) -> Unit = { refreshStyle(it) }
         cellProperty.onChange { it?.let(updateStyle) }
         updateStyle.invoke(cell)
 

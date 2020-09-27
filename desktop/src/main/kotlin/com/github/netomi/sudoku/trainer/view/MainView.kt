@@ -30,10 +30,7 @@ import com.github.netomi.sudoku.solver.GridRater
 import com.github.netomi.sudoku.solver.Hint
 import com.github.netomi.sudoku.trainer.Styles
 import com.github.netomi.sudoku.trainer.controller.GridController
-import com.github.netomi.sudoku.trainer.model.DisplayOptions
-import com.github.netomi.sudoku.trainer.model.SudokuLibrary
-import com.github.netomi.sudoku.trainer.model.TechniqueCategory
-import com.github.netomi.sudoku.trainer.model.TechniqueCategoryOrLibraryEntry
+import com.github.netomi.sudoku.trainer.model.*
 import com.jfoenix.controls.JFXButton.ButtonType.RAISED
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
@@ -157,9 +154,9 @@ class MainView : View("Sudoku Trainer") {
                 center = gridView.root
 
                 right = drawer(side = Side.RIGHT, multiselect = true) {
-                    item("Layout", expanded = false) {
+                    item("Settings", expanded = false) {
                         form {
-                            fieldset("Layout settings") {
+                            fieldset("Layout") {
                                 field("Grid Layout") {
                                     jfxcombobox<GridType> {
                                         gridTypeComboBox = this
@@ -176,7 +173,18 @@ class MainView : View("Sudoku Trainer") {
                                 }
                             }
 
-                            fieldset("Display settings") {
+                            fieldset("Display") {
+                                field("Theme") {
+                                    jfxcombobox<GridTheme> {
+                                        items = FXCollections.observableArrayList(*GridTheme.values())
+                                        selectionModel.select(GridTheme.Standard)
+
+                                        selectionModel.selectedItemProperty().addListener(ChangeListener { _, oldTheme, newTheme ->
+                                            oldTheme.styleClass?.apply { removeStylesheet(this) }
+                                            newTheme.styleClass?.apply { importStylesheet(this) }
+                                        })
+                                    }
+                                }
                                 field("Show pencil marks") {
                                     jfxcheckbox(DisplayOptions.showPencilMarksProperty) {
                                         action { gridView.refreshView() }

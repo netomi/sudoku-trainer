@@ -20,11 +20,12 @@
 package com.github.netomi.sudoku.trainer.model
 
 import com.github.netomi.sudoku.model.ValueSet
+import com.github.netomi.sudoku.trainer.EvenOddStyle
+import com.github.netomi.sudoku.trainer.JigsawStyle
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
-
-import tornadofx.getValue
-import tornadofx.setValue
+import tornadofx.*
+import kotlin.reflect.KClass
 
 object DisplayOptions
 {
@@ -36,4 +37,11 @@ object DisplayOptions
 
     val pencilMarkFilterProperty = SimpleObjectProperty<(ValueSet) -> Boolean>(null)
     var pencilMarkFilter: ((ValueSet) -> Boolean)? by pencilMarkFilterProperty
+}
+
+enum class GridTheme(val styleClass: KClass<out Stylesheet>?)
+{
+    Standard(null),
+    EvenOdd (EvenOddStyle::class),
+    Jigsaw  (JigsawStyle::class);
 }
