@@ -22,6 +22,9 @@ package com.github.netomi.sudoku.trainer.view
 import com.github.netomi.sudoku.model.Cell
 import com.github.netomi.sudoku.model.Grid
 import com.github.netomi.sudoku.trainer.Styles
+import com.github.netomi.sudoku.trainer.controller.AssignValueEvent
+import com.github.netomi.sudoku.trainer.controller.ExcludePossibleValueEvent
+import com.github.netomi.sudoku.trainer.controller.RemoveExcludedPossibleValueEvent
 import com.github.netomi.sudoku.trainer.model.DisplayOptions
 import javafx.beans.property.ObjectProperty
 import javafx.beans.property.SimpleObjectProperty
@@ -86,9 +89,9 @@ class CellEditView : View()
                     cell?.apply {
                         if (!valueFragment.root.isDisable) {
                             if (this.isAssigned && !this.isGiven) {
-                                this.value = 0
+                                fire(AssignValueEvent(this, 0))
                             } else if (!this.isAssigned) {
-                                this.value = valueFragment.value
+                                fire(AssignValueEvent(this, valueFragment.value))
                             }
                         }
                     }
@@ -111,9 +114,9 @@ class CellEditView : View()
                         if (!candidateFragment.root.isDisable) {
                             val value = candidateFragment.value
                             if (this.excludedValueSet[value]) {
-                                this.removeExcludedPossibleValues(true, value)
+                                fire(RemoveExcludedPossibleValueEvent(this, value))
                             } else {
-                                this.excludePossibleValues(true, value)
+                                fire(ExcludePossibleValueEvent(this, value))
                             }
                         }
                     }

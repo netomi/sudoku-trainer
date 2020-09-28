@@ -42,7 +42,9 @@ import com.github.netomi.sudoku.solver.HintSolver
 import com.github.netomi.sudoku.solver.ValueSelection
 import com.github.netomi.sudoku.trainer.model.LibraryEntry
 import tornadofx.*
+import java.util.ArrayList
 import kotlin.random.Random
+import kotlin.reflect.KClass
 
 class GridController : Controller()
 {
@@ -102,6 +104,7 @@ class GridController : Controller()
             grid.clear(true)
             // TODO: fire an event
             hintList.clear()
+            UndoManager.clear()
         } else {
             val newGrid = of(type)
             grid = newGrid
@@ -170,6 +173,21 @@ class GridController : Controller()
     init {
         gridProperty.onChange {
             hintList.clear()
+            UndoManager.clear()
         }
+
+        val eventHandler: (ModelInteractionEvent) -> Unit = { event ->
+            if (event is ApplyHintsEvent) {
+                event.targetGrid = grid
+            }
+
+            event.apply()
+            UndoManager.push(event)
+        }
+
+        subscribe<AssignValueEvent> { eventHandler.invoke(it) }
+        subscribe<ExcludePossibleValueEvent> { eventHandler.invoke(it) }
+        subscribe<RemoveExcludedPossibleValueEvent> { eventHandler.invoke(it) }
+        subscribe<ApplyHintsEvent> { eventHandler.invoke(it) }
     }
 }

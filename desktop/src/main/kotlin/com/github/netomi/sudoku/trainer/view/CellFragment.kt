@@ -41,6 +41,7 @@ import com.github.netomi.sudoku.model.ValueSet
 import com.github.netomi.sudoku.solver.*
 import com.github.netomi.sudoku.solver.LinkType.WEAK
 import com.github.netomi.sudoku.trainer.Styles
+import com.github.netomi.sudoku.trainer.controller.AssignValueEvent
 import com.github.netomi.sudoku.trainer.model.DisplayOptions
 import com.github.netomi.sudoku.trainer.pseudoClass
 import javafx.beans.property.*
@@ -152,7 +153,7 @@ class CellFragment(cellArgument: Cell) : Fragment()
         root.pseudoClassStateChanged(Styles.active.pseudoClass, cellActiveFiltered)
 
         val cellHighlighted = displayedHint?.relatedCells?.get(cell.cellIndex) ?: false
-        root.pseudoClassStateChanged(Styles.highlighted.pseudoClass, cellHighlighted)
+        selectPane.pseudoClassStateChanged(Styles.highlighted.pseudoClass, cellHighlighted)
 
         val candidatePseudoStates = processHint(displayedHint)
         candidatesPane.children.forEachIndexed { index, node ->
@@ -356,13 +357,15 @@ class CellFragment(cellArgument: Cell) : Fragment()
                 if (cell.isGiven) {
                     return@setOnKeyPressed
                 }
-                if (event.code == KeyCode.DELETE ||
-                    event.code == KeyCode.BACK_SPACE) {
-                    cell.value = 0
+                if ((event.code == KeyCode.DELETE ||
+                     event.code == KeyCode.BACK_SPACE) && cell.isAssigned) {
+                    fire(AssignValueEvent(cell, 0))
                 } else {
                     try {
                         val newValue = event.text.toInt()
-                        cell.value = newValue
+                        if (newValue != cell.value) {
+                            fire(AssignValueEvent(cell, newValue))
+                        }
                     } catch (ex: NumberFormatException) {}
                 }
             }
@@ -370,16 +373,16 @@ class CellFragment(cellArgument: Cell) : Fragment()
             setOnMouseClicked { event ->
                 if (event.button === MouseButton.PRIMARY && event.clickCount == 2) {
                     if (cell.isAssigned && !cell.isGiven) {
-                        cell.value = 0
+                        fire(AssignValueEvent(cell, 0))
                     } else {
                         if (DisplayOptions.showPencilMarks) {
                             if (DisplayOptions.showComputedValues) {
                                 if (cell.possibleValueSet.cardinality() == 1) {
-                                    cell.value = cell.possibleValueSet.firstSetBit()
+                                    fire(AssignValueEvent(cell, cell.possibleValueSet.firstSetBit()))
                                 }
                             } else {
                                 if (cell.excludedValueSet.cardinality() == cell.owner.gridSize - 1) {
-                                    cell.value = cell.excludedValueSet.firstUnsetBit()
+                                    fire(AssignValueEvent(cell, cell.excludedValueSet.firstUnsetBit()))
                                 }
                             }
                         }

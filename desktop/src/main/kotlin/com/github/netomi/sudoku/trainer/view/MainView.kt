@@ -29,7 +29,9 @@ import com.github.netomi.sudoku.solver.DifficultyLevel
 import com.github.netomi.sudoku.solver.GridRater
 import com.github.netomi.sudoku.solver.Hint
 import com.github.netomi.sudoku.trainer.Styles
+import com.github.netomi.sudoku.trainer.controller.ApplyHintsEvent
 import com.github.netomi.sudoku.trainer.controller.GridController
+import com.github.netomi.sudoku.trainer.controller.UndoManager
 import com.github.netomi.sudoku.trainer.model.*
 import com.jfoenix.controls.JFXButton.ButtonType.RAISED
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
@@ -85,10 +87,18 @@ class MainView : View("Sudoku Trainer") {
 
                     // TODO: support undo / redo
                     item("Undo", KeyCombination.keyCombination("Ctrl+Z")) {
-                        isDisable = true
+                        //isDisable = true
+                        disableProperty().bind(UndoManager.undoAvailableProperty.not())
+                        action {
+                            UndoManager.undo()
+                        }
                     }
                     item("Redo", KeyCombination.keyCombination("Ctrl+Shift+Z")) {
-                        isDisable = true
+                        //isDisable = true
+                        disableProperty().bind(UndoManager.redoAvailableProperty.not())
+                        action {
+                            UndoManager.redo()
+                        }
                     }
 
                     separator()
@@ -120,6 +130,11 @@ class MainView : View("Sudoku Trainer") {
 
                         contentDisplay = ContentDisplay.GRAPHIC_ONLY
                         graphic = FontAwesomeIconView(FontAwesomeIcon.UNDO)
+
+                        disableProperty().bind(UndoManager.undoAvailableProperty.not())
+                        action {
+                            UndoManager.undo()
+                        }
                     }
 
                     button {
@@ -128,6 +143,11 @@ class MainView : View("Sudoku Trainer") {
 
                         contentDisplay = ContentDisplay.GRAPHIC_ONLY
                         graphic = FontAwesomeIconView(FontAwesomeIcon.REPEAT)
+
+                        disableProperty().bind(UndoManager.redoAvailableProperty.not())
+                        action {
+                            UndoManager.redo()
+                        }
                     }
 
                     (1..9).forEach { value ->
@@ -226,15 +246,14 @@ class MainView : View("Sudoku Trainer") {
                                 contextmenu {
                                     item("Apply").action {
                                         selectedItem?.apply {
-                                            gridController.applyHint(this)
-                                            gridView.refreshView()
+                                            fire(ApplyHintsEvent(listOf(this)))
                                         }
                                     }
                                     item("Apply upto").action {
                                         selectedItem?.apply {
                                             val index = this@listview.selectionModel.selectedIndex
-                                            gridController.applyHints(0, index)
-                                            gridView.refreshView()
+                                            val hints = this@listview.items.subList(0, index).toList()
+                                            fire(ApplyHintsEvent(hints))
                                         }
                                     }
                                 }

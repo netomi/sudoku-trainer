@@ -199,10 +199,6 @@ class Styles : JFXStylesheet() {
             and(inactive) {
                 backgroundColor += Color.LIGHTCORAL
             }
-
-            and(highlighted) {
-                backgroundColor += Color.LIGHTSTEELBLUE
-            }
         }
 
         cellValue {
@@ -251,9 +247,15 @@ class Styles : JFXStylesheet() {
             }
         }
 
-        cellSelectPane and selected {
-            borderColor += box(Color.YELLOW)
-            borderWidth += box(4.px)
+        cellSelectPane {
+            and(selected) {
+                borderColor += box(Color.YELLOW)
+                borderWidth += box(4.px)
+            }
+
+            and(highlighted) {
+                backgroundColor += Color.LIGHTSTEELBLUE
+            }
         }
 
         chainLink {
