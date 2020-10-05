@@ -34,6 +34,9 @@ import com.github.netomi.sudoku.model.ValueSet
 import com.github.netomi.sudoku.solver.*
 import com.github.netomi.sudoku.trainer.Styles
 import com.github.netomi.sudoku.trainer.controller.GridController
+import javafx.scene.Group
+import javafx.scene.Node
+import javafx.scene.transform.Transform
 import tornadofx.*
 
 /**
@@ -159,17 +162,67 @@ class GridView : View()
             override fun visitAnyHint(hint: Hint) {}
 
             override fun visitChainEliminationHint(hint: ChainEliminationHint) {
+
+                val involvedLabels = mutableListOf<Node>()
+
+                hint.relatedChain.accept(grid, object : ChainVisitor {
+                    override fun visitCell(grid: Grid, chain: Chain, cell: Cell, activeValues: ValueSet, inactiveValues: ValueSet) {
+                        val fragment = cellFragmentList[cell.cellIndex]
+                        for (value in (activeValues + inactiveValues)) {
+                            involvedLabels.add(fragment.getCandidateLabel(value))
+                        }
+                    }
+
+                    override fun visitCellLink(grid: Grid, chain: Chain, fromCell: Cell, fromCandidate: Int, toCell: Cell, toCandidate: Int, linkType: LinkType) {}
+                })
+
                 hint.relatedChain.accept(grid, object : ChainVisitor {
                     override fun visitCell(grid: Grid, chain: Chain, cell: Cell, activeValues: ValueSet, inactiveValues: ValueSet) {}
 
                     override fun visitCellLink(grid: Grid, chain: Chain, fromCell: Cell, fromCandidate: Int, toCell: Cell, toCandidate: Int, linkType: LinkType) {
                         val fromFragment = cellFragmentList[fromCell.cellIndex]
-                        val toFragment = cellFragmentList[toCell.cellIndex]
+                        val toFragment   = cellFragmentList[toCell.cellIndex]
 
-                        val arrow = fromFragment.getArrow(fromCandidate, toFragment, toCandidate, linkType, shapeGroup.localToSceneTransform)
+                        val arrow = getArrow(fromFragment, fromCandidate, toFragment, toCandidate, involvedLabels, linkType, shapeGroup.localToSceneTransform)
                         shapeGroup.add(arrow)
                     }
                 })
+            }
+
+            private fun getArrow(fromFragment: CellFragment, fromCandidate: Int, toFragment: CellFragment, toCandidate: Int, involvedLabels: List<Node>, linkType: LinkType, transform: Transform): Group {
+                val fromLabel = fromFragment.getCandidateLabel(fromCandidate)
+                val toLabel   = toFragment.getCandidateLabel(toCandidate)
+
+                val straightLink = StraightLink(fromLabel, toLabel, transform)
+                val diagonal = straightLink.let { it.startX != it.endX && it.startY != it.endY }
+                var curved = false
+
+                // only draw curved links for horizontal or vertical links
+                if (!diagonal) {
+                    for (node in involvedLabels.filterNot { it === fromLabel || it === toLabel }) {
+                        var bounds = node.localToScene(node.boundsInLocal)
+                        bounds = transform.inverseTransform(bounds)
+
+                        if (straightLink.intersects(bounds)) {
+                            curved = true
+                            break
+                        }
+                    }
+                }
+
+                val group = Group()
+                val link  = if (curved) CurvedLink(fromLabel, toLabel, transform) else straightLink
+                group.add(link)
+
+                val arrow = Arrow()
+                link.attachArrow(arrow)
+                group.add(arrow)
+
+                if (linkType == LinkType.WEAK) {
+                    link.addStyleClass(Styles.weakChainLink)
+                }
+
+                return group
             }
         })
     }

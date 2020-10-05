@@ -19,206 +19,264 @@
  */
 package com.github.netomi.sudoku.trainer.view
 
+import com.github.netomi.sudoku.trainer.Styles
+import javafx.beans.binding.Bindings
+import javafx.beans.binding.DoubleBinding
+import javafx.beans.value.ObservableDoubleValue
+import javafx.geometry.Bounds
 import javafx.geometry.Point2D
-import javafx.scene.Group
-import javafx.scene.paint.Color
+import javafx.scene.Node
 import javafx.scene.shape.*
 import javafx.scene.transform.Rotate
+import javafx.scene.transform.Transform
 import tornadofx.CssRule
 import tornadofx.addClass
+import tornadofx.removeClass
 import java.lang.Math.toDegrees
-import kotlin.math.*
+import java.lang.Math.toRadians
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
 
-/**
- * An arrow shape.
- *
- * This is a [Node] subclass and can be added to the JavaFX scene graph in the usual way. Styling can be achieved
- * via the CSS classes *arrow-line* and *arrow-head*.
- */
-class Arrow constructor(private var startX: Double = 0.0, private var startY: Double = 0.0, private var endX: Double = 0.0, private var endY: Double = 0.0): Group()
-{
-    var lineStyles: MutableList<CssRule> = mutableListOf()
-    var arrowHeadStyles: MutableList<CssRule> = mutableListOf()
+interface StylableNode {
+    fun setStyle(css: String)
+    fun setStyleClass(cssRule: CssRule)
+    fun addStyleClass(cssRule: CssRule)
+    fun removeStyleClass(cssRule: CssRule)
+}
 
-    private val line = Line()
-    private val head: ArrowHead = ArrowHead()
-
-    /**
-     * Sets the width of the arrow-head.
-     *
-     * @param width the width of the arrow-head
-     */
-    fun setHeadWidth(width: Double) {
-        head.setWidth(width)
+class StyleProxy(private val client: Shape) : StylableNode {
+    override fun setStyle(css: String) {
+        client.style = css
     }
 
-    /**
-     * Sets the length of the arrow-head.
-     *
-     * @param length the length of the arrow-head
-     */
-    fun setHeadLength(length: Double) {
-        head.length = length
+    override fun setStyleClass(cssRule: CssRule) {
+        client.styleClass.clear()
+        client.style = null
+        client.addClass(cssRule)
     }
 
-    /**
-     * Sets the radius of curvature of the [ArcTo] at the base of the arrow-head.
-     * If this value is less than or equal to zero, a straight line will be drawn instead. The default is -1.
-     *
-     * @param radius the radius of curvature of the arc at the base of the arrow-head
-     */
-    fun setHeadRadius(radius: Double) {
-        head.setRadiusOfCurvature(radius)
+    override fun addStyleClass(cssRule: CssRule) {
+        client.addClass(cssRule)
     }
 
-    /**
-     * Gets the start point of the arrow.
-     *
-     * @return the start [Point2D] of the arrow
-     */
-    val start: Point2D
-        get() = Point2D(startX, startY)
-
-    /**
-     * Sets the start position of the arrow.
-     *
-     * @param startX the x-coordinate of the start position of the arrow
-     * @param startY the y-coordinate of the start position of the arrow
-     */
-    fun setStart(startX: Double, startY: Double) {
-        this.startX = startX
-        this.startY = startY
-    }
-
-    /**
-     * Gets the start point of the arrow.
-     *
-     * @return the start [Point2D] of the arrow
-     */
-    val end: Point2D
-        get() = Point2D(endX, endY)
-
-    /**
-     * Sets the end position of the arrow.
-     *
-     * @param endX the x-coordinate of the end position of the arrow
-     * @param endY the y-coordinate of the end position of the arrow
-     */
-    fun setEnd(endX: Double, endY: Double) {
-        this.endX = endX
-        this.endY = endY
-    }
-
-    /**
-     * Draws the arrow for its current size and position values.
-     */
-    fun draw() {
-
-        line.startX = startX
-        line.startY = startY
-        line.endX = endX
-        line.endY = endY
-
-        lineStyles.forEach { line.addClass(it) }
-        arrowHeadStyles.forEach { head.addClass(it) }
-
-        val deltaX = endX - startX
-        val deltaY = endY - startY
-        val angle = atan2(deltaX, deltaY)
-        val headX: Double = endX - head.length / 2 * sin(angle)
-        val headY: Double = endY - head.length / 2 * cos(angle)
-        head.setCenter(headX, headY)
-        head.setAngle(toDegrees(-angle))
-        head.draw()
-    }
-
-    init {
-        children.addAll(line, head)
+    override fun removeStyleClass(cssRule: CssRule) {
+        client.removeClass(cssRule)
     }
 }
 
-/**
- * An arrow-head shape.
- * This is used by the [Arrow] class.
- */
-class ArrowHead : Path() {
-    private var x = 0.0
-    private var y = 0.0
+interface Link : StylableNode {
+    var attachedArrow: Arrow?
+    fun attachArrow(arrow: Arrow)
 
-    var length = DEFAULT_LENGTH
-    private var width = DEFAULT_WIDTH
-    private var radius = -1.0
-    private val rotate = Rotate()
+    val styleProxy: StyleProxy
 
-    /**
-     * Sets the center position of the arrow-head.
-     *
-     * @param x the x-coordinate of the center of the arrow-head
-     * @param y the y-coordinate of the center of the arrow-head
-     */
-    fun setCenter(x: Double, y: Double) {
-        this.x = x
-        this.y = y
-        rotate.pivotX = x
-        rotate.pivotY = y
+    override fun addStyleClass(cssRule: CssRule) {
+        styleProxy.addStyleClass(cssRule)
     }
 
-    /**
-     * Sets the width of the arrow-head.
-     *
-     * @param width the width of the arrow-head
-     */
-    fun setWidth(width: Double) {
-        this.width = width
+    override fun setStyleClass(cssRule: CssRule) {
+        styleProxy.setStyleClass(cssRule)
     }
 
-    /**
-     * Sets the radius of curvature of the [ArcTo] at the base of the arrow-head.
-     * If this value is less than or equal to zero, a straight line will be drawn instead. The default is -1.
-     *
-     * @param radius the radius of curvature of the arc at the base of the arrow-head
-     */
-    fun setRadiusOfCurvature(radius: Double) {
-        this.radius = radius
+    override fun removeStyleClass(cssRule: CssRule) {
+        styleProxy.removeStyleClass(cssRule)
+    }
+}
+
+class Arrow : Path(), StylableNode {
+    private val styleProxy: StyleProxy = StyleProxy(this)
+
+    override fun addStyleClass(cssRule: CssRule) {
+        styleProxy.addStyleClass(cssRule)
     }
 
-    /**
-     * Sets the rotation angle of the arrow-head.
-     *
-     * @param angle the rotation angle of the arrow-head, in degrees
-     */
-    fun setAngle(angle: Double) {
-        rotate.angle = angle
+    override fun setStyleClass(cssRule: CssRule) {
+        styleProxy.setStyleClass(cssRule)
     }
 
-    /**
-     * Draws the arrow-head for its current size and position values.
-     */
-    fun draw() {
-        elements.clear()
-        elements.add(MoveTo(x, y + length / 2))
-        elements.add(LineTo(x + width / 2, y - length / 2))
-        if (radius > 0) {
-            val arcTo = ArcTo()
-            arcTo.x = x - width / 2
-            arcTo.y = y - length / 2
-            arcTo.radiusX = radius
-            arcTo.radiusY = radius
-            arcTo.isSweepFlag = true
-            elements.add(arcTo)
-        } else {
-            elements.add(LineTo(x - width / 2, y - length / 2))
-        }
-        elements.add(ClosePath())
-    }
-
-    companion object {
-        private const val DEFAULT_LENGTH = 10.0
-        private const val DEFAULT_WIDTH = 10.0
+    override fun removeStyleClass(cssRule: CssRule) {
+        styleProxy.removeStyleClass(cssRule)
     }
 
     init {
-        strokeType = StrokeType.INSIDE
-        transforms.add(rotate)
+        elements.add(MoveTo(0.0, 0.0))
+        elements.add(LineTo(-5.0, 5.0))
+        elements.add(MoveTo(0.0, 0.0))
+        elements.add(LineTo(-5.0, -5.0))
+
+        styleProxy.addStyleClass(Styles.chainLinkArrow)
     }
+}
+
+class CurvedLink(val from: Node, val to: Node, transform: Transform) : QuadCurve(), Link {
+    private val outbound: Bounds
+    private val inbound: Bounds
+
+    override var attachedArrow: Arrow? = null
+    override var styleProxy: StyleProxy = StyleProxy(this)
+
+    private fun update() {
+        val centerMidpointX: Double = (outbound.centerX + inbound.centerX) / 2
+        val centerMidpointY: Double = (outbound.centerY + inbound.centerY) / 2
+        val centerMidPoint = Point2D(centerMidpointX, centerMidpointY)
+
+        val midpointX: Double = (startX + endX) / 2
+        val midpointY: Double = (startY + endY) / 2
+
+        var midPoint   = Point2D(midpointX, midpointY)
+        val startPoint = Point2D(startX, startY)
+
+        var angle = MAX_EDGE_CURVE_ANGLE
+
+        val midPoint1 = rotate(midPoint, startPoint, -angle)
+        val midPoint2 = rotate(midPoint, startPoint, angle)
+
+        // select the mid point that is further away from the midpoint of the straight line
+        // between the two nodes.
+        midPoint = listOf(midPoint1, midPoint2).maxByOrNull { it.distance(centerMidPoint) }!!
+
+        controlX = midPoint.x
+        controlY = midPoint.y
+    }
+
+    override fun attachArrow(arrow: Arrow) {
+        attachedArrow = arrow
+
+        /* attach arrow to line's endpoint */
+        arrow.translateXProperty().bind(endXProperty())
+        arrow.translateYProperty().bind(endYProperty())
+
+        /* rotate arrow around itself based on this line's angle */
+        val rotation = Rotate()
+        rotation.pivotXProperty().bind(translateXProperty())
+        rotation.pivotYProperty().bind(translateYProperty())
+        rotation.angleProperty().bind(toDegrees(atan2(endYProperty().subtract(controlYProperty()),
+                                                      endXProperty().subtract(controlXProperty()))))
+        arrow.transforms.add(rotation)
+    }
+
+    private fun getStartPoint(startBounds: Bounds, endBounds: Bounds): Point2D {
+        val endPoint = Point2D(endBounds.centerX, endBounds.centerY)
+
+        val deltaX = startBounds.width / 2.0
+        val deltaY = startBounds.height / 2.0
+
+        val possibleStartPoints = mutableListOf<Point2D>()
+        for (addX in arrayOf(-deltaX, deltaX)) {
+            for (addY in arrayOf(-deltaY, deltaY)) {
+                possibleStartPoints.add(Point2D(startBounds.centerX + addX, startBounds.centerY + addY))
+            }
+        }
+
+        return possibleStartPoints.minByOrNull { it.distance(endPoint) }!!
+    }
+
+    companion object {
+        private const val MAX_EDGE_CURVE_ANGLE = 15.0
+    }
+
+    init {
+        styleProxy.addStyleClass(Styles.chainLink)
+
+        outbound = bounds(from, transform)
+        inbound  = bounds(to, transform)
+
+        val startPoint = getStartPoint(outbound, inbound)
+        val endPoint = getStartPoint(inbound, outbound)
+
+        startX = startPoint.x
+        startY = startPoint.y
+
+        endX = endPoint.x
+        endY = endPoint.y
+
+        update();
+    }
+}
+
+class StraightLink(val from: Node, val to: Node, transform: Transform) : Line(), Link {
+    private val outbound: Bounds
+    private val inbound: Bounds
+
+    override var attachedArrow: Arrow? = null
+    override var styleProxy: StyleProxy = StyleProxy(this)
+
+    override fun attachArrow(arrow: Arrow) {
+        attachedArrow = arrow
+
+        /* attach arrow to line's endpoint */
+        arrow.translateXProperty().bind(endXProperty())
+        arrow.translateYProperty().bind(endYProperty())
+
+        /* rotate arrow around itself based on this line's angle */
+        val rotation = Rotate()
+        rotation.pivotXProperty().bind(translateXProperty())
+        rotation.pivotYProperty().bind(translateYProperty())
+        rotation.angleProperty().bind(toDegrees(atan2(endYProperty().subtract(startYProperty()),
+                                                      endXProperty().subtract(startXProperty()))
+        ))
+        arrow.transforms.add(rotation)
+    }
+
+    private fun getStartPoint(startBounds: Bounds, endBounds: Bounds): Point2D {
+        val endPoint = Point2D(endBounds.centerX, endBounds.centerY)
+
+        val deltaX = startBounds.width / 2.0
+        val deltaY = startBounds.height / 2.0
+
+        val possibleStartPoints = mutableListOf<Point2D>()
+        for (addX in arrayOf(-deltaX, 0.0, deltaX)) {
+            for (addY in arrayOf(-deltaY, 0.0, deltaY)) {
+                possibleStartPoints.add(Point2D(startBounds.centerX + addX, startBounds.centerY + addY))
+            }
+        }
+
+        return possibleStartPoints.minByOrNull { it.distance(endPoint) }!!
+    }
+
+    init {
+        styleProxy.addStyleClass(Styles.chainLink)
+
+        outbound = bounds(from, transform)
+        inbound  = bounds(to, transform)
+
+        val startPoint = getStartPoint(outbound, inbound) //Point2D(outbound.centerX, outbound.centerY)
+        val endPoint = getStartPoint(inbound, outbound) //Point2D(inbound.centerX, inbound.centerY)
+
+        startX = startPoint.x
+        startY = startPoint.y
+
+        endX = endPoint.x
+        endY = endPoint.y
+    }
+}
+
+private fun bounds(node: Node, transform: Transform): Bounds {
+    val bounds = node.localToScene(node.boundsInLocal)
+    return transform.inverseTransform(bounds)
+}
+
+private fun atan2(y: ObservableDoubleValue, x: ObservableDoubleValue): DoubleBinding {
+    return Bindings.createDoubleBinding({ atan2(y.get(), x.get()) }, y, x)
+}
+
+private fun toDegrees(angRad: ObservableDoubleValue): DoubleBinding {
+    return Bindings.createDoubleBinding({ toDegrees(angRad.get()) }, angRad)
+}
+
+private fun rotate(point: Point2D, pivot: Point2D?, angleDegrees: Double): Point2D {
+    val angle = toRadians(angleDegrees)
+    val sin   = sin(angle)
+    val cos   = cos(angle)
+
+    // translate to origin
+    var result = point.subtract(pivot)
+
+    // rotate point
+    val rotatedOrigin = Point2D(result.x * cos - result.y * sin, result.x * sin + result.y * cos)
+
+    // translate point back
+    result = rotatedOrigin.add(pivot)
+    return result
 }
