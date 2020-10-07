@@ -26,9 +26,7 @@ package com.github.netomi.sudoku.trainer.view
 import com.github.netomi.sudoku.model.GridType
 import com.github.netomi.sudoku.model.ValueSet
 import com.github.netomi.sudoku.solver.DifficultyLevel
-import com.github.netomi.sudoku.solver.GridRater
 import com.github.netomi.sudoku.solver.Hint
-import com.github.netomi.sudoku.trainer.Styles
 import com.github.netomi.sudoku.trainer.controller.ApplyHintsEvent
 import com.github.netomi.sudoku.trainer.controller.GridController
 import com.github.netomi.sudoku.trainer.controller.UndoManager
@@ -59,13 +57,13 @@ import tornadofx.*
 class MainView : View("Sudoku Trainer") {
     private val gridController: GridController by inject()
 
-    private val gridView: GridView by inject()
+    private val gridView: GridView   by inject()
+    private val statusBar: StatusBar by inject()
 
     private val filterToggleGroup = ToggleGroup()
 
     private var hintListView:     ListView<Hint>     by singleAssign()
     private var gridTypeComboBox: ComboBox<GridType> by singleAssign()
-    private var statusBar:        Label              by singleAssign()
 
     override val root =
         vbox {
@@ -295,10 +293,7 @@ class MainView : View("Sudoku Trainer") {
                     }
                 }
 
-                bottom = hbox {
-                    addClass(Styles.statusBar)
-                    statusBar = label("") {}
-                }
+                bottom = statusBar.root
             }
         }
 
@@ -367,15 +362,9 @@ class MainView : View("Sudoku Trainer") {
             gridView.refreshView()
         }
 
-        gridController.gridProperty.onChange { grid ->
-            grid?.apply {
-                runAsync {
-                    GridRater.rate(this@apply)
-                } ui {
-                    statusBar.text = "%s (%d)".format(it.first.toString().toLowerCase().capitalize(), it.second)
-                }
-            }
-        }
+        // bind properties for status bar.
+        statusBar.gridProperty.bind(gridController.gridProperty)
+        statusBar.selectedCellProperty.bind(gridView.selectedCellProperty)
 
         initializeFontSizeManager()
     }

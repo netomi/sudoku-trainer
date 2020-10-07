@@ -57,7 +57,7 @@ class GridView : View()
     private val selectedCellFragmentProperty: ObjectProperty<CellFragment?> = SimpleObjectProperty()
     private var selectedCellFragment: CellFragment? by selectedCellFragmentProperty
 
-    private val selectedCellProperty: ObjectProperty<Cell?> = SimpleObjectProperty()
+    val selectedCellProperty: ObjectProperty<Cell?> = SimpleObjectProperty()
     private var selectedCell: Cell? by selectedCellProperty
 
     override val root =
