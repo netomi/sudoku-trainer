@@ -31,11 +31,11 @@ import javafx.scene.control.Alert
 import javafx.scene.control.ButtonType
 import javafx.scene.input.Clipboard
 import javafx.scene.input.DataFormat
-import com.github.netomi.sudoku.io.GridValueLoader
 import com.github.netomi.sudoku.model.Grid
 import com.github.netomi.sudoku.model.Grid.Companion.of
 import com.github.netomi.sudoku.model.GridType
 import com.github.netomi.sudoku.model.assigned
+import com.github.netomi.sudoku.model.io.GridValueLoader
 import com.github.netomi.sudoku.solver.BruteForceSolver
 import com.github.netomi.sudoku.solver.Hint
 import com.github.netomi.sudoku.solver.HintSolver
