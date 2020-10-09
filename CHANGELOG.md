@@ -2,6 +2,15 @@
 
 ## [unreleased] - yyyy-mm-dd
 
+### Added
+
+- undo / redo mechanism for updating values / candidates
+- more solving techniques
+  - wings (xy-wing, xyz-wing, w-wing)
+  - single digit patterns (empty rectangle, turbot fish)
+ 
+### Fixed
+
 
 ## [0.1] - 2020-09-24
 
