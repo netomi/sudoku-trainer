@@ -8,6 +8,7 @@
 - more solving techniques
   - wings (xy-wing, xyz-wing, w-wing)
   - single digit patterns (empty rectangle, turbot fish)
+  - finned fish (finned x-wing / swordfish / jellyfish)
  
 ### Fixed
 
